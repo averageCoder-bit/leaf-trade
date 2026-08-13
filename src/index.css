@@ -1,0 +1,14 @@
+@import "tailwindcss";
+
+@theme {
+  --animate-infinite-scroll: infinite-scroll 50s linear infinite;
+
+  @keyframes infinite-scroll {
+    0% {
+      transform: translateX(0);
+    }
+    100% {
+      transform: translateX(calc(-50% - 16px));
+    }
+  }
+}
