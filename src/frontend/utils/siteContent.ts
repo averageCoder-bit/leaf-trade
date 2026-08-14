@@ -1,10 +1,4 @@
-import {
-  FaStoreAlt,
-  FaAddressBook,
-  FaMoneyBillWave,
-  FaChevronDown,
-  FaChevronUp,
-} from "react-icons/fa";
+import { FaStoreAlt, FaAddressBook, FaMoneyBillWave } from "react-icons/fa";
 
 interface HeroSectionComponents {
   slogan: string;
