@@ -1,3 +1,11 @@
+import {
+  FaStoreAlt,
+  FaAddressBook,
+  FaMoneyBillWave,
+  FaChevronDown,
+  FaChevronUp,
+} from "react-icons/fa";
+
 interface HeroSectionComponents {
   slogan: string;
   subtitle: string;
@@ -10,6 +18,7 @@ interface FeaturesComponents {
 interface BenefitsComponents {
   title: string;
   desc: string;
+  icon: any;
 }
 
 interface AboutComponents {
@@ -36,15 +45,18 @@ interface FAQsComponents {
 export const BenefitsSection: BenefitsComponents[] = [
   {
     title: "Simple Marketplace",
-    desc: "Find everyday products without the clutter\n of traditional marketplaces",
+    desc: "Find everyday products without the clutter of traditional marketplaces",
+    icon: FaStoreAlt,
   },
   {
     title: "Smarter Listings",
-    desc: "Create clear, structured listings with\n less effort.",
+    desc: "Create clear, structured listings with less effort.",
+    icon: FaAddressBook,
   },
   {
     title: "Buy with confidence",
-    desc: "Get useful information to help you\n make better purchasing decisions.",
+    desc: "Get useful information to help you make better purchasing decisions.",
+    icon: FaMoneyBillWave,
   },
 ];
 

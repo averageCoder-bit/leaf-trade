@@ -38,7 +38,11 @@ const Login = () => {
             <h1 className="tracking-wider text-2xl font-bold">Leaf Trade</h1>
             <p className="text-sm font-semibold">Sign in to your account</p>
           </div>
-          <form className="grid grid-rows-2 gap-7 p-3 mb-7">
+          <form
+            className="grid grid-rows-2 gap-7 p-3 mb-7"
+            action="/dashboard"
+            method="get"
+          >
             <div className="flex flex-col gap-2">
               <label className="font-medium text-sm">Email</label>
 
