@@ -1,5 +1,6 @@
 import * as FaIcons from "react-icons/fa";
-import { FaChevronDown, FaChevronUp } from "react-icons/fa";
+import { FaChevronDown, FaChevronUp, FaChevronRight } from "react-icons/fa";
+import {} from "react-icons/fc";
 import Logo from "../Logo";
 import {
   HeroSection,
@@ -9,8 +10,10 @@ import {
   StorySection,
   CTASection,
   FAQsSection,
+  FooterLogos,
 } from "../utils/siteContent";
 import { useState } from "react";
+import { SocialIcon } from "react-social-icons";
 
 const LandingPage = () => {
   const [openIndex, setOpenIndex] = useState(null);
@@ -211,15 +214,29 @@ const LandingPage = () => {
           </div>
         </section>
       </main>
-      <footer className="w-full bg-[#233e16]">
-        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-5 justify-items-start py-12">
-          <div className="flex flex-col">
+      <footer className="w-full bg-[#233e16] py-12">
+        <div className="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-5 p-12 gap-7">
+          <div className="flex flex-col gap-3 w-full max-w-37.5 text-white">
             <Logo hasLogo={false} />
-            <div className="flex flex-row justify-start items-center"></div>
+            <p>Connecting buyers and sellers, simply.</p>
+            <div className="flex flex-row gap-4">
+              {FooterLogos.map((group) =>
+                group.logos.map((url) => (
+                  <SocialIcon
+                    key={url}
+                    url={url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="h-8 w-8 hover:opacity-80 transition-opacity"
+                    style={{ height: 32, width: 32 }}
+                  />
+                )),
+              )}
+            </div>
           </div>
-          <div className="flex flex-col gap-4 text-white">
+          <div className="flex flex-col gap-3 w-full max-w-37.5 text-white">
             <h1 className="font-semibold">Products</h1>
-            <div className="grid grid-rows-3 gap-1">
+            <div className="flex flex-col gap-2">
               <a className="hover:underline" href="">
                 Browse
               </a>
@@ -232,9 +249,9 @@ const LandingPage = () => {
             </div>
           </div>
 
-          <div className="flex flex-col gap-4 text-white">
+          <div className="flex flex-col gap-3 w-full max-w-37.5 text-white">
             <h1 className="font-semibold">Company</h1>
-            <div className="grid grid-rows-3 gap-1">
+            <div className="flex flex-col gap-2">
               <a className="hover:underline" href="">
                 About
               </a>
@@ -244,9 +261,9 @@ const LandingPage = () => {
             </div>
           </div>
 
-          <div className="flex flex-col gap-4 text-white">
+          <div className="flex flex-col gap-3 w-full max-w-37.5 text-white">
             <h1 className="font-semibold">Support</h1>
-            <div className="grid grid-rows-3 gap-1">
+            <div className="flex flex-col gap-2">
               <a className="hover:underline" href="">
                 Help
               </a>
@@ -256,13 +273,26 @@ const LandingPage = () => {
             </div>
           </div>
 
-          <div className="text-white">
+          <div className="col-span-2 md:col-span-1 flex flex-col gap-3 w-full max-w-50 text-white">
             <h1 className="font-semibold">Subscribe</h1>
+            <form className="flex flex-row items-center max-w-65">
+              <input
+                type="text"
+                placeholder="Enter your email"
+                className="h-11 px-4 w-full bg-white text-black border-none outline-none"
+              />
+              <button className="bg-[#75cf4c] hover:cursor-pointer w-12 h-11 flex items-center justify-center text-white shrink-0">
+                <FaChevronRight />
+              </button>
+            </form>
           </div>
         </div>
-        <div className="flex flex-row w-full items-center justify-center gap-1 py-10 border-t border-black text-white text-sm">
+        <div className="flex flex-row w-full items-center justify-center gap-2 py-10 border-t border-black text-white text-sm">
           <p>© 2026 LeafTrade</p>
-          <a href="">Privacy & Terms</a>
+          <span>|</span>
+          <a href="" className="hover:underline">
+            Privacy & Terms
+          </a>
         </div>
       </footer>
     </>

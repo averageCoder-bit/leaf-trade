@@ -1,5 +1,5 @@
 import { FaStoreAlt, FaAddressBook, FaMoneyBillWave } from "react-icons/fa";
-
+import { SocialIcon } from "react-social-icons";
 interface HeroSectionComponents {
   slogan: string;
   subtitle: string;
@@ -34,6 +34,10 @@ interface CTACOmponents {
 interface FAQsComponents {
   question: string;
   answer: string;
+}
+
+interface FooterLogoComponents {
+  logos: string[];
 }
 
 export const BenefitsSection: BenefitsComponents[] = [
@@ -100,4 +104,8 @@ export const CTASection: CTACOmponents = {
 export const FAQsSection: FAQsComponents[] = [
   { question: "Placeholder question", answer: "Placeholder ans." },
   { question: "Placeholder question", answer: "Placeholder ans." },
+];
+
+export const FooterLogos: FooterLogoComponents[] = [
+  { logos: ["https://instagram.com", "https://facebook.com"] },
 ];

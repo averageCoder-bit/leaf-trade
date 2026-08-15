@@ -5,6 +5,7 @@ import LandingPage from "../public/LandingPage";
 import Dashboard from "../dashboard/Dashboard";
 
 import { Routes, Route } from "react-router-dom";
+import EmailVerification from "../auth/Verification";
 
 function AppRoutes() {
   return (
@@ -15,6 +16,8 @@ function AppRoutes() {
 
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
+
+      <Route path="/verification" element={<EmailVerification />} />
 
       <Route path="/dashboard" element={<Dashboard />} />
     </Routes>

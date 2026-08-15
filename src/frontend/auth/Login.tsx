@@ -1,5 +1,6 @@
 import {
   FaEnvelope,
+  FaUserLock,
   FaLock,
   FaLeaf,
   FaFacebook,
@@ -9,9 +10,13 @@ import {
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 
+import { useSignIn } from "@clerk/react";
+
 import { FcGoogle } from "react-icons/fc";
 
 const Login = () => {
+  const {} = useSignIn();
+
   const [login, setLogin] = useState(false);
   const navigate = useNavigate();
 
@@ -20,14 +25,19 @@ const Login = () => {
   };
 
   return (
-    <div className="flex min-h-screen justify-center items-center">
+    <main className="flex min-h-screen justify-center items-center">
       <div className="grid grid-cols-1 md:grid-cols-2 w-280 h-auto shadow-2xl rounded-3xl">
         <div className="flex-col justify-center items-center hidden md:flex gap-5">
-          <FaLock size={140} className="text-[#75cf4c]" />
           {login ? (
             <p className="font-semibold">Welcome back user</p>
           ) : (
-            <p className="font-semibold">Secured account</p>
+            <div className="flex flex-col items-center space-y-7">
+              <FaUserLock size={140} className="text-[#75cf4c]" />
+              <div className="grid grid-rows-2 justify-items-center">
+                <h1 className="text-2xl font-semibold">Welcome</h1>
+                <p className="font-medium">Secure access portal</p>
+              </div>
+            </div>
           )}
         </div>
         <div className="flex flex-col justify-evenly p-9">
@@ -39,7 +49,7 @@ const Login = () => {
             <p className="text-sm font-semibold">Sign in to your account</p>
           </div>
           <form
-            className="grid grid-rows-2 gap-7 p-3 mb-7"
+            className="grid grid-rows-2 gap-7 p-3 mb-7 [&_input]:text-sm [&_input]:py-3 [&_label]:text-xs md:[&_label]:text-sm md:[&_label]:font-medium"
             action="/dashboard"
             method="get"
           >
@@ -78,11 +88,13 @@ const Login = () => {
             <div className="flex justify-between -mt-3">
               <div className="flex flex-row">
                 <input type="checkbox" />
-                <span className="text-xs ml-1">Trust this device</span>
+                <span className="text-xs font-medium ml-1">
+                  Trust this device
+                </span>
               </div>
 
               <a
-                className="text-xs font-semibold hover:underline text-blue-700"
+                className="text-xs font-medium hover:underline text-blue-700"
                 href=""
               >
                 Forgot Password?
@@ -92,55 +104,50 @@ const Login = () => {
           <div className="flex flex-col items-center p-3 gap-5">
             <button
               onClick={LoginStatus}
-              className="p-2.5 w-full bg-[#75cf4c] text-center text-white font-medium rounded-3xl 
-            hover:bg-[#85d65c] active:bg-[#5fb33a] transition duration-300 ease-in-out cursor-pointer"
+              className="p-2.5 w-full bg-[#75cf4c] text-center text-white rounded-3xl 
+            hover:bg-[#85d65c] active:bg-[#5fb33a] transition duration-300 ease-in-out cursor-pointer text-sm font-semibold md:text-base"
             >
-              LOGIN
+              Login
             </button>
             <span className="text-xs font-semibold tracking-wide">
               OR LOGIN WITH
             </span>
-            <div className="flex flex-row w-full gap-3 mb-10">
-              <div className="relative flex flex-row w-full">
-                <FcGoogle
-                  size={20}
-                  className="absolute left-4 top-1/2 -translate-y-1/2"
-                />
-                <button
-                  className="p-2.5 w-full bg-white  text-center text-black font-sm border border-slate-400 rounded-3xl
-                 transition duration-300 ease-in-out cursor-pointer"
-                >
-                  Google
-                </button>
-              </div>
-              <div className="relative flex flex-row w-full">
-                <FaFacebook
-                  size={20}
-                  className="absolute left-4 top-1/2 -translate-y-1/2 text-white"
-                />
-                <button
-                  className="p-2.5 w-full bg-[#1877F2] text-center text-white font-sm rounded-3xl 
+            <div className="flex flex-row gap-4 w-full justify-between mb-10">
+              <button
+                className="text-sm md:text-base p-2.5 w-full bg-white flex flex-row items-center justify-center text-black font-sm border border-slate-400 rounded-3xl
+              hover:bg-slate-50 active:bg-slate-100 transition duration-300 ease-in-out cursor-pointer"
+              >
+                <FcGoogle className="shrink-0 w-4 h-4 md:w-5 md:h-5" />
+                <span className="text-center w-full mx-2 truncate">Google</span>
+                <div className="w-5" aria-hidden="true" />
+              </button>
+
+              <button
+                className="text-sm md:text-base p-2.5 w-full bg-[#1877F2] flex flex-row items-center justify-center text-white font-sm rounded-3xl 
                 hover:bg-[#166fe5] active:bg-[#0e56c4] transition duration-300 ease-in-out cursor-pointer"
-                >
+              >
+                <FaFacebook className="shrink-0 w-4 h-4 md:w-5 md:h-5" />
+                <span className="text-center w-full mx-2 truncate">
                   Facebook
-                </button>
-              </div>
+                </span>
+                <div className="w-5" aria-hidden="true" />
+              </button>
             </div>
             <div className="flex flex-col items-center gap-4 mt-5">
               <div className="flex flex-row gap-1">
                 <p className="text-sm font-semibold">Don't have an account?</p>
                 <a
-                  className="text-sm font-semibold text-blue-700 hover:underline"
+                  className="text-sm font-medium text-blue-700 hover:underline"
                   href="/register"
                 >
                   Sign up
                 </a>
               </div>
-              <div className="flex flex-row gap-2 relative">
-                <FaArrowLeft className="absolute -translate-x-6 hover:-translate-x-7" />
+              <div className="group flex flex-row gap-2 relative items-center">
+                <FaArrowLeft className="absolute -translate-x-6 transition-transform duration-200 group-hover:-translate-x-7" />
                 <button
                   onClick={() => navigate("/")}
-                  className="cursor-pointer text-xs font-bold hover:cursor-pointer hover:underline"
+                  className="cursor-pointer text-xs font-semibold hover:underline"
                 >
                   Back to Home
                 </button>
@@ -149,7 +156,7 @@ const Login = () => {
           </div>
         </div>
       </div>
-    </div>
+    </main>
   );
 };
 export default Login;
