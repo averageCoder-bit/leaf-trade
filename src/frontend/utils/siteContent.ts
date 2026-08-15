@@ -1,5 +1,4 @@
 import { FaStoreAlt, FaAddressBook, FaMoneyBillWave } from "react-icons/fa";
-import { SocialIcon } from "react-social-icons";
 interface HeroSectionComponents {
   slogan: string;
   subtitle: string;
