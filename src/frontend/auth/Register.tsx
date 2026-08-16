@@ -28,15 +28,27 @@ const Register = () => {
   const { signUp } = useSignUp();
   const navigate = useNavigate();
   const signUpMutation = useMutation({
-    mutationFn: () =>
-      signUp.create({
+    mutationFn: async () => {
+      const clerkResult = await signUp.create({
         emailAddress: email,
         password,
         firstName,
         lastName,
-        username,
-        phoneNumber,
-      }),
+      });
+
+      try {
+        const result = await signUp.verifications.sendEmailCode();
+        console.log(username, phoneNumber);
+
+        console.log("4️⃣ Verification email request result:", result);
+      } catch (error) {
+        console.error("❌ Verification email error:", error);
+      }
+
+      return {
+        clerkResult,
+      };
+    },
   });
 
   const handleShowPassword = () => {
@@ -53,9 +65,7 @@ const Register = () => {
     try {
       await signUpMutation.mutateAsync();
 
-      if (signUp.status === "missing_requirements") {
-        navigate("");
-      }
+      navigate("/verification");
     } catch (error) {
       console.error(error);
     }
@@ -140,6 +150,7 @@ const Register = () => {
                   name="leaftrade-username"
                   required
                   onChange={(e) => setUsername(e.target.value)}
+                  placeholder="juanCruz54"
                 />
               </div>
             </div>
@@ -221,14 +232,16 @@ const Register = () => {
                 .
               </p>
             </div>
+            <div id="clerk-captcha" />
+            <button
+              type="submit"
+              className="p-2.5 w-full bg-[#75cf4c] text-center text-white rounded-3xl my-10
+            hover:bg-[#85d65c] active:bg-[#5fb33a] transition duration-300 ease-in-out cursor-pointer text-sm font-semibold md:text-base"
+            >
+              Register
+            </button>
           </form>
 
-          <button
-            className="p-2.5 w-full bg-[#75cf4c] text-center text-white rounded-3xl my-10
-            hover:bg-[#85d65c] active:bg-[#5fb33a] transition duration-300 ease-in-out cursor-pointer text-sm font-semibold md:text-base"
-          >
-            Register
-          </button>
           <div className="flex flex-col items-center gap-4 mt-5">
             <div className="flex flex-row gap-1">
               <p className="text-sm font-medium md:font-semibold">

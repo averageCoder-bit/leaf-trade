@@ -1,9 +1,6 @@
-from base import Base
-from database import engine
+from fastapi import FastAPI
+from routes.users import router as users_router
 
-def init_db():
-    Base.metadata.create_all(bind=engine)
-    print("Tables created successfully")
+app = FastAPI()
 
-if __name__ == "__main__":
-    init_db()
+app.include_router(users_router)
