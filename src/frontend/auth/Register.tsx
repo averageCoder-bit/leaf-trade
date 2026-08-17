@@ -8,7 +8,21 @@ import {
   FaArrowLeft,
   FaEye,
   FaEyeSlash,
+  FaCheckCircle,
+  FaTimesCircle,
 } from "react-icons/fa";
+
+import {
+  sanitizeName,
+  sanitizeUsername,
+  sanitizePhone,
+  sanitizeEmail,
+  sanitizePassword,
+  checkEmailValidity,
+  checkPhoneValidity,
+  checkUsernameValidity,
+  evaluatePasswordStrength,
+} from "../validator/authForms";
 
 import { useNavigate } from "react-router-dom";
 import { useSignUp } from "@clerk/react";
@@ -24,6 +38,43 @@ const Register = () => {
   const [lastName, setLastName] = useState("");
   const [username, setUsername] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
+
+  const [isValidEmail, setIsValidEmail] = useState(false);
+  const [isValidUsername, setIsValidUsername] = useState(false);
+  const [isValidPhone, setIsValidPhone] = useState(false);
+  const [isValidPassword, setIsValidPassword] = useState(false);
+  const [hasReadPrivacyPolicy, setHasReadPrivacyPolicy] = useState(false);
+  const [hasConsent, setHasConsent] = useState(false);
+
+  const [hasUppercase, setHasUppercase] = useState(false);
+  const [hasNumber, setHasNumber] = useState(false);
+  const [hasLowercase, setHasLowerCase] = useState(false);
+  const [hasSpecialChar, setHasSpecialChar] = useState(false);
+  const [hasValidLength, setHasValidLength] = useState(false);
+
+  const [emailError, setEmailError] = useState("");
+  const [phoneError, setPhoneError] = useState("");
+  const [usernameError, setUsernameError] = useState("");
+
+  // const [clerkError, setClerkError] = useState("");
+
+  const [confirmPassword, setConfirmPassword] = useState("");
+
+  const canRegister =
+    isValidEmail &&
+    isValidUsername &&
+    isValidPhone &&
+    isValidPassword &&
+    password === confirmPassword &&
+    hasReadPrivacyPolicy &&
+    hasConsent;
+
+  const areFormsValid =
+    isValidEmail &&
+    isValidUsername &&
+    isValidPhone &&
+    isValidPassword &&
+    password === confirmPassword;
 
   const { signUp } = useSignUp();
   const navigate = useNavigate();
@@ -57,6 +108,84 @@ const Register = () => {
 
   const handleHidePassword = () => {
     setShowPassword(false);
+  };
+
+  const handleFirstNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFirstName(sanitizeName(e.target.value));
+  };
+
+  const handleLastNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setLastName(sanitizeName(e.target.value));
+  };
+
+  const handleUsernameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setUsername(sanitizeUsername(e.target.value));
+  };
+
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setPhoneNumber(sanitizePhone(e.target.value));
+  };
+
+  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setEmail(sanitizeEmail(e.target.value));
+  };
+
+  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const sanitized = sanitizePassword(e.target.value);
+    setPassword(sanitized);
+
+    const metrics = evaluatePasswordStrength(sanitized);
+
+    setHasUppercase(metrics.upper);
+    setHasNumber(metrics.num);
+    setHasLowerCase(metrics.lower);
+    setHasSpecialChar(metrics.special);
+    setHasValidLength(metrics.len);
+
+    setIsValidPassword(
+      metrics.upper &&
+        metrics.num &&
+        metrics.lower &&
+        metrics.special &&
+        metrics.len,
+    );
+  };
+
+  const handleConfirmPasswordChange = (
+    e: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    setConfirmPassword(sanitizePassword(e.target.value));
+  };
+
+  const handleUsernameBlur = () => {
+    if (!checkUsernameValidity(username)) {
+      setUsernameError(
+        "Username must be 3-30 characters using only letters, numbers, or underscores",
+      );
+      setIsValidUsername(false);
+    } else {
+      setUsernameError("");
+      setIsValidUsername(true);
+    }
+  };
+
+  const handleEmailBlur = () => {
+    if (!checkEmailValidity(email)) {
+      setEmailError("Please enter a valid email address");
+    } else {
+      setIsValidEmail(true);
+      setEmailError("");
+    }
+  };
+
+  const handlePhoneBlur = () => {
+    if (!checkPhoneValidity(phoneNumber)) {
+      setPhoneError("Please enter a valid PH phone number");
+      setIsValidPhone(false);
+    } else {
+      setPhoneError("");
+      setIsValidPhone(true);
+    }
   };
 
   const handleRegisterSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -102,7 +231,10 @@ const Register = () => {
                     type="text"
                     placeholder="Juan Dela"
                     required
-                    onChange={(e) => setFirstName(e.target.value)}
+                    value={firstName}
+                    onChange={handleFirstNameChange}
+                    minLength={1}
+                    maxLength={50}
                   />
                 </div>
               </div>
@@ -113,7 +245,10 @@ const Register = () => {
                   type="text"
                   placeholder="Cruz"
                   required
-                  onChange={(e) => setLastName(e.target.value)}
+                  value={lastName}
+                  onChange={handleLastNameChange}
+                  minLength={1}
+                  maxLength={50}
                 />
               </div>
             </div>
@@ -132,8 +267,12 @@ const Register = () => {
                   required
                   placeholder="juan@example.com"
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={handleEmailChange}
+                  onBlur={handleEmailBlur}
                 />
+              </div>
+              <div>
+                <p className="text-red-400 text-xs md:text-sm">{emailError}</p>
               </div>
             </div>
             <div className="flex flex-col gap-2">
@@ -149,9 +288,18 @@ const Register = () => {
                   autoComplete="off"
                   name="leaftrade-username"
                   required
-                  onChange={(e) => setUsername(e.target.value)}
+                  minLength={3}
+                  maxLength={30}
+                  onBlur={handleUsernameBlur}
+                  onChange={handleUsernameChange}
+                  value={username}
                   placeholder="juanCruz54"
                 />
+              </div>
+              <div>
+                <p className="text-red-400 text-xs md:text-sm">
+                  {usernameError}
+                </p>
               </div>
             </div>
 
@@ -166,9 +314,14 @@ const Register = () => {
                   className="w-full p-2 pl-10 rounded-3xl border border-slate-400 focus:outline-none focus:border-[#75cf4c]"
                   type="text"
                   required
-                  placeholder="+63 9xx-xxx-xxxx"
-                  onChange={(e) => setPhoneNumber(e.target.value)}
+                  placeholder="+639xxxxxxxxx"
+                  value={phoneNumber}
+                  onChange={handlePhoneChange}
+                  onBlur={handlePhoneBlur}
                 />
+              </div>
+              <div>
+                <p className="text-red-400 text-xs md:text-sm">{phoneError}</p>
               </div>
             </div>
 
@@ -183,9 +336,57 @@ const Register = () => {
                   <input
                     className="w-full rounded-3xl p-2 pl-10 border border-slate-400 focus:outline-none focus:border-[#75cf4c]"
                     type={isShowPassword ? "text" : "password"}
+                    minLength={15}
+                    maxLength={64}
                     required
+                    value={password}
+                    onChange={handlePasswordChange}
                   />
                 </div>
+                {!password ? null : (
+                  <div className="flex flex-col text-xs md:text-sm mt-2">
+                    <span className="flex flex-row gap-2 items-center">
+                      {hasUppercase ? (
+                        <FaCheckCircle className="text-[#75cf4c]" />
+                      ) : (
+                        <FaTimesCircle className="text-red-400" />
+                      )}
+                      At least one uppercase letter
+                    </span>
+                    <span className="flex flex-row gap-2 items-center">
+                      {hasLowercase ? (
+                        <FaCheckCircle className="text-[#75cf4c]" />
+                      ) : (
+                        <FaTimesCircle className="text-red-400" />
+                      )}
+                      At least one lowercase letter
+                    </span>
+                    <span className="flex flex-row gap-2 items-center">
+                      {hasNumber ? (
+                        <FaCheckCircle className="text-[#75cf4c]" />
+                      ) : (
+                        <FaTimesCircle className="text-red-400" />
+                      )}
+                      At least one number
+                    </span>
+                    <span className="flex flex-row gap-2 items-center">
+                      {hasSpecialChar ? (
+                        <FaCheckCircle className="text-[#75cf4c]" />
+                      ) : (
+                        <FaTimesCircle className="text-red-400" />
+                      )}
+                      At least one special character
+                    </span>
+                    <span className="flex flex-row gap-2 items-center">
+                      {hasValidLength ? (
+                        <FaCheckCircle className="text-[#75cf4c]" />
+                      ) : (
+                        <FaTimesCircle className="text-red-400" />
+                      )}
+                      At least 15 characters in length
+                    </span>
+                  </div>
+                )}
               </div>
               <div className="flex flex-col gap-2">
                 <label>Confirm Password</label>
@@ -208,34 +409,66 @@ const Register = () => {
                   <input
                     className="w-full rounded-3xl p-2 pl-5 border border-slate-400 focus:outline-none focus:border-[#75cf4c]"
                     type={isShowPassword ? "text" : "password"}
-                    value={password}
-                    onChange={(e) => {
-                      setPassword(e.target.value);
-                    }}
+                    disabled={isValidPassword ? false : true}
+                    value={confirmPassword}
+                    onChange={handleConfirmPasswordChange}
                     required
                   />
                 </div>
+                <div className="flex flex-col text-xs md:text-sm mt-2 text-red-400">
+                  {!isValidPassword ? (
+                    <p>Please satisfy the password requirements</p>
+                  ) : password !== confirmPassword ? (
+                    <p>Passwords do not match</p>
+                  ) : null}
+                </div>
               </div>
             </div>
-            <div className="flex flex-row my-4 justify-center items-start gap-3">
-              <input type="checkbox" className="mt-1" />
-              <p className="text-xs md:text-sm">
-                I consent to the collection and processing of my personal data,
-                including uploaded valid ID, for identity verification and
-                reservation purposes in accordance with the
-                <span>
-                  <a href="" className="text-blue-700 hover:underline">
-                    {" "}
-                    Data Privacy Policy
-                  </a>
-                </span>
-                .
-              </p>
+            <div className="flex flex-col">
+              <div className="flex flex-row my-4 justify-center items-start gap-3">
+                <input
+                  type="checkbox"
+                  checked={hasConsent}
+                  onChange={(e) => setHasConsent(e.target.checked)}
+                  disabled={!hasReadPrivacyPolicy}
+                  className="mt-1"
+                />
+                <p className="text-xs md:text-sm">
+                  I consent to the collection and processing of my personal
+                  data, including uploaded valid ID, for identity verification
+                  and reservation purposes in accordance with the
+                  <span>
+                    <a
+                      href=""
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={() => setHasReadPrivacyPolicy(true)}
+                      className="text-blue-700 hover:underline"
+                    >
+                      {" "}
+                      Data Privacy Policy
+                    </a>
+                  </span>
+                  .
+                </p>
+              </div>
+
+              {areFormsValid && !(hasConsent && hasReadPrivacyPolicy) && (
+                <p className="text-xs md:text-sm text-red-400">
+                  Please read then consent to the data privacy policy
+                </p>
+              )}
             </div>
+
             <div id="clerk-captcha" />
+            <div className="flex flex-col min-h-12.5 p-4 shadow-lg shadow-gray-200 rounded-2xl">
+              <p>Hello</p>
+            </div>
             <button
               type="submit"
-              className="p-2.5 w-full bg-[#75cf4c] text-center text-white rounded-3xl my-10
+              disabled={!canRegister}
+              className="p-2.5 w-full disabled:opacity-50
+              disabled:cursor-not-allowed bg-[#75cf4c] text-center text-white rounded-3xl my-10
             hover:bg-[#85d65c] active:bg-[#5fb33a] transition duration-300 ease-in-out cursor-pointer text-sm font-semibold md:text-base"
             >
               Register

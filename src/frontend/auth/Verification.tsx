@@ -1,4 +1,5 @@
 import Logo from "../Logo";
+
 const EmailVerification = () => {
   return (
     <main className="flex min-h-screen">
@@ -18,7 +19,7 @@ const EmailVerification = () => {
               LeafTrade account.
             </p>
             <form>
-              <div className="grid grid-cols-6 gap-7 w-60">
+              <div className="grid grid-cols-6 gap-7 w-60 mb-7">
                 {Array.from({ length: 6 }).map((_, index) => (
                   <input
                     key={index}

@@ -1,15 +1,22 @@
-export interface User {
-  user_id: string;
-  first_name: string;
-  last_name: string;
-  email: string;
-  phone_number: string;
-}
+import * as z from "zod";
 
-export interface CreateUserInput {
-  first_name: string;
-  last_name: string;
-  email: string;
-  username: string;
-  phone_number: string;
-}
+export const userSchema = z.object({
+  username: z.string().min(1).max(20),
+  firstName: z.string().min(1).max(50),
+  lastName: z.string().min(1).max(50),
+  email: z.email(),
+  phoneNumber: z.string().min(12),
+  address: z.string().min(1).max(100),
+});
+
+export type User = z.infer<typeof userSchema>;
+
+export const createUserSchema = z.object({
+  firstName: z.string().min(1).max(20),
+  lastName: z.string().min(1).max(20),
+  email: z.email(),
+  username: z.string().min(1).max(20),
+  phoneNumber: z.string().min(12),
+});
+
+export type CreateUser = z.infer<typeof createUserSchema>;

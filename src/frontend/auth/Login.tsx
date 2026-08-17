@@ -15,13 +15,32 @@ import { useSignIn } from "@clerk/react";
 import { FcGoogle } from "react-icons/fc";
 
 const Login = () => {
-  const {} = useSignIn();
+  const { signIn } = useSignIn();
 
   const [login, setLogin] = useState(false);
+
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const navigate = useNavigate();
 
   const LoginStatus = () => {
     setLogin(true);
+  };
+
+  const handleLoginSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      await signIn.password({
+        identifier: email,
+        password: password,
+      });
+      if (signIn.status === "complete") {
+        await signIn.finalize();
+        navigate("/dashboard");
+      }
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (
@@ -50,8 +69,7 @@ const Login = () => {
           </div>
           <form
             className="grid grid-rows-2 gap-7 p-3 mb-7 [&_input]:text-sm [&_input]:py-3 [&_label]:text-xs md:[&_label]:text-sm md:[&_label]:font-medium"
-            action="/dashboard"
-            method="get"
+            onSubmit={handleLoginSubmit}
           >
             <div className="flex flex-col gap-2">
               <label className="font-medium text-sm">Email</label>
@@ -65,6 +83,8 @@ const Login = () => {
                 <input
                   className="w-full rounded-3xl p-2.5 pl-10 border border-slate-400 focus:outline-none focus:border-[#75cf4c]"
                   type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   placeholder="you@example.com"
                 />
               </div>
@@ -80,6 +100,8 @@ const Login = () => {
                 />
 
                 <input
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
                   className="w-full rounded-3xl p-2.5 pl-10 border border-slate-400 focus:outline-none focus:border-[#75cf4c]"
                   type="password"
                 />
