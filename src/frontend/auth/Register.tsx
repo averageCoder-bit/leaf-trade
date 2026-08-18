@@ -12,6 +12,8 @@ import {
   FaTimesCircle,
 } from "react-icons/fa";
 
+// import { LuCircleAlert } from "react-icons/lu";
+
 import {
   sanitizeName,
   sanitizeUsername,
@@ -57,8 +59,8 @@ const Register = () => {
   const [phoneError, setPhoneError] = useState<string>("");
   const [usernameError, setUsernameError] = useState<string>("");
 
-  // const [hasClerkError, setHasClerkError] = useState<boolean>(false);
-  // const [clerkError, setClerkError] = useState<string>("");
+  // const [hasError, setHasError] = useState<boolean>(false);
+  // const [error, setError] = useState<string>("");
 
   const [confirmPassword, setConfirmPassword] = useState<string>("");
 
@@ -82,23 +84,31 @@ const Register = () => {
   const navigate = useNavigate();
   const signUpMutation = useMutation({
     mutationFn: async () => {
-      console.log("CAPTCHA element:", document.getElementById("clerk-captcha"));
-      const clerkResult = await signUp.create({
-        emailAddress: email,
-        password,
-        firstName,
-        lastName,
-      });
+      console.log("5. Calling signUp.create()");
 
-      console.log("CLERK SIGNUP CREATED");
+      try {
+        const clerkResult = await signUp.create({
+          emailAddress: email,
+          password,
+          firstName,
+          lastName,
+        });
 
-      const verificationResult = await signUp.verifications.sendEmailCode();
+        console.log("6. signUp.create() completed", clerkResult);
 
-      if (verificationResult.error) {
-        throw verificationResult.error;
+        const verificationResult = await signUp.verifications.sendEmailCode();
+
+        console.log("7. Verification completed", verificationResult);
+
+        if (verificationResult.error) {
+          throw verificationResult.error;
+        }
+
+        return clerkResult;
+      } catch (error) {
+        console.error("SIGNUP.CREATE ERROR:", error);
+        throw error;
       }
-
-      return clerkResult;
     },
   });
 
@@ -192,14 +202,19 @@ const Register = () => {
     e: React.FormEvent<HTMLFormElement>,
   ): Promise<void> => {
     e.preventDefault();
-    console.log("REGISTER CLICKED");
+
+    console.log("1. REGISTER CLICKED");
 
     try {
+      console.log("2. Starting mutation...");
+
       await signUpMutation.mutateAsync();
+
+      console.log("3. Mutation successful");
 
       navigate("/verification");
     } catch (error) {
-      console.error("Registration failed:", error);
+      console.error("4. Registration failed:", error);
     }
   };
 
@@ -463,10 +478,16 @@ const Register = () => {
               )}
             </div>
 
-            <div id="clerk-captcha" />
-            <div className="flex flex-col min-h-12.5 p-4 shadow-lg shadow-gray-200 rounded-2xl">
-              <p>Hello</p>
-            </div>
+            <div
+              id="clerk-captcha"
+              className="w-full flex items-center justify-start"
+            ></div>
+            {/* {hasError ? (
+              <div className="flex flex-row min-h-12.5 gap-4 items-center p-4 shadow-lg bg-red-100 text-red-600 font-semibold shadow-gray-200 rounded-2xl text-sm">
+                <LuCircleAlert />
+                <p>{error}</p>
+              </div>
+            ) : null} */}
             <button
               type="submit"
               disabled={!canRegister}

@@ -5,17 +5,23 @@ import {
   FaLeaf,
   FaFacebook,
   FaArrowLeft,
+  FaEye,
+  FaEyeSlash,
 } from "react-icons/fa";
+import { LuCircleAlert } from "react-icons/lu";
+
+import { sanitizePassword, sanitizeEmail } from "../validator/authForms";
 
 import { useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 import { useSignIn } from "@clerk/react";
+import { isClerkAPIResponseError } from "@clerk/react/errors";
 
 import { FcGoogle } from "react-icons/fc";
 
 const Login = () => {
-  const { signIn } = useSignIn();
+  const { signIn, fetchStatus, errors } = useSignIn();
 
   const [login, setLogin] = useState(false);
 
@@ -23,23 +29,126 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
 
-  const LoginStatus = () => {
-    setLogin(true);
+  const [isLoggingIn, setIsLoggingIn] = useState<boolean>(false);
+  const [isGoogleLoggingIn, setIsGoogleLoggingIn] = useState<boolean>(false);
+  const [hasError, setHasError] = useState<boolean>(false);
+  const [error, setError] = useState<string>("");
+  const [rateLimitSeconds, setRateLimitSeconds] = useState(0);
+
+  const [isShowPassword, setShowPassword] = useState(false);
+
+  useEffect(() => {
+    if (rateLimitSeconds <= 0) return;
+
+    const timer = setInterval(() => {
+      setRateLimitSeconds((seconds) => seconds - 1);
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [rateLimitSeconds]);
+
+  const handleShowPassword = () => {
+    setShowPassword(true);
   };
 
-  const handleLoginSubmit = async (e: React.FormEvent) => {
+  const handleHidePassword = () => {
+    setShowPassword(false);
+  };
+
+  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setEmail(sanitizeEmail(e.target.value));
+  };
+
+  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const sanitized = sanitizePassword(e.target.value);
+    setPassword(sanitized);
+  };
+
+  const handleLoginSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
     try {
-      await signIn.password({
+      setIsLoggingIn(true);
+      setHasError(false);
+      setError("");
+
+      const result = await signIn.create({
         identifier: email,
-        password: password,
+        password,
       });
-      if (signIn.status === "complete") {
-        await signIn.finalize();
-        navigate("/dashboard");
+
+      if (result.error) {
+        if (isClerkAPIResponseError(result.error)) {
+          if (result.error.status === 429) {
+            const retryAfter = result.error.retryAfter ?? 0;
+
+            setRateLimitSeconds(retryAfter);
+            setError(
+              "Too many login attempts. Please wait before trying again.",
+            );
+            setHasError(true);
+            return;
+          }
+
+          const clerkError = result.error.errors[0];
+
+          if (clerkError?.code === "user_locked") {
+            setError(
+              "Your account is temporarily locked. Please try again later.",
+            );
+            setHasError(true);
+            return;
+          }
+        }
+
+        setError("Invalid login credentials.");
+        setHasError(true);
+        return;
       }
+
+      if (signIn.status === "complete") {
+        console.log("Login successful!");
+        setLogin(true);
+        navigate("/dashboard");
+        return;
+      }
+
+      if (
+        signIn.status === "needs_second_factor" ||
+        signIn.status === "needs_client_trust"
+      ) {
+        setError("Additional verification is required.");
+        setHasError(true);
+        return;
+      }
+    } catch (err) {
+      console.error("Unexpected login error:", err);
+
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Unable to sign in. Please try again.",
+      );
+
+      setHasError(true);
+    } finally {
+      setIsLoggingIn(false);
+    }
+  };
+
+  const handleGoogleLogin = async () => {
+    if (!signIn) return;
+    setIsGoogleLoggingIn(true);
+    try {
+      await signIn.sso({
+        strategy: "oauth_google",
+        redirectCallbackUrl: "/sso-callback",
+        redirectUrl: "/dashboard",
+      });
     } catch (error) {
-      console.log(error);
+      console.error("Google OAuth initialization failed:", error);
+    } finally {
+      setIsGoogleLoggingIn(false);
     }
   };
 
@@ -84,7 +193,10 @@ const Login = () => {
                   className="w-full rounded-3xl p-2.5 pl-10 border border-slate-400 focus:outline-none focus:border-[#75cf4c]"
                   type="email"
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  name="email"
+                  autoComplete="email"
+                  required
+                  onChange={handleEmailChange}
                   placeholder="you@example.com"
                 />
               </div>
@@ -93,18 +205,37 @@ const Login = () => {
             <div className="flex flex-col gap-2">
               <label className="font-medium text-sm">Password</label>
 
-              <div className="relative">
+              <div className="relative w-full">
                 <FaLock
                   size={15}
                   className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
                 />
-
                 <input
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="w-full rounded-3xl p-2.5 pl-10 border border-slate-400 focus:outline-none focus:border-[#75cf4c]"
-                  type="password"
+                  type={isShowPassword ? "text" : "password"}
+                  onChange={handlePasswordChange}
+                  className="w-full rounded-3xl p-2.5 pl-10 pr-10 border border-slate-400 focus:outline-none focus:border-[#75cf4c]"
+                  name="password"
+                  required
+                  autoComplete="current-password"
                 />
+                <div className="absolute right-4 top-1/2 -translate-y-1/2 z-10 flex items-center">
+                  {isShowPassword ? (
+                    <FaEye
+                      size={15}
+                      title="Hide Password"
+                      className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:cursor-pointer"
+                      onClick={handleHidePassword}
+                    />
+                  ) : (
+                    <FaEyeSlash
+                      size={15}
+                      title="Show Password"
+                      className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:cursor-pointer"
+                      onClick={handleShowPassword}
+                    />
+                  )}
+                </div>
               </div>
             </div>
             <div className="flex justify-between -mt-3">
@@ -122,25 +253,53 @@ const Login = () => {
                 Forgot Password?
               </a>
             </div>
-          </form>
-          <div className="flex flex-col items-center p-3 gap-5">
+
+            {hasError ? (
+              <div className="flex flex-row min-h-12.5 gap-4 items-center p-4 shadow-lg bg-red-100 text-red-600 font-semibold shadow-gray-200 rounded-2xl text-sm">
+                <LuCircleAlert />
+                <p>{error}</p>
+              </div>
+            ) : null}
+
             <button
-              onClick={LoginStatus}
+              type="submit"
+              disabled={isLoggingIn || rateLimitSeconds > 0}
               className="p-2.5 w-full bg-[#75cf4c] text-center text-white rounded-3xl 
             hover:bg-[#85d65c] active:bg-[#5fb33a] transition duration-300 ease-in-out cursor-pointer text-sm font-semibold md:text-base"
             >
-              Login
+              {rateLimitSeconds > 0
+                ? `Try again in ${Math.floor(rateLimitSeconds / 60)}:${String(
+                    rateLimitSeconds % 60,
+                  ).padStart(2, "0")}`
+                : "Sign In"}
             </button>
-            <span className="text-xs font-semibold tracking-wide">
-              OR LOGIN WITH
-            </span>
+          </form>
+          <div className="flex flex-col items-center">
+            <div className="flex flex-row w-full items-center justify-center p-3 mb-7">
+              <hr className="border-t border-gray-300 w-full" />
+              <span className="text-xs md:text-sm font-semibold tracking-wide text-center w-full">
+                Or continue with
+              </span>
+              <hr className="border-t border-gray-300 w-full" />
+            </div>
+
             <div className="flex flex-row gap-4 w-full justify-between mb-10">
               <button
                 className="text-sm md:text-base p-2.5 w-full bg-white flex flex-row items-center justify-center text-black font-sm border border-slate-400 rounded-3xl
               hover:bg-slate-50 active:bg-slate-100 transition duration-300 ease-in-out cursor-pointer"
+                onClick={handleGoogleLogin}
+                disabled={fetchStatus === "fetching"}
               >
+                {errors && (
+                  <p className="error-text">
+                    {errors.fields.identifier?.message}
+                  </p>
+                )}
                 <FcGoogle className="shrink-0 w-4 h-4 md:w-5 md:h-5" />
-                <span className="text-center w-full mx-2 truncate">Google</span>
+                <span className="text-center w-full mx-2 truncate">
+                  {isGoogleLoggingIn ? "Redirecting..." : "Google"}
+                </span>
+
                 <div className="w-5" aria-hidden="true" />
               </button>
 
