@@ -57,8 +57,8 @@ const Register = () => {
   const [phoneError, setPhoneError] = useState<string>("");
   const [usernameError, setUsernameError] = useState<string>("");
 
-  const [hasClerkError, setHasClerkError] = useState<boolean>(false);
-  const [clerkError, setClerkError] = useState<string>("");
+  // const [hasClerkError, setHasClerkError] = useState<boolean>(false);
+  // const [clerkError, setClerkError] = useState<string>("");
 
   const [confirmPassword, setConfirmPassword] = useState<string>("");
 
