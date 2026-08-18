@@ -32,33 +32,35 @@ import { useState } from "react";
 const Register = () => {
   const [isShowPassword, setShowPassword] = useState(false);
 
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [username, setUsername] = useState("");
-  const [phoneNumber, setPhoneNumber] = useState("");
+  const [email, setEmail] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
+  const [firstName, setFirstName] = useState<string>("");
+  const [lastName, setLastName] = useState<string>("");
+  const [username, setUsername] = useState<string>("");
+  const [phoneNumber, setPhoneNumber] = useState<string>("");
 
-  const [isValidEmail, setIsValidEmail] = useState(false);
-  const [isValidUsername, setIsValidUsername] = useState(false);
-  const [isValidPhone, setIsValidPhone] = useState(false);
-  const [isValidPassword, setIsValidPassword] = useState(false);
-  const [hasReadPrivacyPolicy, setHasReadPrivacyPolicy] = useState(false);
-  const [hasConsent, setHasConsent] = useState(false);
+  const [isValidEmail, setIsValidEmail] = useState<boolean>(false);
+  const [isValidUsername, setIsValidUsername] = useState<boolean>(false);
+  const [isValidPhone, setIsValidPhone] = useState<boolean>(false);
+  const [isValidPassword, setIsValidPassword] = useState<boolean>(false);
+  const [hasReadPrivacyPolicy, setHasReadPrivacyPolicy] =
+    useState<boolean>(false);
+  const [hasConsent, setHasConsent] = useState<boolean>(false);
 
-  const [hasUppercase, setHasUppercase] = useState(false);
-  const [hasNumber, setHasNumber] = useState(false);
-  const [hasLowercase, setHasLowerCase] = useState(false);
-  const [hasSpecialChar, setHasSpecialChar] = useState(false);
-  const [hasValidLength, setHasValidLength] = useState(false);
+  const [hasUppercase, setHasUppercase] = useState<boolean>(false);
+  const [hasNumber, setHasNumber] = useState<boolean>(false);
+  const [hasLowercase, setHasLowerCase] = useState<boolean>(false);
+  const [hasSpecialChar, setHasSpecialChar] = useState<boolean>(false);
+  const [hasValidLength, setHasValidLength] = useState<boolean>(false);
 
-  const [emailError, setEmailError] = useState("");
-  const [phoneError, setPhoneError] = useState("");
-  const [usernameError, setUsernameError] = useState("");
+  const [emailError, setEmailError] = useState<string>("");
+  const [phoneError, setPhoneError] = useState<string>("");
+  const [usernameError, setUsernameError] = useState<string>("");
 
-  // const [clerkError, setClerkError] = useState("");
+  const [hasClerkError, setHasClerkError] = useState<boolean>(false);
+  const [clerkError, setClerkError] = useState<string>("");
 
-  const [confirmPassword, setConfirmPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState<string>("");
 
   const canRegister =
     isValidEmail &&
@@ -80,6 +82,7 @@ const Register = () => {
   const navigate = useNavigate();
   const signUpMutation = useMutation({
     mutationFn: async () => {
+      console.log("CAPTCHA element:", document.getElementById("clerk-captcha"));
       const clerkResult = await signUp.create({
         emailAddress: email,
         password,
@@ -87,18 +90,15 @@ const Register = () => {
         lastName,
       });
 
-      try {
-        const result = await signUp.verifications.sendEmailCode();
-        console.log(username, phoneNumber);
+      console.log("CLERK SIGNUP CREATED");
 
-        console.log("4️⃣ Verification email request result:", result);
-      } catch (error) {
-        console.error("❌ Verification email error:", error);
+      const verificationResult = await signUp.verifications.sendEmailCode();
+
+      if (verificationResult.error) {
+        throw verificationResult.error;
       }
 
-      return {
-        clerkResult,
-      };
+      return clerkResult;
     },
   });
 
@@ -188,15 +188,18 @@ const Register = () => {
     }
   };
 
-  const handleRegisterSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleRegisterSubmit = async (
+    e: React.FormEvent<HTMLFormElement>,
+  ): Promise<void> => {
     e.preventDefault();
+    console.log("REGISTER CLICKED");
 
     try {
       await signUpMutation.mutateAsync();
 
       navigate("/verification");
     } catch (error) {
-      console.error(error);
+      console.error("Registration failed:", error);
     }
   };
 
@@ -416,7 +419,7 @@ const Register = () => {
                   />
                 </div>
                 <div className="flex flex-col text-xs md:text-sm mt-2 text-red-400">
-                  {!isValidPassword ? (
+                  {!password ? null : !isValidPassword ? (
                     <p>Please satisfy the password requirements</p>
                   ) : password !== confirmPassword ? (
                     <p>Passwords do not match</p>
