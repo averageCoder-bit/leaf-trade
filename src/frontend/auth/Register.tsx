@@ -30,6 +30,7 @@ import { useNavigate } from "react-router-dom";
 import { useSignUp } from "@clerk/react";
 import { useMutation } from "@tanstack/react-query";
 import { useState } from "react";
+import type { CreateUser } from "../schema/users";
 
 const Register = () => {
   const [isShowPassword, setShowPassword] = useState(false);
@@ -80,37 +81,21 @@ const Register = () => {
     isValidPassword &&
     password === confirmPassword;
 
+  const registrationData: CreateUser = {
+    firstName,
+    lastName,
+    email,
+    username,
+    phoneNumber,
+  };
+
+  sessionStorage.setItem(
+    "pendingRegistration",
+    JSON.stringify(registrationData),
+  );
+
   const { signUp } = useSignUp();
   const navigate = useNavigate();
-  const signUpMutation = useMutation({
-    mutationFn: async () => {
-      console.log("5. Calling signUp.create()");
-
-      try {
-        const clerkResult = await signUp.create({
-          emailAddress: email,
-          password,
-          firstName,
-          lastName,
-        });
-
-        console.log("6. signUp.create() completed", clerkResult);
-
-        const verificationResult = await signUp.verifications.sendEmailCode();
-
-        console.log("7. Verification completed", verificationResult);
-
-        if (verificationResult.error) {
-          throw verificationResult.error;
-        }
-
-        return clerkResult;
-      } catch (error) {
-        console.error("SIGNUP.CREATE ERROR:", error);
-        throw error;
-      }
-    },
-  });
 
   const handleShowPassword = () => {
     setShowPassword(true);
@@ -198,23 +183,35 @@ const Register = () => {
     }
   };
 
+  const signUpMutation = useMutation({
+    mutationFn: async () => {
+      const clerkResult = await signUp.create({
+        emailAddress: email,
+        password,
+        firstName,
+        lastName,
+      });
+
+      const verificationResult = await signUp.verifications.sendEmailCode();
+
+      if (verificationResult.error) {
+        throw verificationResult.error;
+      }
+
+      return clerkResult;
+    },
+  });
+
   const handleRegisterSubmit = async (
     e: React.FormEvent<HTMLFormElement>,
   ): Promise<void> => {
     e.preventDefault();
 
-    console.log("1. REGISTER CLICKED");
-
     try {
-      console.log("2. Starting mutation...");
-
       await signUpMutation.mutateAsync();
-
-      console.log("3. Mutation successful");
-
       navigate("/verification");
     } catch (error) {
-      console.error("4. Registration failed:", error);
+      console.error("Registration failed:", error);
     }
   };
 

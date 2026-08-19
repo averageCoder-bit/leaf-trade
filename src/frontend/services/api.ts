@@ -12,21 +12,4 @@ export const authHeader = (token: string) => ({
   headers: { Authorization: `Bearer ${token}` },
 });
 
-export const fetchUserProfile = async (token: string) => {
-  const { data } = await api.get("/dashboard/profile", authHeader(token));
-  return data;
-};
-
-export const updateUserSettings = async (
-  token: string,
-  settingsData: object,
-) => {
-  const { data } = await api.post(
-    "/dashboard/settings",
-    settingsData,
-    authHeader(token),
-  );
-  return data;
-};
-
 export default api;

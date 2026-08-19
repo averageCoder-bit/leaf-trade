@@ -1,5 +1,5 @@
 import uuid
-from base import Base
+from backend.database.base import Base
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy import String, Uuid, DateTime
 from datetime import datetime, timezone

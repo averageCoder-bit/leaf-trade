@@ -21,8 +21,7 @@ import { isClerkAPIResponseError } from "@clerk/react/errors";
 import { FcGoogle } from "react-icons/fc";
 
 const Login = () => {
-  const { signIn, fetchStatus, errors } = useSignIn();
-
+  const { signIn, fetchStatus } = useSignIn();
   const [login, setLogin] = useState(false);
 
   const [email, setEmail] = useState("");
@@ -30,11 +29,9 @@ const Login = () => {
   const navigate = useNavigate();
 
   const [isLoggingIn, setIsLoggingIn] = useState<boolean>(false);
-  const [isGoogleLoggingIn, setIsGoogleLoggingIn] = useState<boolean>(false);
   const [hasError, setHasError] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
   const [rateLimitSeconds, setRateLimitSeconds] = useState(0);
-
   const [isShowPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
@@ -108,16 +105,24 @@ const Login = () => {
 
       if (signIn.status === "complete") {
         console.log("Login successful!");
+        await signIn.finalize();
         setLogin(true);
-        navigate("/dashboard");
         return;
       }
 
-      if (
-        signIn.status === "needs_second_factor" ||
-        signIn.status === "needs_client_trust"
-      ) {
-        setError("Additional verification is required.");
+      if (signIn.status === "needs_client_trust") {
+        const emailCodeFactor = signIn.supportedSecondFactors?.find(
+          (factor) => factor.strategy === "email_code",
+        );
+
+        if (emailCodeFactor) {
+          await signIn.mfa.sendEmailCode();
+
+          navigate("/device-verification");
+          return;
+        }
+
+        setError("Unable to start device verification.");
         setHasError(true);
         return;
       }
@@ -138,7 +143,6 @@ const Login = () => {
 
   const handleGoogleLogin = async () => {
     if (!signIn) return;
-    setIsGoogleLoggingIn(true);
     try {
       await signIn.sso({
         strategy: "oauth_google",
@@ -147,8 +151,19 @@ const Login = () => {
       });
     } catch (error) {
       console.error("Google OAuth initialization failed:", error);
-    } finally {
-      setIsGoogleLoggingIn(false);
+    }
+  };
+
+  const handleFacebookLogin = async () => {
+    if (!signIn) return;
+    try {
+      await signIn.sso({
+        strategy: "oauth_facebook",
+        redirectCallbackUrl: "/sso-callback",
+        redirectUrl: "/dashboard",
+      });
+    } catch (error) {
+      console.error("Facebook OAuth initialization failed:", error);
     }
   };
 
@@ -238,14 +253,7 @@ const Login = () => {
                 </div>
               </div>
             </div>
-            <div className="flex justify-between -mt-3">
-              <div className="flex flex-row">
-                <input type="checkbox" />
-                <span className="text-xs font-medium ml-1">
-                  Trust this device
-                </span>
-              </div>
-
+            <div className="flex justify-end -mt-3">
               <a
                 className="text-xs font-medium hover:underline text-blue-700"
                 href=""
@@ -290,20 +298,14 @@ const Login = () => {
                 onClick={handleGoogleLogin}
                 disabled={fetchStatus === "fetching"}
               >
-                {errors && (
-                  <p className="error-text">
-                    {errors.fields.identifier?.message}
-                  </p>
-                )}
                 <FcGoogle className="shrink-0 w-4 h-4 md:w-5 md:h-5" />
-                <span className="text-center w-full mx-2 truncate">
-                  {isGoogleLoggingIn ? "Redirecting..." : "Google"}
-                </span>
+                <span className="text-center w-full mx-2 truncate">Google</span>
 
                 <div className="w-5" aria-hidden="true" />
               </button>
 
               <button
+                onClick={handleFacebookLogin}
                 className="text-sm md:text-base p-2.5 w-full bg-[#1877F2] flex flex-row items-center justify-center text-white font-sm rounded-3xl 
                 hover:bg-[#166fe5] active:bg-[#0e56c4] transition duration-300 ease-in-out cursor-pointer"
               >

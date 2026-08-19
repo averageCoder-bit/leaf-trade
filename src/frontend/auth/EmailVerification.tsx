@@ -1,8 +1,10 @@
 import Logo from "../Logo";
 import { useRef, useState, useEffect } from "react";
-import { useSignUp } from "@clerk/react";
+import { getToken, useSignUp } from "@clerk/react";
 import { LoaderCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { createUserSchema } from "../schema/users";
+import createUser from "../services/userService";
 
 const EmailVerification = () => {
   const [otp, setOtp] = useState<string[]>(Array(6).fill(""));
@@ -79,6 +81,23 @@ const EmailVerification = () => {
     e.preventDefault();
 
     const finalCode = otp.join("");
+    const storedData = sessionStorage.getItem("pendingRegistration");
+
+    if (!storedData) {
+      navigate("/register", { replace: true });
+      return;
+    }
+
+    const parsedData = JSON.parse(storedData);
+    const result = createUserSchema.safeParse(parsedData);
+
+    if (!result.success) {
+      sessionStorage.removeItem("pendingRegistration");
+      navigate("/register", { replace: true });
+      return;
+    }
+
+    const userData = result.data;
 
     if (finalCode.length !== 6) {
       setError("Please enter all 6 digits before verifying.");
@@ -91,13 +110,9 @@ const EmailVerification = () => {
       setHasError(false);
       setError("");
 
-      console.log("Verifying email code...");
-
       const result = await signUp.verifications.verifyEmailCode({
         code: finalCode,
       });
-
-      console.log("Verification result:", result);
 
       if (result.error) {
         setError(result.error.message);
@@ -106,6 +121,23 @@ const EmailVerification = () => {
         return;
       }
 
+      if (signUp.status !== "complete") {
+        throw new Error("Sign-up could not be completed.");
+      }
+
+      await signUp.finalize();
+      setIsVerified(true);
+
+      const token = await getToken({
+        template: "fastapi",
+      });
+      if (!token) {
+        throw new Error("Unable to authenticate with the backend.");
+      }
+
+      await createUser(userData, token);
+
+      sessionStorage.removeItem("pendingRegistration");
       setIsVerified(true);
     } catch (err) {
       console.error("Verification error:", err);
