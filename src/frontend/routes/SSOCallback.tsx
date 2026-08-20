@@ -33,7 +33,7 @@ const SSOCallback = () => {
         await signUp.create({ transfer: true });
 
         if (signUp.status === "complete") {
-          await signUp.finalize({
+          await signUp.finalize({                    
             navigate: () => {
               navigate("/dashboard", { replace: true });
             },

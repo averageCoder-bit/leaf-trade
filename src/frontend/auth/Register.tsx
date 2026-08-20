@@ -85,8 +85,8 @@ const Register = () => {
     firstName,
     lastName,
     email,
-    username,
-    phoneNumber,
+    // username,
+    // phoneNumber,
   };
 
   sessionStorage.setItem(

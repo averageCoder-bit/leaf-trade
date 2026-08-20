@@ -14,6 +14,8 @@ export default async function createUser(
     authHeader(token),
   );
 
+  console.log(response);
+
   return response;
 }
 

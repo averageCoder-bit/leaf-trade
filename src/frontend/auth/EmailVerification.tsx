@@ -21,18 +21,25 @@ const EmailVerification = () => {
   const [isAuthorized, setIsAuthorized] = useState(false);
 
   useEffect(() => {
+    if (isVerified) {
+      setIsAuthorized(true);
+      return;
+    }
+
     const canVerifyEmail =
       signUp.status === "missing_requirements" &&
       signUp.missingFields.length === 0 &&
       signUp.unverifiedFields.includes("email_address");
 
-    if (!canVerifyEmail) {
+    const isComplete = signUp.status === "complete";
+
+    if (!canVerifyEmail && !isComplete) {
       navigate("/register", { replace: true });
       return;
     }
 
     setIsAuthorized(true);
-  }, [signUp, navigate]);
+  }, [signUp, navigate, isVerified]);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement>,
@@ -97,8 +104,6 @@ const EmailVerification = () => {
       return;
     }
 
-    const userData = result.data;
-
     if (finalCode.length !== 6) {
       setError("Please enter all 6 digits before verifying.");
       setHasError(true);
@@ -110,34 +115,15 @@ const EmailVerification = () => {
       setHasError(false);
       setError("");
 
-      const result = await signUp.verifications.verifyEmailCode({
+      const verificationResult = await signUp.verifications.verifyEmailCode({
         code: finalCode,
       });
 
-      if (result.error) {
-        setError(result.error.message);
+      if (verificationResult.error) {
+        setError(verificationResult.error.message);
         setHasError(true);
-        setIsVerified(false);
         return;
       }
-
-      if (signUp.status !== "complete") {
-        throw new Error("Sign-up could not be completed.");
-      }
-
-      await signUp.finalize();
-      setIsVerified(true);
-
-      const token = await getToken({
-        template: "fastapi",
-      });
-      if (!token) {
-        throw new Error("Unable to authenticate with the backend.");
-      }
-
-      await createUser(userData, token);
-
-      sessionStorage.removeItem("pendingRegistration");
       setIsVerified(true);
     } catch (err) {
       console.error("Verification error:", err);
@@ -150,6 +136,53 @@ const EmailVerification = () => {
 
       setHasError(true);
       setIsVerified(false);
+    } finally {
+      setIsVerifying(false);
+    }
+  };
+
+  const handleCompleteRegistration = async () => {
+    try {
+      setIsVerifying(true);
+      setHasError(false);
+      setError("");
+
+      await signUp.finalize();
+
+      const token = await getToken({
+        template: "fastapi",
+      });
+
+      if (!token) {
+        throw new Error("Unable to authenticate with the backend.");
+      }
+
+      const storedData = sessionStorage.getItem("pendingRegistration");
+
+      if (!storedData) {
+        throw new Error("Registration data could not be found.");
+      }
+
+      const parsedData = JSON.parse(storedData);
+      const result = createUserSchema.safeParse(parsedData);
+
+      if (!result.success) {
+        throw new Error("Invalid registration data.");
+      }
+
+      await createUser(result.data, token);
+
+      sessionStorage.removeItem("pendingRegistration");
+
+      navigate("/dashboard", { replace: true });
+    } catch (err) {
+      console.error("Registration completion error:", err);
+
+      setError(
+        err instanceof Error ? err.message : "Unable to complete registration.",
+      );
+
+      setHasError(true);
     } finally {
       setIsVerifying(false);
     }
@@ -208,9 +241,9 @@ const EmailVerification = () => {
 
                 <button
                   type={isVerified ? "button" : "submit"}
-                  onClick={isVerified ? () => navigate("/login") : undefined}
+                  onClick={isVerified ? handleCompleteRegistration : undefined}
                   disabled={isVerifying}
-                  className="flex w-full items-center justify-center gap-2 rounded-3xl bg-[#75cf4c] p-2 text-center font-medium text-white duration-300 hover:-translate-y-1 hover:cursor-pointer hover:bg-[#85d65c] active:bg-[#5fb33a] disabled:cursor-not-allowed disabled:opacity-70 disabled:hover:translate-y-0 md:w-50"
+                  className="flex flex-row w-full items-center justify-center gap-2 rounded-3xl bg-[#75cf4c] p-2 text-center font-medium text-white duration-300 hover:-translate-y-1 hover:cursor-pointer hover:bg-[#85d65c] active:bg-[#5fb33a] disabled:cursor-not-allowed disabled:opacity-70 disabled:hover:translate-y-0 md:w-50"
                 >
                   {isVerifying ? (
                     <>
@@ -218,7 +251,7 @@ const EmailVerification = () => {
                       <span>Verifying...</span>
                     </>
                   ) : isVerified ? (
-                    "Success! Go to Login"
+                    "Success! Go to Dashboard"
                   ) : (
                     "Verify code"
                   )}

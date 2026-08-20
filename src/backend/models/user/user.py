@@ -18,23 +18,28 @@ class User(Base):
     clerk_user_id: Mapped[str] = mapped_column(
         String, nullable=False, unique=True
     )
-    username:Mapped[str] = mapped_column(String(20), nullable=False, unique=True)
+    email:Mapped[str] = mapped_column(
+        String, nullable=False, unique=True
+    )
+    first_name:Mapped[str] = mapped_column(
+        String(30), nullable=False
+    )
+    last_name:Mapped[str] = mapped_column(
+        String(30), nullable=False
+    )
+    phone_number:Mapped[str] = mapped_column(
+        String(11), nullable=False, unique=True
+    )
+    username:Mapped[str] = mapped_column(String(30), nullable=False, unique=True)
     address:Mapped[str | None] = mapped_column(String(100), nullable=True)
-    profile_pic: Mapped[str | None] = mapped_column(String, nullable=True)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         default=get_utc_now
     )
-
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         default=get_utc_now,
         onupdate=get_utc_now
-    )
-    rating: Mapped[Decimal] = mapped_column(
-        Numeric(3, 2),
-        default=0,
-        nullable=False
     )
     is_active: Mapped[bool] = mapped_column(
         Boolean,
