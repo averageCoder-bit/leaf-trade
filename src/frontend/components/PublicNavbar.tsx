@@ -2,7 +2,7 @@ import Logo from "../Logo";
 import { Link } from "react-router-dom";
 import { FaBars } from "react-icons/fa";
 
-const Navbar = () => {
+const PublicNavbar = () => {
   const navItems = [
     { id: 1, name: "Register", path: "/register" },
     { id: 2, name: "Login", path: "/login" },
@@ -40,4 +40,4 @@ const Navbar = () => {
   );
 };
 
-export default Navbar;
+export default PublicNavbar;

@@ -1,8 +1,8 @@
 import Login from "../auth/Login";
 import Register from "../auth/Register";
-import MainLayout from "../layout/Layout";
+import PublicLayout from "../layout/PublicLayout";
 import LandingPage from "../public/LandingPage";
-import Dashboard from "../dashboard/Dashboard";
+import Dashboard from "../pages/Dashboard";
 import EmailVerification from "../auth/EmailVerification";
 import SSOCallback from "./SSOCallback";
 
@@ -11,11 +11,18 @@ import PublicOnlyRoute from "./PublicOnlyRoute";
 
 import { Routes, Route } from "react-router-dom";
 import DeviceVerification from "../auth/DeviceVerification";
+import Products from "../pages/Products";
+import Orders from "../pages/Orders";
+import UserProfile from "../pages/Profile";
+import Reports from "../pages/Reports";
+import Settings from "../pages/Settings";
+import HelpCenter from "../pages/HelpCenter";
+import ProtectedLayout from "../layout/ProtectedLayout";
 
 function AppRoutes() {
   return (
     <Routes>
-      <Route path="/" element={<MainLayout />}>
+      <Route path="/" element={<PublicLayout />}>
         <Route index element={<LandingPage />} />
       </Route>
 
@@ -29,7 +36,15 @@ function AppRoutes() {
       <Route path="/sso-callback" element={<SSOCallback />} />
 
       <Route element={<ProtectedRoute />}>
-        <Route path="/dashboard" element={<Dashboard />} />
+        <Route element={<ProtectedLayout />}>
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/products" element={<Products />} />
+          <Route path="/orders-invoices" element={<Orders />} />
+          <Route path="/profile" element={<UserProfile />} />
+          <Route path="/reports" element={<Reports />} />
+          <Route path="/settings" element={<Settings />} />
+          <Route path="/help-center" element={<HelpCenter />} />
+        </Route>
       </Route>
     </Routes>
   );

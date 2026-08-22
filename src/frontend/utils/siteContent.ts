@@ -31,6 +31,7 @@ interface CTACOmponents {
 }
 
 interface FAQsComponents {
+  id: number;
   question: string;
   answer: string;
 }
@@ -101,8 +102,8 @@ export const CTASection: CTACOmponents = {
 };
 
 export const FAQsSection: FAQsComponents[] = [
-  { question: "Placeholder question", answer: "Placeholder ans." },
-  { question: "Placeholder question", answer: "Placeholder ans." },
+  { id: 1, question: "Placeholder question", answer: "Placeholder ans." },
+  { id: 2, question: "Placeholder question 2", answer: "Placeholder ans." },
 ];
 
 export const FooterLogos: FooterLogoComponents[] = [

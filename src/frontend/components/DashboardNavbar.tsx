@@ -1,12 +1,17 @@
 import { Search, Bell, Menu, Settings2 } from "lucide-react";
 
-const DashboardNavbar = () => {
+interface DashboardNavbarProps {
+  setIsMenuToggle: React.Dispatch<React.SetStateAction<boolean>>;
+}
+
+const DashboardNavbar = ({ setIsMenuToggle }: DashboardNavbarProps) => {
   return (
     <nav className="flex flex-row fixed w-full justify-between items-center p-4 shadow-md bg-white z-50">
       <div className="flex flex-row items-center justify-center ml-2">
         <button
           title="Menu"
-          className="hover:cursor-pointer hover:bg-gray-200 rounded-2xl p-1"
+          onClick={() => setIsMenuToggle((prev) => !prev)}
+          className="hover:cursor-pointer active:rotate-180 transition-transform duration-100 ease-in-out hover:bg-gray-200 rounded-2xl p-1 origin-center"
         >
           <Menu />
         </button>

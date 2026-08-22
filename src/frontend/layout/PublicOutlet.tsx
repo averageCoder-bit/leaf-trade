@@ -1,6 +1,6 @@
 import LandingPage from "../public/LandingPage";
-const Outlet = () => {
+const PublicOutlet = () => {
   return <LandingPage />;
 };
 
-export default Outlet;
+export default PublicOutlet;

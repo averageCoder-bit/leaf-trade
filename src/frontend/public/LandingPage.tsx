@@ -108,8 +108,11 @@ const LandingPage = () => {
         </section>
         <section>
           <div className="flex flex-col gap-4 justify-center md:grid md:grid-cols-3 justify-items-center py-10">
-            {Benefits.map((card) => (
-              <div className="flex flex-col gap-3 w-full p-4 border-2 border-gray-100 rounded-2xl shadow-2xs">
+            {Benefits.map((card, index) => (
+              <div
+                key={index}
+                className="flex flex-col gap-3 w-full p-4 border-2 border-gray-100 rounded-2xl shadow-2xs"
+              >
                 <div className="flex flex-row items-center gap-3">
                   <card.icon size={20} className="text-[#75cf4c]" />
 
@@ -133,14 +136,17 @@ const LandingPage = () => {
               <p className="text-center">{StorySection.paragraph}</p>
             </div>
             <div className="grid grid-rows-2 md:p-0 gap-10">
-              {AboutUsSection.map((section) => (
-                <div className="flex flex-col md:flex-row md:odd:flex-row-reverse items-center md:justify-between gap-12 py-12">
+              {AboutUsSection.map((section, index) => (
+                <div
+                  key={index}
+                  className="flex flex-col md:flex-row md:odd:flex-row-reverse items-center md:justify-between gap-12 py-12"
+                >
                   <div className="flex flex-col gap-3 max-w-xl">
                     <h1 className="font-semibold text-lg">{section.title}</h1>
                     <p className="whitespace-pre-line">{section.desc}</p>
                     <ul className="list-disc list-inside">
-                      {section.bullets.map((i) => (
-                        <li>{i}</li>
+                      {section.bullets.map((i, index) => (
+                        <li key={index}>{i}</li>
                       ))}
                     </ul>
                   </div>
@@ -160,10 +166,7 @@ const LandingPage = () => {
             </h1>
             <div className="flex-col gap-4">
               {FAQsSection.map((items, index) => (
-                <div
-                  key={items.question || index}
-                  className="border border-gray-100"
-                >
+                <div key={index} className="border border-gray-100">
                   <div className="flex flex-row justify-between items-center p-5">
                     <p className="text-sm md:text-base">{items.question}</p>
                     <button
