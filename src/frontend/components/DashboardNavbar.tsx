@@ -1,4 +1,4 @@
-import { Search, Bell, Menu, Settings2 } from "lucide-react";
+import { Bell, Menu } from "lucide-react";
 
 interface DashboardNavbarProps {
   setIsMenuToggle: React.Dispatch<React.SetStateAction<boolean>>;
@@ -16,39 +16,19 @@ const DashboardNavbar = ({ setIsMenuToggle }: DashboardNavbarProps) => {
           <Menu />
         </button>
       </div>
-      <div className="hidden md:flex md:flex-row gap-3">
-        <div className="relative">
-          <Search
-            size={18}
-            className="absolute left-4 top-1/2 -translate-y-1/2"
-          />
-          <input
-            type="search"
-            placeholder="Search products..."
-            className="rounded-3xl bg-gray-100 p-3 pl-10 w-70 placeholder:text-sm placeholder:text-black focus:outline-1"
-          />
-        </div>
-
-        <button
-          title="Filter products"
-          className="flex items-center justify-center hover:cursor-pointer bg-gray-100 w-12 h-12 rounded-full hover:bg-gray-200"
-        >
-          <Settings2 size={18} />
-        </button>
-      </div>
-      <div className="hidden space-x-2 md:flex md:flex-row justify-center items-center">
+      <div className="flex space-x-2 md:flex-row justify-center items-center">
         <button
           title="Notifications"
-          className="flex items-center justify-center hover:cursor-pointer bg-gray-100 w-12 h-12 rounded-full hover:bg-gray-200"
+          className="flex items-center justify-center hover:cursor-pointer hover:bg-gray-100 w-12 h-12 rounded-full active:bg-gray-200"
         >
           <Bell size={18} />
         </button>
         <button
           title="Profile"
-          className="flex flex-row items-center gap-2 bg-gray-100 p-2 rounded-3xl hover:cursor-pointer"
+          className="flex flex-row items-center md:bg-gray-100 gap-2 p-2 rounded-3xl hover:cursor-pointer"
         >
           <img src="" className="rounded-full w-9 h-9 bg-red-500" />
-          <p className="text-sm">Username</p>
+          <p className="hidden lg:block text-sm">Username</p>
         </button>
       </div>
     </nav>

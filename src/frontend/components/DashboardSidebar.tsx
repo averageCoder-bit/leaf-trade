@@ -1,9 +1,8 @@
-import { useClerk } from "@clerk/react";
 import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import Logout from "../auth/Logout";
 
 import {
-  ChevronDown,
   Home,
   Package,
   LogOut,
@@ -11,6 +10,7 @@ import {
   Settings,
   ClipboardClock,
   BotMessageSquare,
+  Store,
 } from "lucide-react";
 
 interface DashboardSidebarProps {
@@ -18,12 +18,10 @@ interface DashboardSidebarProps {
 }
 
 const SideBar = ({ isMenuToggle }: DashboardSidebarProps) => {
-  const { signOut } = useClerk();
   const navigate = useNavigate();
   const location = useLocation();
-  const handleLogout = async () => {
-    await signOut({ redirectUrl: "/login" });
-  };
+
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 
   const navItems1 = [
     { id: 1, name: "Dashboard", link: "/dashboard", icon: Home },
@@ -34,6 +32,7 @@ const SideBar = ({ isMenuToggle }: DashboardSidebarProps) => {
       link: "/orders-invoices",
       icon: ClipboardClock,
     },
+    { id: 4, name: "Marketplace", link: "/marketplace", icon: Store },
   ];
 
   const navItems2 = [
@@ -47,145 +46,127 @@ const SideBar = ({ isMenuToggle }: DashboardSidebarProps) => {
     },
   ];
 
-  const [isMenuOpen, setIsMenuOpen] = useState(true);
-  const [isOthersOpen, setIsOthersOpen] = useState(true);
   return (
     <aside
-      className={`bg-white ${
-        isMenuToggle ? "w-70 p-6" : "w-15 p-2.5"
-      } shrink-0 transition-[width] duration-300 ease-in-out h-full flex flex-col justify-between pt-7 border-r border-gray-200`}
-    >
-      <div className="flex flex-row border-b border-gray-300 pt-3 py-6 items-center overflow-hidden shrink-0">
-        <h1
-          className={`text-2xl tracking-wide font-semibold transition-all duration-300 ease-in-out ${
-            isMenuToggle
-              ? "opacity-100 max-w-50 max-h-20 translate-x-0"
-              : "opacity-0 max-w-0 max-h-0 -translate-x-4 pointer-events-none"
-          }`}
-        >
-          Welcome Back, User
-        </h1>
-      </div>
+      className={`
+      bg-white
+      fixed md:relative
+      top-16 md:top-0 left-0
+      z-40
+      h-[calc(100vh-4rem)] md:h-full
+      shrink-0
+      transition-all duration-300 ease-in-out
+      text-sm md:text-base
+      flex flex-col 
+      border-r border-gray-200
+      pt-10
 
-      <nav
-        className={`flex flex-col transition-all duration-300 ${
-          isMenuToggle ? "gap-10" : "gap-4"
+      ${isMenuToggle ? "w-64 translate-x-0" : "w-64 -translate-x-full"}
+
+      md:translate-x-0
+
+      ${isMenuToggle ? "md:w-70" : "md:w-15"}
+    `}
+    >
+      {/* FIXED: This inner wrapper isolates padding shifts from the animation block */}
+      <div
+        className={`flex-1 flex flex-col justify-start pt-7 transition-all duration-300 ${
+          isMenuToggle ? "p-6" : "p-2.5"
         }`}
       >
-        <div className="flex flex-col gap-4">
-          {isMenuToggle ? (
-            <button
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="flex flex-row justify-between items-center hover:cursor-pointer"
-            >
-              <span className="text-sm tracking-wide font-semibold">MENU</span>
+        {/* FIXED: Standardized to gap-6 so vertical heights stay perfectly static */}
+        <nav className="flex flex-col gap-6">
+          <div className="flex flex-col gap-4">
+            {isMenuToggle ? (
+              <span className="text-sm tracking-wide font-semibold block h-5">
+                MENU
+              </span>
+            ) : (
+              <div className="h-5" /> /* FIXED: Acts as a structural height anchor */
+            )}
 
-              <ChevronDown
-                size={18}
-                className={`transition-transform duration-300 ${
-                  isMenuOpen ? "rotate-180" : "rotate-0"
-                }`}
-              />
-            </button>
-          ) : null}
+            <div className="flex flex-col gap-2 overflow-hidden">
+              {navItems1.map((item) => {
+                const isActive = location.pathname === item.link;
 
-          <div
-            className={`flex flex-col gap-2 overflow-hidden transition-all duration-300 ${
-              !isMenuToggle || isMenuOpen
-                ? "max-h-96 opacity-100"
-                : "max-h-0 opacity-0"
-            }`}
-          >
-            {navItems1.map((item) => {
-              const isActive = location.pathname === item.link;
-
-              return (
-                <button
-                  onClick={() => navigate(item.link)}
-                  key={item.id}
-                  title={item.name}
-                  className={`hover:cursor-pointer rounded-4xl
+                return (
+                  <button
+                    onClick={() => navigate(item.link)}
+                    key={item.id}
+                    title={item.name}
+                    className={`hover:cursor-pointer rounded-4xl
                 p-2 flex flex-row items-center
                 transition-all duration-300
                 ${isActive ? "bg-[#75cf4c] text-white" : "hover:bg-gray-100"}
                 ${isMenuToggle ? "justify-start gap-3 pl-4" : "justify-center"}`}
-                >
-                  <item.icon size={18} className="shrink-0" />
-
-                  <span
-                    className={`overflow-hidden whitespace-nowrap transition-all duration-300 ${
-                      isMenuToggle
-                        ? "max-w-40 opacity-100"
-                        : "max-w-0 opacity-0"
-                    }`}
                   >
-                    {item.name}
-                  </span>
-                </button>
-              );
-            })}
+                    <item.icon size={18} className="shrink-0" />
+
+                    <span
+                      className={`overflow-hidden whitespace-nowrap transition-all duration-300 ${
+                        isMenuToggle
+                          ? "max-w-40 opacity-100"
+                          : "max-w-0 opacity-0"
+                      }`}
+                    >
+                      {item.name}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
           </div>
-        </div>
-        <div className="flex flex-col gap-4">
-          {isMenuToggle ? (
-            <button
-              onClick={() => setIsOthersOpen(!isOthersOpen)}
-              className="flex flex-row justify-between items-center hover:cursor-pointer"
-            >
-              <span className="text-sm tracking-wide font-semibold">
+          <div className="flex flex-col gap-4">
+            {isMenuToggle ? (
+              <span className="text-sm tracking-wide font-semibold block h-5">
                 OTHERS
               </span>
+            ) : (
+              <div className="h-5" /> /* FIXED: Acts as a structural height anchor */
+            )}
 
-              <ChevronDown
-                size={18}
-                className={`transition-transform duration-300 ${
-                  isOthersOpen ? "rotate-180" : "rotate-0"
-                }`}
-              />
-            </button>
-          ) : null}
+            <div className="flex flex-col gap-2 overflow-hidden">
+              {navItems2.map((item) => {
+                const isActive = location.pathname === item.link;
 
-          <div
-            className={`flex flex-col gap-2 overflow-hidden transition-all duration-300 ${
-              isOthersOpen || !isMenuToggle
-                ? "max-h-96 opacity-100"
-                : "max-h-0 opacity-0"
-            }`}
-          >
-            {navItems2.map((item) => {
-              const isActive = location.pathname === item.link;
-
-              return (
-                <button
-                  onClick={() => navigate(item.link)}
-                  key={item.id}
-                  title={item.name}
-                  className={`hover:cursor-pointer rounded-4xl
-        p-2 flex flex-row items-center
-        transition-all duration-300
-        ${isActive ? "bg-[#75cf4c] text-white" : "hover:bg-gray-100"}
-        ${isMenuToggle ? "justify-start gap-3 pl-4" : "justify-center"}`}
-                >
-                  <item.icon size={18} className="shrink-0" />
-
-                  <span
-                    className={`overflow-hidden whitespace-nowrap transition-all duration-300 ${
-                      isMenuToggle
-                        ? "max-w-40 opacity-100"
-                        : "max-w-0 opacity-0"
-                    }`}
+                return (
+                  <button
+                    onClick={() => navigate(item.link)}
+                    key={item.id}
+                    title={item.name}
+                    className={`hover:cursor-pointer rounded-4xl
+                    p-2 flex flex-row items-center
+                    transition-all duration-300
+                    ${isActive ? "bg-[#75cf4c] text-white" : "hover:bg-gray-100"}
+                    ${isMenuToggle ? "justify-start gap-3 pl-4" : "justify-center"}`}
                   >
-                    {item.name}
-                  </span>
-                </button>
-              );
-            })}
+                    <item.icon size={18} className="shrink-0" />
+
+                    <span
+                      className={`overflow-hidden whitespace-nowrap transition-all duration-300 ${
+                        isMenuToggle
+                          ? "max-w-40 opacity-100"
+                          : "max-w-0 opacity-0"
+                      }`}
+                    >
+                      {item.name}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
           </div>
-        </div>
-      </nav>
-      <div className="flex flex-col">
+        </nav>
+      </div>
+
+      {/* FIXED: Handled footer padding inside its own container */}
+      <div
+        className={`flex flex-col mt-auto bg-white pb-6 border-t border-gray-100 transition-all duration-300 ${
+          isMenuToggle ? "px-6 pt-4" : "px-2.5 pt-4"
+        }`}
+      >
         <button
-          onClick={handleLogout}
+          onClick={() => setShowLogoutConfirm(true)}
           className={`hover:cursor-pointer text-red-500 hover:bg-gray-100 rounded-4xl
               p-2 flex flex-row items-center
               transition-all duration-300
@@ -202,6 +183,10 @@ const SideBar = ({ isMenuToggle }: DashboardSidebarProps) => {
           </span>
         </button>
       </div>
+      <Logout
+        showLogoutConfirm={showLogoutConfirm}
+        setShowLogoutConfirm={setShowLogoutConfirm}
+      />
     </aside>
   );
 };

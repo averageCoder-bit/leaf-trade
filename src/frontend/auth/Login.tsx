@@ -256,7 +256,7 @@ const Login = () => {
             <div className="flex justify-end -mt-3">
               <a
                 className="text-xs font-medium hover:underline text-blue-700"
-                href=""
+                href="/password-reset"
               >
                 Forgot Password?
               </a>
@@ -273,13 +273,16 @@ const Login = () => {
               type="submit"
               disabled={isLoggingIn || rateLimitSeconds > 0}
               className="p-2.5 w-full bg-[#75cf4c] text-center text-white rounded-3xl 
-            hover:bg-[#85d65c] active:bg-[#5fb33a] transition duration-300 ease-in-out cursor-pointer text-sm font-semibold md:text-base"
+            hover:bg-[#85d65c] active:bg-[#5fb33a] transition duration-300 ease-in-out 
+              cursor-pointer text-sm font-semibold md:text-base disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {rateLimitSeconds > 0
-                ? `Try again in ${Math.floor(rateLimitSeconds / 60)}:${String(
-                    rateLimitSeconds % 60,
-                  ).padStart(2, "0")}`
-                : "Sign In"}
+              {isLoggingIn
+                ? "Signing in..."
+                : rateLimitSeconds > 0
+                  ? `Try again in ${Math.floor(rateLimitSeconds / 60)}:${String(
+                      rateLimitSeconds % 60,
+                    ).padStart(2, "0")}`
+                  : "Sign In"}
             </button>
           </form>
           <div className="flex flex-col items-center">

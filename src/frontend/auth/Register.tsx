@@ -85,8 +85,6 @@ const Register = () => {
     firstName,
     lastName,
     email,
-    // username,
-    // phoneNumber,
   };
 
   sessionStorage.setItem(
@@ -489,8 +487,8 @@ const Register = () => {
               type="submit"
               disabled={!canRegister}
               className="p-2.5 w-full disabled:opacity-50
-              disabled:cursor-not-allowed bg-[#75cf4c] text-center text-white rounded-3xl my-10
-            hover:bg-[#85d65c] active:bg-[#5fb33a] transition duration-300 ease-in-out cursor-pointer text-sm font-semibold md:text-base"
+              disabled:cursor-not-allowed  text-center text-white rounded-3xl my-10
+            hover:bg-[#85d65c] active:bg-[#5fb33a] bg-[#75cf4c] transition duration-300 ease-in-out cursor-pointer text-sm font-semibold md:text-base"
             >
               Register
             </button>

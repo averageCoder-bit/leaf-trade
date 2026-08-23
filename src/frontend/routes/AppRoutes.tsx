@@ -18,6 +18,8 @@ import Reports from "../pages/Reports";
 import Settings from "../pages/Settings";
 import HelpCenter from "../pages/HelpCenter";
 import ProtectedLayout from "../layout/ProtectedLayout";
+import ForgotPassword from "../auth/ForgotPassword";
+import MarketPlace from "../pages/Marketplace";
 
 function AppRoutes() {
   return (
@@ -33,12 +35,14 @@ function AppRoutes() {
 
       <Route path="/verification" element={<EmailVerification />} />
       <Route path="/device-verification" element={<DeviceVerification />} />
+      <Route path="password-reset" element={<ForgotPassword />} />
       <Route path="/sso-callback" element={<SSOCallback />} />
 
       <Route element={<ProtectedRoute />}>
         <Route element={<ProtectedLayout />}>
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/products" element={<Products />} />
+          <Route path="/marketplace" element={<MarketPlace />} />
           <Route path="/orders-invoices" element={<Orders />} />
           <Route path="/profile" element={<UserProfile />} />
           <Route path="/reports" element={<Reports />} />
