@@ -1,16 +1,10 @@
 import uuid
-from backend.database.base import Base
+from database.base import Base
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy import String, Uuid, DateTime
-from datetime import datetime, timezone
-from zoneinfo import ZoneInfo
-from sqlalchemy import Numeric, Boolean
-from decimal import Decimal
-
-PHT = ZoneInfo("Asia/Manila")
-
-def get_utc_now() -> datetime:
-    return datetime.now(timezone.utc)
+from datetime import datetime
+from common.get_utc import get_utc_now
+from sqlalchemy import Boolean
 
 class User(Base):
     __tablename__ = "users"
@@ -28,7 +22,7 @@ class User(Base):
         String(30), nullable=False
     )
     phone_number:Mapped[str] = mapped_column(
-        String(11), nullable=False, unique=True
+        String(15), nullable=False, unique=True
     )
     username:Mapped[str] = mapped_column(String(30), nullable=False, unique=True)
     address:Mapped[str | None] = mapped_column(String(100), nullable=True)

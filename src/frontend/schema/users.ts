@@ -5,12 +5,14 @@ export const userSchema = z.object({
   firstName: z.string().min(1).max(30),
   lastName: z.string().min(1).max(30),
   email: z.email(),
-  phoneNumber: z.string().min(11),
+  phoneNumber: z.string().min(15),
 });
 
+// For Clerk authentication
 export const createUserSchema = z.object({
   firstName: z.string().min(1).max(30),
   lastName: z.string().min(1).max(30),
+  username: z.string().min(3).max(30),
   email: z.email(),
 });
 

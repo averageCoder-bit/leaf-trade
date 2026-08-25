@@ -12,8 +12,6 @@ import {
   FaTimesCircle,
 } from "react-icons/fa";
 
-// import { LuCircleAlert } from "react-icons/lu";
-
 import {
   sanitizeName,
   sanitizeUsername,
@@ -84,6 +82,7 @@ const Register = () => {
   const registrationData: CreateUser = {
     firstName,
     lastName,
+    username,
     email,
   };
 
@@ -185,6 +184,7 @@ const Register = () => {
     mutationFn: async () => {
       const clerkResult = await signUp.create({
         emailAddress: email,
+        username,
         password,
         firstName,
         lastName,
@@ -247,7 +247,7 @@ const Register = () => {
                     value={firstName}
                     onChange={handleFirstNameChange}
                     minLength={1}
-                    maxLength={50}
+                    maxLength={30}
                   />
                 </div>
               </div>
@@ -261,7 +261,7 @@ const Register = () => {
                   value={lastName}
                   onChange={handleLastNameChange}
                   minLength={1}
-                  maxLength={50}
+                  maxLength={30}
                 />
               </div>
             </div>
@@ -278,6 +278,7 @@ const Register = () => {
                   name="email"
                   autoComplete="email"
                   required
+                  maxLength={254}
                   placeholder="juan@example.com"
                   value={email}
                   onChange={handleEmailChange}

@@ -11,6 +11,7 @@ import {
   ClipboardClock,
   BotMessageSquare,
   Store,
+  MessageCircle,
 } from "lucide-react";
 
 interface DashboardSidebarProps {
@@ -33,6 +34,7 @@ const SideBar = ({ isMenuToggle }: DashboardSidebarProps) => {
       icon: ClipboardClock,
     },
     { id: 4, name: "Marketplace", link: "/marketplace", icon: Store },
+    { id: 5, name: "Messages", link: "/messages", icon: MessageCircle },
   ];
 
   const navItems2 = [

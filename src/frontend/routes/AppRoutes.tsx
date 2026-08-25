@@ -20,6 +20,7 @@ import HelpCenter from "../pages/HelpCenter";
 import ProtectedLayout from "../layout/ProtectedLayout";
 import ForgotPassword from "../auth/ForgotPassword";
 import MarketPlace from "../pages/Marketplace";
+import Messages from "../pages/Messages";
 
 function AppRoutes() {
   return (
@@ -43,6 +44,7 @@ function AppRoutes() {
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/products" element={<Products />} />
           <Route path="/marketplace" element={<MarketPlace />} />
+          <Route path="/messages" element={<Messages />} />
           <Route path="/orders-invoices" element={<Orders />} />
           <Route path="/profile" element={<UserProfile />} />
           <Route path="/reports" element={<Reports />} />

@@ -13,7 +13,7 @@ export const sanitizePhone = (value: string): string => {
 
 export const sanitizeEmail = (value: string): string => {
   return value.replace(/[^A-Za-z0-9@._\-+]/gu, "");
-};
+};  
 
 export const sanitizePassword = (value: string): string => {
   return value.replace(/[^A-Za-z0-9!@#$%^&*(),.?":{}|<>_\-+=]/g, "");
