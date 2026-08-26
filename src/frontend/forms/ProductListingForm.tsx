@@ -24,9 +24,9 @@ const ListingForm = ({ isOpenForm, setIsOpenForm }: ListingFormProps) => {
   const [isValidPrice, setIsValidPrice] = useState<boolean>(false);
   const [priceError, setPriceError] = useState<string>("");
   const [nameError, setNameError] = useState<string>("");
-  const [hasListCategory, setHasListCategory] = useState<boolean>(false);
-  const [hasListCondition, setHasListCondition] = useState<boolean>(false);
-  const [isListing, setIsListing] = useState<boolean>(false);
+  // const [hasListCategory, setHasListCategory] = useState<boolean>(false);
+  // const [hasListCondition, setHasListCondition] = useState<boolean>(false);
+  // const [isListing, setIsListing] = useState<boolean>(false);
   const [fileError, setFileError] = useState<string>("");
 
   const [listName, setListName] = useState("");
@@ -37,8 +37,8 @@ const ListingForm = ({ isOpenForm, setIsOpenForm }: ListingFormProps) => {
   const [files, setFiles] = useState<FilePreview[]>([]);
   const hasFiles = files.length > 0;
 
-  const isListValid =
-    isValidName && isValidPrice && hasListCategory && hasListCondition;
+  // const isListValid =
+  //   isValidName && isValidPrice && hasListCategory && hasListCondition;
 
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setListName(sanitizeProductName(e.target.value));
@@ -94,9 +94,9 @@ const ListingForm = ({ isOpenForm, setIsOpenForm }: ListingFormProps) => {
     }
   };
 
-  const handleConditionChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setCondition(e.target.value);
-  };
+  // const handleConditionChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+  //   setCondition(e.target.value);
+  // };
   const selectedCondition = conditions.find((item) => item.value === condition);
   const handleCategoryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setCategory(e.target.value);
@@ -291,7 +291,7 @@ const ListingForm = ({ isOpenForm, setIsOpenForm }: ListingFormProps) => {
                     onClick={() =>
                       document.getElementById("file-upload")?.click()
                     }
-                    disabled={files.length === 6}
+                    disabled={files.length === MAX_FILES_LENGTH}
                     className={`flex flex-col justify-center items-center ${hasFiles ? "p-3 rounded-3xl" : "rounded-r-2xl px-4"} disabled:opacity-50 disabled:cursor-not-allowed text-center text-white text-sm hover:cursor-pointer hover:bg-[#85d65c] active:bg-[#5fb33a] bg-[#75cf4c]`}
                   >
                     {hasFiles ? "Add Files" : "Choose files"}
@@ -335,6 +335,9 @@ const ListingForm = ({ isOpenForm, setIsOpenForm }: ListingFormProps) => {
                 <p className="text-sm md:text-base">
                   Listing breakdown unavailable, <br />
                   please fill up the form first
+                  {fileError}
+                  {isValidName}
+                  {nameError}
                 </p>
               </div>
               <div className="flex flex-col justify-between">
