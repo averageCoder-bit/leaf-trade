@@ -2,7 +2,6 @@ from dotenv import load_dotenv
 import os
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from database.base import Base
 
 load_dotenv()
 
@@ -15,7 +14,6 @@ SessionLocal = sessionmaker(
 
 def get_db():
     db = SessionLocal()
-
     try:
         yield db
     finally:

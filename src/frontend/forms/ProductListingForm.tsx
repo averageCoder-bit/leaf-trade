@@ -1,5 +1,18 @@
 import { X, PlusIcon, FolderMinus } from "lucide-react";
 import { useState } from "react";
+import {
+  sanitizeProductName,
+  sanitizeProductPrice,
+  MAX_PRICE,
+  MAX_FILE_SIZE,
+  MAX_FILES_LENGTH,
+  ALLOWED_TYPES,
+  checkNameValidity,
+  checkPriceValidity,
+  categories,
+  conditions,
+  type FilePreview,
+} from "../validator/listProductForm";
 
 interface ListingFormProps {
   isOpenForm: boolean;
@@ -7,21 +20,117 @@ interface ListingFormProps {
 }
 
 const ListingForm = ({ isOpenForm, setIsOpenForm }: ListingFormProps) => {
-  // const [hasListName, setHasListName] = useState(false);
-  // const [hasListPrice, setHasListPrice] = useState(false);
-  // const [hasListCategory, setHasListCategory] = useState(false);
-  // const [hasListCondition, setHasListCondition] = useState(false);
-  // const [isListing, setIsListing] = useState(false);
+  const [isValidName, setIsValidName] = useState<boolean>(false);
+  const [isValidPrice, setIsValidPrice] = useState<boolean>(false);
+  const [priceError, setPriceError] = useState<string>("");
+  const [nameError, setNameError] = useState<string>("");
+  const [hasListCategory, setHasListCategory] = useState<boolean>(false);
+  const [hasListCondition, setHasListCondition] = useState<boolean>(false);
+  const [isListing, setIsListing] = useState<boolean>(false);
+  const [fileError, setFileError] = useState<string>("");
 
   const [listName, setListName] = useState("");
+  const [price, setPrice] = useState("");
   const [category, setCategory] = useState("");
   const [condition, setCondition] = useState("");
 
-  // const isListValid =
-  //   hasListName && hasListPrice && hasListCategory && hasListCondition;
+  const [files, setFiles] = useState<FilePreview[]>([]);
+  const hasFiles = files.length > 0;
+
+  const isListValid =
+    isValidName && isValidPrice && hasListCategory && hasListCondition;
+
+  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setListName(sanitizeProductName(e.target.value));
+  };
+
+  const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const sanitized = sanitizeProductPrice(e.target.value);
+
+    if (sanitized === "") {
+      setPrice("");
+      return;
+    }
+    const [integer, decimal] = sanitized.split(".");
+    const formattedInteger = Number(integer).toLocaleString("en-PH");
+
+    const formatted =
+      decimal !== undefined
+        ? `${formattedInteger}.${decimal}`
+        : formattedInteger;
+
+    setPrice(formatted);
+  };
+
+  const handlePriceBlur = () => {
+    const rawPrice = price.replace(/,/g, "");
+    if (rawPrice === "") {
+      setPriceError("");
+      return;
+    }
+    if (!checkPriceValidity(rawPrice)) {
+      setIsValidPrice(false);
+      setPriceError("Price is not valid");
+    } else if (Number(rawPrice) > MAX_PRICE) {
+      setIsValidPrice(false);
+      setPriceError("Price cannot exceed ₱10,000,000");
+    } else {
+      setIsValidPrice(true);
+      setPriceError("");
+    }
+  };
+
+  const handleNameBlur = () => {
+    if (listName === "") {
+      setNameError("");
+      return;
+    }
+    if (!checkNameValidity(listName)) {
+      setNameError("Product name is invalid");
+      setIsValidName(false);
+    } else {
+      setNameError("");
+      setIsValidName(true);
+    }
+  };
+
+  const handleConditionChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setCondition(e.target.value);
+  };
+  const selectedCondition = conditions.find((item) => item.value === condition);
+  const handleCategoryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setCategory(e.target.value);
+  };
+  const selectedCategory = categories.find((item) => item.value === category);
 
   const handleSubmitListing = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault;
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedFiles = Array.from(e.target.files ?? []);
+
+    if (selectedFiles.length === 0) return;
+
+    for (const file of selectedFiles) {
+      if (file.size > MAX_FILE_SIZE) {
+        setFileError(`${file.name} must be 10 MB or smaller.`);
+        return;
+      }
+
+      if (!ALLOWED_TYPES.includes(file.type)) {
+        setFileError(`${file.name} is an unsupported file type.`);
+        return;
+      }
+    }
+
+    const newFiles: FilePreview[] = selectedFiles.map((file) => ({
+      file,
+      preview: URL.createObjectURL(file),
+    }));
+
+    setFileError("");
+    setFiles(newFiles);
   };
   // const handleFileSubmit = () => {};
   return (
@@ -51,7 +160,9 @@ const ListingForm = ({ isOpenForm, setIsOpenForm }: ListingFormProps) => {
                   minLength={3}
                   maxLength={50}
                   required
-                  onBlur={(e) => setListName(e.target.value)}
+                  value={listName}
+                  onBlur={handleNameBlur}
+                  onChange={handleNameChange}
                   type="text"
                   className="outline-1 outline-black rounded-3xl p-2"
                 />
@@ -61,43 +172,39 @@ const ListingForm = ({ isOpenForm, setIsOpenForm }: ListingFormProps) => {
                 <label className="">Price</label>
                 <input
                   required
-                  type="number"
+                  type="text"
                   min={1}
+                  value={price}
+                  onChange={handlePriceChange}
+                  onBlur={handlePriceBlur}
                   max={1000000}
                   step={0.01}
                   placeholder="₱0.00"
                   className="outline-1 outline-black rounded-3xl p-2"
                 />
+                {!isValidPrice ? (
+                  priceError === "Price cannot exceed ₱10,000,000" ? (
+                    <p className="text-red-400">{priceError}</p>
+                  ) : (
+                    <p className="text-orange-400">{priceError}</p>
+                  )
+                ) : null}
               </div>
               <div className="flex flex-col gap-2">
                 <label>Category</label>
                 <select
-                  value={category}
-                  onChange={(e) => setCategory(e.target.value)}
                   required
                   className="outline-1 outline-black p-2"
+                  value={category}
+                  onChange={handleCategoryChange}
                 >
-                  <option selected disabled>
-                    Choose your product's category
-                  </option>
-                  <option value="electronics">Electronics</option>
-                  <option value="fashion-and-clothing">
-                    Fashion & Clothing
-                  </option>
-                  <option value="home-and-living">Home & Living</option>
-                  <option value="appliances">Appliances</option>
-                  <option value="books-and-education">Books & Education</option>
-                  <option value="sports-and-outdoors">Sports & Outdoors</option>
-                  <option value="toys-and-games">Toys & Games</option>
-                  <option value="beauty-and-personal-care">
-                    Beauty & Personal Care
-                  </option>
-                  <option value="hobbies-and-collections">
-                    Hobbies & Collections
-                  </option>
-                  <option value="pet-supplies">Pet Supplies</option>
-                  <option value="tools-and-equipment">Tools & Equipment</option>
-                  <option value="automotive">Automotive</option>
+                  <option disabled>Select a category</option>
+
+                  {categories.map((category) => (
+                    <option key={category.value} value={category.value}>
+                      {category.label}
+                    </option>
+                  ))}
                 </select>
               </div>
 
@@ -111,17 +218,19 @@ const ListingForm = ({ isOpenForm, setIsOpenForm }: ListingFormProps) => {
                   <option selected disabled>
                     What's your product's condition?
                   </option>
-                  <option value="brand-new">Brand New</option>
-                  <option value="like-new">Like New</option>
-                  <option value="good">Good</option>
-                  <option value="fair">Fair</option>
-                  <option value="poor">Poor</option>
+                  {conditions.map((condition) => (
+                    <option key={condition.value} value={condition.value}>
+                      {condition.label}
+                    </option>
+                  ))}
                 </select>
               </div>
 
               <div className="flex flex-col gap-2">
                 <label className="">Description</label>
                 <textarea
+                  minLength={10}
+                  maxLength={2000}
                   required
                   rows={4}
                   className="outline-1 outline-black rounded-xl p-2 resize-none"
@@ -131,23 +240,67 @@ const ListingForm = ({ isOpenForm, setIsOpenForm }: ListingFormProps) => {
             <div className="flex flex-col gap-4 justify-start">
               <div className="flex flex-col gap-4">
                 <label>Select and upload images or videos (max. of 6)</label>
-                <div className="flex flex-row justify-center items-stretch">
-                  <output className="w-full h-full rounded-l-xl p-4 border-dashed border text-center">
-                    <div className="flex flex-col space-y-3 justify-center items-center">
-                      <p className="font-semibold">Only valid formats</p>
-                      <p className="text-sm">JPG, PNG, MP4</p>
-                    </div>
-                  </output>
-                  <label
-                    htmlFor="file-upload"
-                    className="flex flex-col justify-center items-center px-4 text-center rounded-r-2xl text-white text-sm hover:cursor-pointer hover:bg-[#85d65c] active:bg-[#5fb33a] bg-[#75cf4c]"
+                <div
+                  className={`flex ${hasFiles ? "flex-col" : "flex-row"} justify-center items-stretch`}
+                >
+                  <div
+                    className={`w-full h-full ${hasFiles ? "rounded-xl mb-3 p-2" : "rounded-l-xl p-4"}  border-dashed border text-center`}
                   >
-                    Choose files
-                  </label>
+                    <div
+                      className={`${hasFiles ? "hidden" : "block"} flex flex-col space-y-3 justify-center items-center`}
+                    >
+                      <p className="font-semibold">Only valid formats</p>
+                      <p className="text-sm">JPG, PNG, MP4 (10MB)</p>
+                    </div>
+                    {files.length > 0 ? (
+                      <div className="flex flex-row gap-3 p-2">
+                        <div className="grid grid-cols-3 gap-3">
+                          {files.slice(0, 6).map((item, index) => (
+                            <div className="relative" key={index}>
+                              <button
+                                type="button"
+                                className="absolute top-2 right-2 z-10 rounded-full bg-white shadow-sm hover:cursor-pointer"
+                              >
+                                <X size={20} />
+                              </button>
+                              {item.file.type.startsWith("image/") ? (
+                                <img
+                                  className="rounded-xl aspect-square h-full w-full"
+                                  src={item.preview}
+                                  alt={`Preview ${index + 1}`}
+                                />
+                              ) : (
+                                <video
+                                  src={item.preview}
+                                  controls
+                                  autoPlay
+                                  muted
+                                  playsInline
+                                  loop
+                                  className="rounded-xl aspect-video h-full w-full"
+                                />
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ) : null}
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      document.getElementById("file-upload")?.click()
+                    }
+                    disabled={files.length === 6}
+                    className={`flex flex-col justify-center items-center ${hasFiles ? "p-3 rounded-3xl" : "rounded-r-2xl px-4"} disabled:opacity-50 disabled:cursor-not-allowed text-center text-white text-sm hover:cursor-pointer hover:bg-[#85d65c] active:bg-[#5fb33a] bg-[#75cf4c]`}
+                  >
+                    {hasFiles ? "Add Files" : "Choose files"}
+                  </button>
                   <input
                     id="file-upload"
                     type="file"
-                    multiple={true}
+                    onChange={handleFileChange}
+                    multiple
                     accept="image/png, image/webp, image/jpg, image/webp, video/mp4"
                     className="outline-1 p-1 hidden"
                   />
@@ -193,8 +346,8 @@ const ListingForm = ({ isOpenForm, setIsOpenForm }: ListingFormProps) => {
                   </div>
                   <div className="grid grid-rows-3 text-right gap-2">
                     <p className="truncate">{listName}</p>
-                    <p>{category}</p>
-                    <p>{condition}</p>
+                    <p>{selectedCategory?.label || "-"}</p>
+                    <p>{selectedCondition?.label || "-"}</p>
                   </div>
                   <div className="flex flex-row justify-between"></div>
                 </div>
@@ -202,7 +355,9 @@ const ListingForm = ({ isOpenForm, setIsOpenForm }: ListingFormProps) => {
                 <div className="flex flex-col space-y-5">
                   <div className="flex flex-row justify-between">
                     <label className="font-semibold">Price assessment:</label>
-                    <p>Price</p>
+                    <p className="truncate">
+                      {price ? "₱" : null} {price} {/*Temporary placeholder */}
+                    </p>
                   </div>
                   <button
                     type="submit"

@@ -1,13 +1,17 @@
 import uuid
-from database.base import Base
-from sqlalchemy.orm import Mapped, mapped_column
+from src.backend.database.base import Base
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy import String, Uuid, DateTime
 from datetime import datetime
-from common.get_utc import get_utc_now
+from src.backend.common.get_utc import get_utc_now
 from sqlalchemy import Boolean
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from backend.models.product import Product
 
 class User(Base):
-    __tablename__ = "users"
+    __tablename__ = "user"
     user_id:Mapped[uuid.UUID] = mapped_column(Uuid, primary_key=True, default=uuid.uuid4)
     clerk_user_id: Mapped[str] = mapped_column(
         String, nullable=False, unique=True
@@ -39,4 +43,9 @@ class User(Base):
         Boolean,
         default=True,
         nullable=False
+    )
+
+    products: Mapped[list["Product"]] = relationship(
+        back_populates="seller",
+        cascade="all, delete-orphan"
     )

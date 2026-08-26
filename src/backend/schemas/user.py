@@ -7,8 +7,9 @@ class CreateUserSchema(BaseModel):
     lastName: Annotated[str, Field(min_length=1, max_length=30)]
     email: Annotated[EmailStr, Field(max_length=254)]
     username: Annotated[str, Field(
-        min_length=3, max_length=30, pattern=""
+        min_length=3, max_length=30
     )]
 
-# class UserSchema(BaseModel):
+class UserSchema(BaseModel):
+    pass
 
