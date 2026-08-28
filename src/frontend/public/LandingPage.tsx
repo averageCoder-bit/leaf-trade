@@ -33,7 +33,7 @@ const LandingPage = () => {
   const Benefits = BenefitsSection;
   return (
     <>
-      <main className="pt-10 md:pt-20 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 md:space-y-10">
+      <main className="pt-10 md:pt-20 mx-auto max-w-7xl px-10 sm:px-6 lg:px-8 md:space-y-10">
         <section>
           <div className="flex flex-col md:grid md:grid-cols-2 justify-center items-center min-h-165">
             <div className="flex flex-col justify-center items-center gap-5">

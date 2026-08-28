@@ -1,4 +1,4 @@
-import { PlusCircle } from "lucide-react";
+import { PlusCircle, Plus } from "lucide-react";
 import SearchFilter from "../components/SearchFilterBar";
 import ListingForm from "../forms/ProductListingForm";
 import { useState } from "react";
@@ -14,7 +14,7 @@ const Products = () => {
         />
         <button
           onClick={() => setIsOpenForm(true)}
-          className="hidden md:flex text-sm md:text-base md:flex-row text-white hover:bg-[#85d65c] active:bg-[#5fb33a] bg-[#75cf4c] gap-2 p-3 items-center rounded-4xl hover:cursor-pointer"
+          className="hidden md:flex text-sm md:text-base text-white hover:bg-[#85d65c] active:bg-[#5fb33a] bg-[#75cf4c] gap-2 p-3 items-center rounded-full md:rounded-4xl hover:cursor-pointer"
         >
           Create listing
           <PlusCircle size={20} />
@@ -28,6 +28,17 @@ const Products = () => {
           You currently have no products listed
         </p>
       </div> */}
+      <div className="flex flex-row justify-end w-full md:hidden">
+        {isOpenForm ? null : (
+          <button
+            title="Create listing"
+            onClick={() => setIsOpenForm(true)}
+            className="rounded-full hover:bg-[#85d65c] active:bg-[#5fb33a] bg-[#75cf4c] text-white p-3 text-center"
+          >
+            <Plus size={30} />
+          </button>
+        )}
+      </div>
     </div>
   );
 };
