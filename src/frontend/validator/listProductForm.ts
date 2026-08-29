@@ -39,6 +39,8 @@ export const categories: CategoryProps[] = [
   { value: "automotive", label: "Automotive" },
 ];
 
+export const attributes = ["Model", "Brand", "Warranty", "Year Purchased"];
+
 export const conditions: ConditionProps[] = [
   { value: "brand-new", label: "Brand new" },
   { value: "like-new", label: "Like new" },

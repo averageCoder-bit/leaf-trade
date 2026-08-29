@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
 
 from auth.dependencies import get_current_user
@@ -12,7 +12,7 @@ from database.database import get_db
 router = APIRouter()
 
 
-@router.post("/users")
+@router.post("/users", status_code=status.HTTP_201_CREATED)
 async def create_user(
     data: CreateUserSchema,
     current_user: ClerkTokenPayload = Depends(get_current_user),

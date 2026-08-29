@@ -16,6 +16,7 @@ jwks_client = jwt.PyJWKClient(
     lifespan=300               
 )
 
+
 async def get_current_user(
     credentials: HTTPAuthorizationCredentials = Depends(security_scheme),
 ) -> ClerkTokenPayload:
@@ -41,20 +42,16 @@ async def get_current_user(
             )
 
         return ClerkTokenPayload(
-            user_id=payload["sub"],
+            user_id=payload["user_id"],
         )
 
     except jwt.ExpiredSignatureError:
-        print("JWT ERROR: EXPIRED")
-
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Session has expired. Please authenticate again.",
         )
 
     except jwt.InvalidTokenError as e:
-        print("JWT ERROR:", type(e).__name__, str(e))
-
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid authentication credentials",

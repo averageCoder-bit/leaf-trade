@@ -1,4 +1,4 @@
-import { PlusCircle, Plus } from "lucide-react";
+import { PlusCircle, Plus, Package2 } from "lucide-react";
 import SearchFilter from "../components/SearchFilterBar";
 import ListingForm from "../forms/ProductListingForm";
 import { useState } from "react";
@@ -22,12 +22,15 @@ const Products = () => {
       </div>
       <ListingForm setIsOpenForm={setIsOpenForm} isOpenForm={isOpenForm} />
 
-      {/* <div className="flex-1 flex flex-col items-center justify-center text-center gap-4">
-        <Package2 size={50} />
-        <p className="text-sm md:text-base">
-          You currently have no products listed
-        </p>
-      </div> */}
+      {isOpenForm ? null : (
+        <div className="flex-1 flex flex-col items-center justify-center text-center gap-4">
+          <Package2 size={50} />
+          <p className="text-sm md:text-base">
+            You currently have no products listed
+          </p>
+        </div>
+      )}
+
       <div className="flex flex-row justify-end w-full md:hidden">
         {isOpenForm ? null : (
           <button

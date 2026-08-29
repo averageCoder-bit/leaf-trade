@@ -1,4 +1,4 @@
-import { X, PlusIcon, FolderMinus } from "lucide-react";
+import { X, PlusIcon, FolderMinus, Trash2 } from "lucide-react";
 import { useState } from "react";
 import {
   sanitizeProductName,
@@ -12,8 +12,10 @@ import {
   checkPriceValidity,
   categories,
   conditions,
+  attributes,
   type FilePreview,
 } from "../validator/listProductForm";
+import SelectMenu from "../components/CustomDropMenu";
 
 interface ListingFormProps {
   isOpenForm: boolean;
@@ -30,6 +32,7 @@ const ListingForm = ({ isOpenForm, setIsOpenForm }: ListingFormProps) => {
   // const [isListing, setIsListing] = useState<boolean>(false);
   const [fileError, setFileError] = useState<string>("");
   const [hasDelivery, setHasDelivery] = useState<boolean>(false);
+  const [attrFormToggle, setAttrFormToggle] = useState<boolean>(false);
 
   const [listName, setListName] = useState("");
   const [price, setPrice] = useState("");
@@ -243,6 +246,12 @@ const ListingForm = ({ isOpenForm, setIsOpenForm }: ListingFormProps) => {
                   ))}
                 </select>
               </div>
+              <SelectMenu
+                placeholder="Select category"
+                options={categories}
+                value={category}
+                onChange={setCategory}
+              />
 
               <div className="flex flex-col gap-2">
                 <label>Condition</label>
@@ -287,8 +296,8 @@ const ListingForm = ({ isOpenForm, setIsOpenForm }: ListingFormProps) => {
                       className={`${hasFiles ? "hidden" : "block"} flex flex-col space-y-3 justify-center items-center`}
                     >
                       <p className="font-semibold">Only valid formats</p>
-                      <p className="text-sm">
-                        JPG, PNG, WEBP · (10MB) MP4 · (25MB)
+                      <p className="text-xs md:text-sm">
+                        JPG, PNG, WEBP · (5MB) MP4 · (25MB)
                       </p>
                     </div>
                     {files.length > 0 ? (
@@ -367,16 +376,111 @@ const ListingForm = ({ isOpenForm, setIsOpenForm }: ListingFormProps) => {
                   <option value="both">Both</option>
                 </select>
               </div>
-              <div className="flex flex-row justify-between items-center">
-                <label>Product attributes</label>
-                <button
-                  title="Add Brand, "
-                  type="button"
-                  className="hover:cursor-pointer p-2 rounded-lg hover:bg-[#85d65c] active:bg-[#5fb33a] bg-[#75cf4c]"
+              <div className="flex flex-col gap-4">
+                <div className="flex flex-row justify-between items-center">
+                  <label>Product attributes</label>
+                  <button
+                    onClick={() => setAttrFormToggle((prev) => !prev)}
+                    title="Add Brand, year purchased, model, or warranty"
+                    type="button"
+                    className="hover:cursor-pointer p-2 rounded-lg hover:bg-[#85d65c] active:bg-[#5fb33a] bg-[#75cf4c]"
+                  >
+                    {attrFormToggle ? (
+                      <PlusIcon size={18} className="text-white" />
+                    ) : (
+                      <X size={18} className="text-white" />
+                    )}
+                  </button>
+                </div>
+                <div
+                  className={`${attrFormToggle ? "hidden" : "grid"} grid-rows-2 grid-cols-2 md:grid-rows-1 md:grid-cols-4 py-2 gap-4 md:gap-2 transition-all duration-300`}
                 >
-                  <PlusIcon size={18} className="text-white" />
-                </button>
+                  {attributes.map((i, index) => (
+                    <button
+                      key={index}
+                      type="button"
+                      className="rounded-2xl text-sm shadow-md shadow-gray-200 p-2 hover:cursor-pointer hover:bg-gray-200"
+                    >
+                      {i}
+                    </button>
+                  ))}
+                </div>
               </div>
+              <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-2">
+                <label>Model</label>
+                <div className="flex flex-row gap-2">
+                  <input
+                    type="text"
+                    className="text-right p-1.5 rounded-3xl outline-1 outline-black w-full"
+                  ></input>
+                  <button
+                    type="button"
+                    title="Remove attribute"
+                    className="hover:cursor-pointer"
+                  >
+                    <Trash2 size={18} color="red" />
+                  </button>
+                </div>
+              </div>
+              <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-2">
+                <label>Brand</label>
+                <div className="flex flex-row gap-2">
+                  <input
+                    type="text"
+                    className="text-right p-1.5 rounded-3xl outline-1 outline-black w-full"
+                  ></input>
+                  <button
+                    type="button"
+                    title="Remove attribute"
+                    className="hover:cursor-pointer"
+                  >
+                    <Trash2 size={18} color="red" />
+                  </button>
+                </div>
+              </div>
+              <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-2">
+                <label>Year Purchased</label>
+                <div className="flex flex-row gap-2">
+                  <input
+                    type="number"
+                    className="text-right p-1.5 rounded-3xl outline-1 outline-black w-full"
+                  ></input>
+                  <button
+                    type="button"
+                    title="Remove attribute"
+                    className="hover:cursor-pointer"
+                  >
+                    <Trash2 size={18} color="red" />
+                  </button>
+                </div>
+              </div>
+              <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-2">
+                <label>Warranty</label>
+                <div className="flex flex-row gap-2">
+                  <select className="outline-1 outline-black p-2.5 rounded-3xl w-full">
+                    <option selected hidden>
+                      Select a warranty
+                    </option>
+                    <option>No warranty</option>
+                    <option>Manufacturer warranty</option>
+                    <option>Seller warranty</option>
+                    <option>Store warranty</option>
+                    <option>Extended warranty</option>
+                  </select>
+                  <button
+                    type="button"
+                    title="Remove attribute"
+                    className="hover:cursor-pointer"
+                  >
+                    <Trash2 size={18} color="red" />
+                  </button>
+                </div>
+              </div>
+
+              {/* <div className="flex flex-row justify-between">
+                <label>Listing from: </label>
+                <p>📍 Location</p>
+              </div> */}
             </div>
 
             <div className="flex flex-col gap-6 justify-start">
