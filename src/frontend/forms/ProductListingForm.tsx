@@ -13,6 +13,7 @@ import {
   categories,
   conditions,
   attributes,
+  options,
   type FilePreview,
 } from "../validator/listProductForm";
 import SelectMenu from "../components/CustomDropMenu";
@@ -27,18 +28,20 @@ const ListingForm = ({ isOpenForm, setIsOpenForm }: ListingFormProps) => {
   const [isValidPrice, setIsValidPrice] = useState<boolean>(false);
   const [priceError, setPriceError] = useState<string>("");
   const [nameError, setNameError] = useState<string>("");
-  const [hasListCategory, setHasListCategory] = useState<boolean>(false);
-  const [hasListCondition, setHasListCondition] = useState<boolean>(false);
+  // const [hasListCategory, setHasListCategory] = useState<boolean>(false);
+  // const [hasListCondition, setHasListCondition] = useState<boolean>(false);
   // const [isListing, setIsListing] = useState<boolean>(false);
+  const [openMenu, setOpenMenu] = useState<string | null>(null);
+
   const [fileError, setFileError] = useState<string>("");
-  const [hasDelivery, setHasDelivery] = useState<boolean>(false);
+  // const [hasDelivery, setHasDelivery] = useState<boolean>(false);
   const [attrFormToggle, setAttrFormToggle] = useState<boolean>(false);
 
   const [listName, setListName] = useState("");
   const [price, setPrice] = useState("");
   const [category, setCategory] = useState("");
   const [condition, setCondition] = useState("");
-  const [deliveryOption, setDeliverOption] = useState("");
+  const [deliveryOption, setDeliveryOption] = useState("");
   const [fileType, setFileType] = useState("");
 
   const [files, setFiles] = useState<FilePreview[]>([]);
@@ -46,12 +49,10 @@ const ListingForm = ({ isOpenForm, setIsOpenForm }: ListingFormProps) => {
 
   // const formData = new FormData();
 
-  const isListValid =
-    isValidName &&
-    isValidPrice &&
-    hasListCategory &&
-    hasListCondition &&
-    hasDelivery;
+  const isListValid = isValidName && isValidPrice;
+  // hasListCategory &&
+  // hasListCondition &&
+  // hasDelivery;
 
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setListName(sanitizeProductName(e.target.value));
@@ -107,21 +108,12 @@ const ListingForm = ({ isOpenForm, setIsOpenForm }: ListingFormProps) => {
     }
   };
 
-  const handleConditionChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setCondition(e.target.value);
-    setHasListCondition(true);
+  const handleToggle = (menu: string) => {
+    setOpenMenu((prev) => (prev === menu ? null : menu));
   };
-  const selectedCondition = conditions.find((item) => item.value === condition);
-  const handleCategoryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setCategory(e.target.value);
-    setHasListCategory(true);
-  };
-  const selectedCategory = categories.find((item) => item.value === category);
-  const handleDeliveryOptionsChange = (
-    e: React.ChangeEvent<HTMLSelectElement>,
-  ) => {
-    setDeliverOption(e.target.value);
-    setHasDelivery(true);
+
+  const handleClose = () => {
+    setOpenMenu(null);
   };
 
   const handleSubmitListing = (e: React.FormEvent<HTMLFormElement>) => {
@@ -229,47 +221,28 @@ const ListingForm = ({ isOpenForm, setIsOpenForm }: ListingFormProps) => {
               </div>
               <div className="flex flex-col gap-2">
                 <label>Category</label>
-                <select
-                  required
-                  className="outline-1 outline-black p-2"
+                <SelectMenu
+                  placeholder="Select category"
+                  options={categories}
                   value={category}
-                  onChange={handleCategoryChange}
-                >
-                  <option selected hidden>
-                    Select a category
-                  </option>
-
-                  {categories.map((category) => (
-                    <option key={category.value} value={category.value}>
-                      {category.label}
-                    </option>
-                  ))}
-                </select>
+                  onChange={setCategory}
+                  isOpen={openMenu === "category"}
+                  onClose={handleClose}
+                  onToggle={() => handleToggle("category")}
+                />
               </div>
-              <SelectMenu
-                placeholder="Select category"
-                options={categories}
-                value={category}
-                onChange={setCategory}
-              />
 
               <div className="flex flex-col gap-2">
                 <label>Condition</label>
-                <select
+                <SelectMenu
+                  placeholder="What's your product conditon?"
+                  options={conditions}
                   value={condition}
-                  required
-                  className="outline-1 outline-black p-2"
-                  onChange={handleConditionChange}
-                >
-                  <option selected hidden>
-                    What's your product's condition?
-                  </option>
-                  {conditions.map((condition) => (
-                    <option key={condition.value} value={condition.value}>
-                      {condition.label}
-                    </option>
-                  ))}
-                </select>
+                  onChange={setCondition}
+                  isOpen={openMenu === "condition"}
+                  onClose={handleClose}
+                  onToggle={() => handleToggle("condition")}
+                />
               </div>
 
               <div className="flex flex-col gap-2">
@@ -362,19 +335,15 @@ const ListingForm = ({ isOpenForm, setIsOpenForm }: ListingFormProps) => {
               </div>
               <div className="flex flex-col gap-2">
                 <label>Delivery / Meetup options</label>
-                <select
+                <SelectMenu
+                  placeholder="How will the buyer receive the item?"
+                  onChange={setDeliveryOption}
+                  options={options}
                   value={deliveryOption}
-                  onChange={handleDeliveryOptionsChange}
-                  required
-                  className="outline-1 outline-black p-2"
-                >
-                  <option selected hidden>
-                    How will the buyer receive the item?
-                  </option>
-                  <option value="delivery">Delivery</option>
-                  <option value="meetup">Meetup</option>
-                  <option value="both">Both</option>
-                </select>
+                  onClose={handleClose}
+                  isOpen={openMenu === "delivery"}
+                  onToggle={() => handleToggle("delivery")}
+                />
               </div>
               <div className="flex flex-col gap-4">
                 <div className="flex flex-row justify-between items-center">
@@ -487,7 +456,7 @@ const ListingForm = ({ isOpenForm, setIsOpenForm }: ListingFormProps) => {
               <h1 className="font-semibold text-md md:text-xl mb-5">
                 Product Summary
               </h1>
-              {isValidName && hasListCategory && hasListCondition ? (
+              {isValidName ? (
                 <div className="flex flex-col justify-between gap-2 h-full pb-7">
                   <div className="grid grid-cols-2">
                     <div className="grid grid-rows-3 text-left gap-2 text-sm md:text-base">
@@ -497,8 +466,8 @@ const ListingForm = ({ isOpenForm, setIsOpenForm }: ListingFormProps) => {
                     </div>
                     <div className="grid grid-rows-3 text-right gap-2">
                       <p className="truncate">{listName || "-"}</p>
-                      <p>{selectedCategory?.label || "-"}</p>
-                      <p>{selectedCondition?.label || "-"}</p>
+                      {/* <p>{selectedCategory?.label || "-"}</p>
+                      <p>{selectedCondition?.label || "-"}</p> */}
                     </div>
                     <div className="flex flex-row justify-between"></div>
                   </div>

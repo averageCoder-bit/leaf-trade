@@ -8,6 +8,11 @@ interface ConditionProps {
   label: string;
 }
 
+interface OptionProps {
+  value: string;
+  label: string;
+}
+
 export type FilePreview = {
   file: File;
   preview: string;
@@ -39,6 +44,10 @@ export const categories: CategoryProps[] = [
   { value: "automotive", label: "Automotive" },
 ];
 
+export const options: OptionProps[] = [
+  { value: "delivery", label: "Delivery" },
+  { value: "meetup", label: "Meetup" },
+];
 export const attributes = ["Model", "Brand", "Warranty", "Year Purchased"];
 
 export const conditions: ConditionProps[] = [

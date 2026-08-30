@@ -215,7 +215,7 @@ const Register = () => {
 
   return (
     <main className="flex flex-row min-h-screen justify-center items-center">
-      <div className="grid grid-cols-1 md:grid-cols-2 shadow-2xl rounded-3xl w-280 h-auto">
+      <div className="grid grid-cols-1 md:grid-cols-2 shadow-2xl rounded-3xl w-280 h-auto ">
         <div className="flex-col justify-center items-center hidden md:flex gap-5">
           <h1>Welcome to LeafTrade</h1>
         </div>
