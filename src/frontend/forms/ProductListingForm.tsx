@@ -3,6 +3,7 @@ import { useState } from "react";
 import {
   sanitizeProductName,
   sanitizeProductPrice,
+  sanitizeYearBought,
   MAX_PRICE,
   MAX_FILES_LENGTH,
   MAX_IMAGE_SIZE,
@@ -13,11 +14,14 @@ import {
   categories,
   conditions,
   attributes,
+  warranties,
   options,
   type FilePreview,
+  sanitizeProductModel,
+  sanitizeProductBrand,
 } from "../validator/listProductForm";
 import SelectMenu from "../components/CustomDropMenu";
-
+// import type { Product } from "../schema/products";
 interface ListingFormProps {
   isOpenForm: boolean;
   setIsOpenForm: React.Dispatch<React.SetStateAction<boolean>>;
@@ -28,14 +32,17 @@ const ListingForm = ({ isOpenForm, setIsOpenForm }: ListingFormProps) => {
   const [isValidPrice, setIsValidPrice] = useState<boolean>(false);
   const [priceError, setPriceError] = useState<string>("");
   const [nameError, setNameError] = useState<string>("");
-  // const [hasListCategory, setHasListCategory] = useState<boolean>(false);
-  // const [hasListCondition, setHasListCondition] = useState<boolean>(false);
+  const [hasListCategory, setHasListCategory] = useState<boolean>(false);
+  const [hasListCondition, setHasListCondition] = useState<boolean>(false);
+  const [hasDelivery, setHasDelivery] = useState<boolean>(false);
   // const [isListing, setIsListing] = useState<boolean>(false);
   const [openMenu, setOpenMenu] = useState<string | null>(null);
 
   const [fileError, setFileError] = useState<string>("");
-  // const [hasDelivery, setHasDelivery] = useState<boolean>(false);
   const [attrFormToggle, setAttrFormToggle] = useState<boolean>(false);
+
+  const [categoryLabel, setCategoryLabel] = useState<string>("");
+  const [conditionLabel, setConditionLabel] = useState<string>("");
 
   const [listName, setListName] = useState("");
   const [price, setPrice] = useState("");
@@ -43,19 +50,40 @@ const ListingForm = ({ isOpenForm, setIsOpenForm }: ListingFormProps) => {
   const [condition, setCondition] = useState("");
   const [deliveryOption, setDeliveryOption] = useState("");
   const [fileType, setFileType] = useState("");
-
   const [files, setFiles] = useState<FilePreview[]>([]);
+  const [attributesList, setAttributesList] = useState<typeof attributes>([]);
+
+  const [attrYear, setAttrYear] = useState("");
+  const [model, setModel] = useState("");
+  const [brand, setBrand] = useState("");
+
   const hasFiles = files.length > 0;
 
-  // const formData = new FormData();
+  const [warranty, setWarranty] = useState<string>("");
+  const [, setWarrantyLabel] = useState<string>("");
+  const [, setHasListWarranty] = useState<boolean>(false);
 
-  const isListValid = isValidName && isValidPrice;
-  // hasListCategory &&
-  // hasListCondition &&
-  // hasDelivery;
+  const isListValid =
+    isValidName &&
+    isValidPrice &&
+    hasListCategory &&
+    hasListCondition &&
+    hasDelivery;
 
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setListName(sanitizeProductName(e.target.value));
+  };
+
+  const handleAttrYearChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setAttrYear(sanitizeYearBought(e.target.value));
+  };
+
+  const handleModelChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setModel(sanitizeProductModel(e.target.value));
+  };
+
+  const handleBrandChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setBrand(sanitizeProductBrand(e.target.value));
   };
 
   const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -80,6 +108,7 @@ const ListingForm = ({ isOpenForm, setIsOpenForm }: ListingFormProps) => {
     const rawPrice = price.replace(/,/g, "");
     if (rawPrice === "") {
       setPriceError("");
+      setIsValidPrice(false);
       return;
     }
     if (!checkPriceValidity(rawPrice)) {
@@ -97,6 +126,7 @@ const ListingForm = ({ isOpenForm, setIsOpenForm }: ListingFormProps) => {
   const handleNameBlur = () => {
     if (listName === "") {
       setNameError("");
+      setIsValidName(false);
       return;
     }
     if (!checkNameValidity(listName)) {
@@ -156,7 +186,22 @@ const ListingForm = ({ isOpenForm, setIsOpenForm }: ListingFormProps) => {
     setFileError("");
     setFiles((prev) => [...prev, ...newFiles].slice(0, 6));
   };
-  // const handleFileSubmit = () => {};
+
+  const handleAttributeChange = (attribute: (typeof attributes)[number]) => {
+    setAttributesList((prev) => [...prev, attribute]);
+  };
+
+  const handleRemoveAttribute = (label: string) => {
+    setAttributesList((prev) =>
+      prev.filter((attribute) => attribute.label !== label),
+    );
+  };
+
+  // const handleFileSubmit = () => {
+  //   const products: Product = {
+
+  //   };
+  // };
   return (
     <>
       {isOpenForm ? (
@@ -181,7 +226,7 @@ const ListingForm = ({ isOpenForm, setIsOpenForm }: ListingFormProps) => {
           >
             <div className="flex flex-col gap-6 justify-start">
               <div className="flex flex-col gap-2">
-                <label className="">Product name</label>
+                <label className="font-semibold text-sm">Product name</label>
                 <input
                   minLength={3}
                   maxLength={50}
@@ -196,13 +241,13 @@ const ListingForm = ({ isOpenForm, setIsOpenForm }: ListingFormProps) => {
                   <p className="text-red-400">{nameError}</p>
                 ) : null}
               </div>
-
               <div className="flex flex-col gap-2">
-                <label className="">Price</label>
+                <label className="font-semibold text-sm">Price</label>
                 <input
                   required
                   type="text"
                   min={1}
+                  maxLength={10}
                   value={price}
                   onChange={handlePriceChange}
                   onBlur={handlePriceBlur}
@@ -220,11 +265,13 @@ const ListingForm = ({ isOpenForm, setIsOpenForm }: ListingFormProps) => {
                 ) : null}
               </div>
               <div className="flex flex-col gap-2">
-                <label>Category</label>
+                <label className="font-semibold text-sm">Category</label>
                 <SelectMenu
                   placeholder="Select category"
                   options={categories}
+                  label={setCategoryLabel}
                   value={category}
+                  hasSelected={setHasListCategory}
                   onChange={setCategory}
                   isOpen={openMenu === "category"}
                   onClose={handleClose}
@@ -233,12 +280,14 @@ const ListingForm = ({ isOpenForm, setIsOpenForm }: ListingFormProps) => {
               </div>
 
               <div className="flex flex-col gap-2">
-                <label>Condition</label>
+                <label className="font-semibold text-sm">Condition</label>
                 <SelectMenu
                   placeholder="What's your product conditon?"
                   options={conditions}
                   value={condition}
                   onChange={setCondition}
+                  hasSelected={setHasListCondition}
+                  label={setConditionLabel}
                   isOpen={openMenu === "condition"}
                   onClose={handleClose}
                   onToggle={() => handleToggle("condition")}
@@ -246,11 +295,12 @@ const ListingForm = ({ isOpenForm, setIsOpenForm }: ListingFormProps) => {
               </div>
 
               <div className="flex flex-col gap-2">
-                <label className="">Description</label>
+                <label className="font-semibold text-sm">
+                  Description (Optional)
+                </label>
                 <textarea
                   minLength={10}
                   maxLength={2000}
-                  required
                   rows={4}
                   className="outline-1 outline-black rounded-xl p-2 resize-none"
                 ></textarea>
@@ -258,7 +308,9 @@ const ListingForm = ({ isOpenForm, setIsOpenForm }: ListingFormProps) => {
             </div>
             <div className="flex flex-col gap-6 justify-start">
               <div className="flex flex-col gap-4">
-                <label>Select and upload images or videos (max. of 6)</label>
+                <label className="font-semibold text-sm">
+                  Select and upload images or videos (max. of 6)
+                </label>
                 <div
                   className={`flex ${hasFiles ? "flex-col" : "flex-row"} justify-center items-stretch`}
                 >
@@ -274,8 +326,8 @@ const ListingForm = ({ isOpenForm, setIsOpenForm }: ListingFormProps) => {
                       </p>
                     </div>
                     {files.length > 0 ? (
-                      <div className="flex flex-row gap-3 p-2">
-                        <div className="grid grid-cols-3 gap-3">
+                      <div className="p-2 overflow-x-auto">
+                        <div className="flex flex-row gap-3 w-max">
                           {files.slice(0, 6).map((item, index) => (
                             <div className="relative" key={index}>
                               <button
@@ -285,13 +337,13 @@ const ListingForm = ({ isOpenForm, setIsOpenForm }: ListingFormProps) => {
                                   );
                                 }}
                                 type="button"
-                                className="absolute top-2 right-2 z-10 rounded-full bg-white shadow-sm hover:cursor-pointer"
+                                className="absolute top-2 right-2 rounded-full bg-white shadow-sm hover:cursor-pointer"
                               >
                                 <X size={20} />
                               </button>
                               {item.file.type.startsWith("image/") ? (
                                 <img
-                                  className="rounded-xl aspect-square h-full w-full"
+                                  className="rounded-xl aspect-square shrink-0 w-32 h-32"
                                   src={item.preview}
                                   alt={`Preview ${index + 1}`}
                                 />
@@ -303,7 +355,7 @@ const ListingForm = ({ isOpenForm, setIsOpenForm }: ListingFormProps) => {
                                   muted
                                   playsInline
                                   loop
-                                  className="rounded-xl aspect-video h-full w-full"
+                                  className="rounded-xl aspect-video shrink-0 w-32 h-32"
                                 />
                               )}
                             </div>
@@ -334,12 +386,16 @@ const ListingForm = ({ isOpenForm, setIsOpenForm }: ListingFormProps) => {
                 </div>
               </div>
               <div className="flex flex-col gap-2">
-                <label>Delivery / Meetup options</label>
+                <label className="font-semibold text-sm">
+                  Delivery / Meetup options
+                </label>
                 <SelectMenu
                   placeholder="How will the buyer receive the item?"
                   onChange={setDeliveryOption}
                   options={options}
                   value={deliveryOption}
+                  hasSelected={setHasDelivery}
+                  label={() => ""}
                   onClose={handleClose}
                   isOpen={openMenu === "delivery"}
                   onToggle={() => handleToggle("delivery")}
@@ -347,115 +403,110 @@ const ListingForm = ({ isOpenForm, setIsOpenForm }: ListingFormProps) => {
               </div>
               <div className="flex flex-col gap-4">
                 <div className="flex flex-row justify-between items-center">
-                  <label>Product attributes</label>
-                  <button
-                    onClick={() => setAttrFormToggle((prev) => !prev)}
-                    title="Add Brand, year purchased, model, or warranty"
-                    type="button"
-                    className="hover:cursor-pointer p-2 rounded-lg hover:bg-[#85d65c] active:bg-[#5fb33a] bg-[#75cf4c]"
-                  >
-                    {attrFormToggle ? (
-                      <PlusIcon size={18} className="text-white" />
-                    ) : (
-                      <X size={18} className="text-white" />
-                    )}
-                  </button>
-                </div>
-                <div
-                  className={`${attrFormToggle ? "hidden" : "grid"} grid-rows-2 grid-cols-2 md:grid-rows-1 md:grid-cols-4 py-2 gap-4 md:gap-2 transition-all duration-300`}
-                >
-                  {attributes.map((i, index) => (
+                  <label className="font-semibold text-sm">
+                    Product attributes
+                  </label>
+                  {attributesList.length < attributes.length && (
                     <button
-                      key={index}
+                      onClick={() => setAttrFormToggle((prev) => !prev)}
+                      title="Add Brand, year purchased, model, or warranty"
                       type="button"
-                      className="rounded-2xl text-sm shadow-md shadow-gray-200 p-2 hover:cursor-pointer hover:bg-gray-200"
+                      className="hover:cursor-pointer p-2 rounded-lg hover:bg-[#85d65c] active:bg-[#5fb33a] bg-[#75cf4c]"
                     >
-                      {i}
+                      {attrFormToggle ? (
+                        <PlusIcon size={18} className="text-white" />
+                      ) : (
+                        <X size={18} className="text-white" />
+                      )}
                     </button>
+                  )}
+                </div>
+                {attributesList.length < attributes.length && (
+                  <div
+                    className={`${attrFormToggle ? "hidden" : "grid"} grid-rows-2 grid-cols-2 md:grid-rows-1 md:grid-cols-4 py-2 gap-4 md:gap-2.5 transition-all duration-300`}
+                  >
+                    {attributes
+                      .filter(
+                        (attribute) =>
+                          !attributesList.some(
+                            (selected) => selected.label === attribute.label,
+                          ),
+                      )
+                      .map((attribute) => (
+                        <button
+                          key={attribute.label}
+                          type="button"
+                          onClick={() => handleAttributeChange(attribute)}
+                          className="rounded-2xl text-sm shadow-md shadow-gray-200 p-2 hover:cursor-pointer hover:bg-gray-200"
+                        >
+                          {attribute.label}
+                        </button>
+                      ))}
+                  </div>
+                )}
+                <div className="flex flex-col space-y-4">
+                  {attributesList.map((attribute) => (
+                    <div className="flex flex-col md:grid md:grid-cols-2 md:items-center gap-2">
+                      <label>{attribute.label}</label>
+                      <div className="flex flex-row gap-2">
+                        {attribute.element === "dropdown" ? (
+                          <div className="w-full">
+                            <SelectMenu
+                              placeholder="Select warranty"
+                              options={warranties}
+                              label={setWarrantyLabel}
+                              value={warranty}
+                              hasSelected={setHasListWarranty}
+                              onChange={setWarranty}
+                              isOpen={openMenu === "warranty"}
+                              onClose={handleClose}
+                              onToggle={() => handleToggle("warranty")}
+                            />
+                          </div>
+                        ) : (
+                          <>
+                            {attribute.value === "year-bought" ? (
+                              <input
+                                type="text"
+                                value={attrYear}
+                                maxLength={4}
+                                onChange={handleAttrYearChange}
+                                className="text-right p-1.5 pr-2 rounded-3xl outline-1 outline-black w-full"
+                              ></input>
+                            ) : (
+                              <input
+                                type="text"
+                                value={
+                                  attribute.value === "brand" ? brand : model
+                                }
+                                onChange={
+                                  attribute.value === "brand"
+                                    ? handleBrandChange
+                                    : handleModelChange
+                                }
+                                maxLength={50}
+                                className="text-right p-1.5 pr-2 rounded-3xl outline-1 outline-black w-full"
+                              ></input>
+                            )}
+                          </>
+                        )}
+
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveAttribute(attribute.label)}
+                          className="hover:cursor-pointer"
+                          title="Remove attribute"
+                        >
+                          <Trash2 size={18} color="red" />
+                        </button>
+                      </div>
+                    </div>
                   ))}
                 </div>
               </div>
-              <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-2">
-                <label>Model</label>
-                <div className="flex flex-row gap-2">
-                  <input
-                    type="text"
-                    className="text-right p-1.5 rounded-3xl outline-1 outline-black w-full"
-                  ></input>
-                  <button
-                    type="button"
-                    title="Remove attribute"
-                    className="hover:cursor-pointer"
-                  >
-                    <Trash2 size={18} color="red" />
-                  </button>
-                </div>
-              </div>
-              <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-2">
-                <label>Brand</label>
-                <div className="flex flex-row gap-2">
-                  <input
-                    type="text"
-                    className="text-right p-1.5 rounded-3xl outline-1 outline-black w-full"
-                  ></input>
-                  <button
-                    type="button"
-                    title="Remove attribute"
-                    className="hover:cursor-pointer"
-                  >
-                    <Trash2 size={18} color="red" />
-                  </button>
-                </div>
-              </div>
-              <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-2">
-                <label>Year Purchased</label>
-                <div className="flex flex-row gap-2">
-                  <input
-                    type="number"
-                    className="text-right p-1.5 rounded-3xl outline-1 outline-black w-full"
-                  ></input>
-                  <button
-                    type="button"
-                    title="Remove attribute"
-                    className="hover:cursor-pointer"
-                  >
-                    <Trash2 size={18} color="red" />
-                  </button>
-                </div>
-              </div>
-              <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-2">
-                <label>Warranty</label>
-                <div className="flex flex-row gap-2">
-                  <select className="outline-1 outline-black p-2.5 rounded-3xl w-full">
-                    <option selected hidden>
-                      Select a warranty
-                    </option>
-                    <option>No warranty</option>
-                    <option>Manufacturer warranty</option>
-                    <option>Seller warranty</option>
-                    <option>Store warranty</option>
-                    <option>Extended warranty</option>
-                  </select>
-                  <button
-                    type="button"
-                    title="Remove attribute"
-                    className="hover:cursor-pointer"
-                  >
-                    <Trash2 size={18} color="red" />
-                  </button>
-                </div>
-              </div>
-
-              {/* <div className="flex flex-row justify-between">
-                <label>Listing from: </label>
-                <p>📍 Location</p>
-              </div> */}
             </div>
-
             <div className="flex flex-col gap-6 justify-start">
-              <h1 className="font-semibold text-md md:text-xl mb-5">
-                Product Summary
-              </h1>
+              <h1 className="font-semibold text-md md:text-xl mb-5">Summary</h1>
               {isValidName ? (
                 <div className="flex flex-col justify-between gap-2 h-full pb-7">
                   <div className="grid grid-cols-2">
@@ -466,8 +517,8 @@ const ListingForm = ({ isOpenForm, setIsOpenForm }: ListingFormProps) => {
                     </div>
                     <div className="grid grid-rows-3 text-right gap-2">
                       <p className="truncate">{listName || "-"}</p>
-                      {/* <p>{selectedCategory?.label || "-"}</p>
-                      <p>{selectedCondition?.label || "-"}</p> */}
+                      <p>{categoryLabel || "-"}</p>
+                      <p>{conditionLabel || "-"}</p>
                     </div>
                     <div className="flex flex-row justify-between"></div>
                   </div>
@@ -479,9 +530,9 @@ const ListingForm = ({ isOpenForm, setIsOpenForm }: ListingFormProps) => {
                       </label>
                       <p className="truncate">
                         {price ? "₱" : null} {price}{" "}
-                        {/*Temporary placeholder */}
                       </p>
                     </div>
+
                     <button
                       type="submit"
                       disabled={!isListValid}

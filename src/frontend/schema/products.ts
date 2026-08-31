@@ -29,5 +29,15 @@ export const productSchema = z.object({
     .max(5, "Maximum of 5 files"),
   category: z.string().max(30),
   condition: z.string().max(30),
-  delivery_options: z.string().max(30),
+  delivery_options: z.string().max(30).optional(),
+  attributes: z
+    .object({
+      model: z.string().max(50),
+      brand: z.string().max(50),
+      year_brought: z.number(),
+      warranty: z.string(),
+    })
+    .partial(),
 });
+
+export type Product = z.infer<typeof productSchema>;

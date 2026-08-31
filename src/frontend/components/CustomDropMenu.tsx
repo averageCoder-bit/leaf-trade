@@ -9,19 +9,23 @@ interface SelectOption {
 interface SelectMenuProps {
   options: SelectOption[];
   value: string;
+  label?: (value: string) => void;
   onChange: (value: string) => void;
   onToggle: () => void;
   onClose: () => void;
   isOpen: boolean;
+  hasSelected: (value: boolean) => void;
   placeholder: string;
 }
 
 const SelectMenu = ({
   options,
   value,
+  label,
   onChange,
   onToggle,
   isOpen,
+  hasSelected,
   onClose,
   placeholder,
 }: SelectMenuProps) => {
@@ -97,6 +101,8 @@ const SelectMenu = ({
               type="button"
               onClick={() => {
                 onChange(option.value);
+                hasSelected(true);
+                label(option.label);
                 onClose();
               }}
               className="cursor-pointer p-1 px-2 text-left hover:bg-gray-100"

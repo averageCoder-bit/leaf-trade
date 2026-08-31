@@ -13,6 +13,17 @@ interface OptionProps {
   label: string;
 }
 
+interface WarrantyProps {
+  value: string;
+  label: string;
+}
+
+interface AttributeProps {
+  label: string;
+  element: string;
+  value: string;
+}
+
 export type FilePreview = {
   file: File;
   preview: string;
@@ -48,7 +59,18 @@ export const options: OptionProps[] = [
   { value: "delivery", label: "Delivery" },
   { value: "meetup", label: "Meetup" },
 ];
-export const attributes = ["Model", "Brand", "Warranty", "Year Purchased"];
+export const attributes: AttributeProps[] = [
+  { label: "Model", element: "text", value: "model" },
+  { label: "Brand", element: "text", value: "brand" },
+  { label: "Year Bought", element: "text", value: "year-bought" },
+  { label: "Warranty", element: "dropdown", value: "warranty" },
+];
+
+export const warranties: WarrantyProps[] = [
+  { value: "no-warranty", label: "No warranty" },
+  { value: "seller-warranty", label: "Seller warranty" },
+  { value: "manufacturer-warranty", label: "Manufacture warranty" },
+];
 
 export const conditions: ConditionProps[] = [
   { value: "brand-new", label: "Brand new" },
@@ -62,6 +84,14 @@ export const sanitizeProductName = (value: string): string => {
   return value.replace(/[^A-Za-z0-9\s-]/g, "");
 };
 
+export const sanitizeProductModel = (value: string): string => {
+  return value.replace(/[^A-Za-z0-9\s-]/g, "");
+};
+
+export const sanitizeProductBrand = (value: string): string => {
+  return value.replace(/[^A-Za-z0-9\s-]/g, "");
+};
+
 export const sanitizeProductPrice = (value: string): string => {
   return value.replace(/[^0-9.]/g, "");
 };
@@ -72,4 +102,8 @@ export const checkNameValidity = (name: string): boolean => {
 
 export const checkPriceValidity = (price: string): boolean => {
   return /^\d+(\.\d{1,2})?$/.test(price);
+};
+
+export const sanitizeYearBought = (year: string): string => {
+  return year.replace(/[^\d]/g, "");
 };

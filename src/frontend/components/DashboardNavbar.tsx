@@ -27,7 +27,7 @@ const DashboardNavbar = ({ setIsMenuToggle }: DashboardNavbarProps) => {
           title="Profile"
           className="flex flex-row items-center md:bg-gray-100 gap-2 p-2 rounded-3xl hover:cursor-pointer"
         >
-          <img src="" className="rounded-full w-9 h-9 bg-red-500" />
+          <img className="rounded-full w-9 h-9 bg-red-500" />
           <p className="hidden lg:block text-sm">Username</p>
         </button>
       </div>
