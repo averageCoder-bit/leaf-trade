@@ -1,5 +1,5 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap");
 @import "tailwindcss";
-@import "./frontend/utils/fonts.css";
 
 @theme {
   --animate-infinite-scroll: infinite-scroll 50s linear infinite;
@@ -8,12 +8,17 @@
     0% {
       transform: translateX(0);
     }
+
     100% {
       transform: translateX(-50%);
     }
   }
 }
 
-@theme {
-  --font-poppins: "Poppins", sans-serif;
+body {
+  font-family: "Poppins", sans-serif;
+}
+
+html {
+  scroll-behavior: smooth;
 }
