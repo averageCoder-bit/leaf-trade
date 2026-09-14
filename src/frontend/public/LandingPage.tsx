@@ -33,15 +33,15 @@ const LandingPage = () => {
   const Benefits = BenefitsSection;
   return (
     <>
-      <main className="pt-10 md:pt-20 mx-auto max-w-7xl px-10 sm:px-6 lg:px-8 md:space-y-10">
-        <section>
-          <div className="flex flex-col md:grid md:grid-cols-2 justify-center items-center min-h-165">
+      <main className="pt-10 md:pt-20 mx-auto max-w-7xl px-10 sm:px-6 lg:px-8 md:space-y-12">
+        <section id="hero-section">
+          <div className="flex flex-col md:grid md:grid-cols-2 justify-center items-center min-h-165 mt-10 md:mt-0">
             <div className="flex flex-col justify-center items-center gap-5">
               <div className="flex flex-col gap-8 justify-center">
-                <h1 className="text-4xl md:text-6xl font-bold tracking-wide whitespace-pre-line">
+                <h1 className="text-5xl font-semibold tracking-tight text-black sm:text-5xl lg:text-6xl whitespace-pre-line">
                   {HeroSection.slogan}
                 </h1>
-                <p className="text-sm md:text-lg whitespace-pre-line">
+                <p className="mt-6 max-w-2xl text-lg leading-8 whitespace-pre-line">
                   {HeroSection.subtitle}
                 </p>
                 <div className=" flex flex-col md:flex md:flex-row justify-start gap-3 mt-2">
@@ -51,13 +51,6 @@ const LandingPage = () => {
                   >
                     Get started
                   </button>
-
-                  <button
-                    className="text-center text-black border border-black hover:-translate-y-1 active:bg-gray-300 font-medium rounded-3xl 
-                    hover:cursor-pointer duration-300 w-full md:w-40 p-3"
-                  >
-                    About us
-                  </button>
                 </div>
               </div>
             </div>
@@ -66,9 +59,9 @@ const LandingPage = () => {
         </section>
         <section>
           <div className="flex flex-col gap-5 py-10">
-            <h1 className="text-center text-2xl md:text-3xl font-semibold">
+            <h2 className="mx-auto mb-6 max-w-3xl text-xl text-center font-semibold leading-tight tracking-tight text-black sm:text-4xl">
               {FeaturesSection.header}
-            </h1>
+            </h2>
             <div className="w-full overflow-x-hidden">
               <div className="animate-infinite-scroll flex flex-row gap-6 justify-start w-max overflow-y-hidden p-4">
                 {carousel.map((item) => {
@@ -106,7 +99,7 @@ const LandingPage = () => {
             </div>
           </div>
         </section>
-        <section>
+        <section id="about-us">
           <div className="flex flex-col gap-4 justify-center md:grid md:grid-cols-3 justify-items-center py-10">
             {Benefits.map((card, index) => (
               <div
@@ -120,33 +113,41 @@ const LandingPage = () => {
                     {card.title}
                   </h4>
                 </div>
-                <p className="whitespace-pre-line text-xs md:text-base">
+                <p className="whitespace-pre-line text-sm md:text-sm">
                   {card.desc}
                 </p>
               </div>
             ))}
           </div>
         </section>
-        <section>
-          <div className="flex flex-col py-10 gap-5">
+        <section className="py-20">
+          <div className="flex flex-col gap-5">
             <div className="flex flex-col justify-center items-center gap-5 py-12">
-              <h1 className="text-center text-3xl font-semibold">
+              <h1 className="mx-auto mb-6 max-w-3xl text-xl text-center font-semibold leading-tight tracking-tight text-black sm:text-4xl">
                 {StorySection.header}
               </h1>
-              <p className="text-center">{StorySection.paragraph}</p>
+              <p className="mx-auto max-w-4xl text-sm text-center leading-7 sm:text-lg sm:leading-8">
+                {StorySection.paragraph}
+              </p>
             </div>
-            <div className="grid grid-rows-2 md:p-0 gap-10">
+            <div className="grid grid-rows-2 md:p-0 md:gap-7">
               {AboutUsSection.map((section, index) => (
                 <div
                   key={index}
-                  className="flex flex-col md:flex-row md:odd:flex-row-reverse items-center md:justify-between gap-12 py-12"
+                  className="flex flex-col md:flex-row md:odd:flex-row-reverse items-center md:justify-between gap-12 mb-10"
                 >
                   <div className="flex flex-col gap-3 max-w-xl">
-                    <h1 className="font-semibold text-lg">{section.title}</h1>
-                    <p className="whitespace-pre-line">{section.desc}</p>
-                    <ul className="list-disc list-inside">
+                    <h1 className="mx-auto mb-6 max-w-3xl text-lg md:text-xl font-semibold text-black">
+                      {section.title}
+                    </h1>
+                    <p className="whitespace-pre-line text-sm leading-loose">
+                      {section.desc}
+                    </p>
+                    <ul className="list-disc list-inside text-sm">
                       {section.bullets.map((i, index) => (
-                        <li key={index}>{i}</li>
+                        <li className="mb-2" key={index}>
+                          {i}
+                        </li>
                       ))}
                     </ul>
                   </div>
@@ -159,9 +160,9 @@ const LandingPage = () => {
             </div>
           </div>
         </section>
-        <section>
+        <section className="py-20">
           <div className="flex flex-col gap-5">
-            <h1 className="text-center text-2xl md:text-3xl font-semibold">
+            <h1 className="mx-auto mb-6 max-w-3xl text-2xl text-center font-semibold leading-tight tracking-tight text-black sm:text-4xl">
               Frequently Asked Questions
             </h1>
             <div className="flex-col gap-4">
@@ -200,7 +201,7 @@ const LandingPage = () => {
             </div>
           </div>
         </section>
-        <section>
+        <section className="py-20">
           <div className="flex flex-col justify-center items-center py-10 my-10">
             <p className="text-sm md:text-lg font-semibold mb-3">
               {CTASection.tagline}
@@ -217,7 +218,7 @@ const LandingPage = () => {
           </div>
         </section>
       </main>
-      <footer className="w-full bg-[#233e16] py-12">
+      <footer id="contact" className="w-full bg-[#233e16] py-12">
         <div className="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-5 p-12 gap-7">
           <div className="flex flex-col gap-3 w-full max-w-37.5 text-white">
             <Logo hasLogo={false} />

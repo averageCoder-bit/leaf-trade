@@ -1,4 +1,4 @@
-import api, { authHeader } from "./api";
+import api, { authHeader } from "../hooks/api";
 
 export const updateUserSettings = async (
   token: string,

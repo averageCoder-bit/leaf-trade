@@ -1,4 +1,6 @@
 import { X, PlusIcon, FolderMinus, Trash2 } from "lucide-react";
+import { useMutation } from "@tanstack/react-query";
+import { getToken } from "@clerk/react";
 import { useState } from "react";
 import {
   sanitizeProductName,
@@ -20,8 +22,10 @@ import {
   sanitizeProductModel,
   sanitizeProductBrand,
 } from "../validator/listProductForm";
+
 import SelectMenu from "../components/CustomDropMenu";
-// import type { Product } from "../schema/products";
+import type { Product } from "../schema/products";
+import createProduct from "../services/productService";
 interface ListingFormProps {
   isOpenForm: boolean;
   setIsOpenForm: React.Dispatch<React.SetStateAction<boolean>>;
@@ -35,7 +39,6 @@ const ListingForm = ({ isOpenForm, setIsOpenForm }: ListingFormProps) => {
   const [hasListCategory, setHasListCategory] = useState<boolean>(false);
   const [hasListCondition, setHasListCondition] = useState<boolean>(false);
   const [hasDelivery, setHasDelivery] = useState<boolean>(false);
-  // const [isListing, setIsListing] = useState<boolean>(false);
   const [openMenu, setOpenMenu] = useState<string | null>(null);
 
   const [fileError, setFileError] = useState<string>("");
@@ -47,6 +50,7 @@ const ListingForm = ({ isOpenForm, setIsOpenForm }: ListingFormProps) => {
   const [listName, setListName] = useState("");
   const [price, setPrice] = useState("");
   const [category, setCategory] = useState("");
+  const [description, setDescription] = useState("");
   const [condition, setCondition] = useState("");
   const [deliveryOption, setDeliveryOption] = useState("");
   const [fileType, setFileType] = useState("");
@@ -84,6 +88,10 @@ const ListingForm = ({ isOpenForm, setIsOpenForm }: ListingFormProps) => {
 
   const handleBrandChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setBrand(sanitizeProductBrand(e.target.value));
+  };
+
+  const handleDescChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setDescription(e.target.value);
   };
 
   const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -197,11 +205,46 @@ const ListingForm = ({ isOpenForm, setIsOpenForm }: ListingFormProps) => {
     );
   };
 
-  // const handleFileSubmit = () => {
-  //   const products: Product = {
+  const createProductMutation = useMutation({
+    mutationKey: ["products", "create"],
+    mutationFn: async (product: Product) => {
+      const token = await getToken({
+        template: "fastapi",
+      });
 
-  //   };
-  // };
+      if (!token) {
+        throw new Error("Unable to authenticate with the backend.");
+      }
+
+      return createProduct(product, token);
+    },
+    onSuccess: (data) => {
+      console.log("Successfully created product: ", data);
+    },
+
+    onError: (error: Error) => {
+      console.error("Failed to create product", error);
+    },
+  });
+
+  const handleListingPost = async () => {
+    const product: Product = {
+      name: listName,
+      description: description,
+      price: Number(price),
+      product_files: files.map((file) => file.file),
+      category: category,
+      condition: condition,
+      attributes: {
+        model: model,
+        brand: brand,
+        year_brought: Number(attrYear),
+        warranty: warranty,
+      },
+      delivery_options: deliveryOption,
+    };
+    await createProductMutation.mutateAsync(product);
+  };
   return (
     <>
       {isOpenForm ? (
@@ -299,6 +342,8 @@ const ListingForm = ({ isOpenForm, setIsOpenForm }: ListingFormProps) => {
                   Description (Optional)
                 </label>
                 <textarea
+                  value={description}
+                  onChange={handleDescChange}
                   minLength={10}
                   maxLength={2000}
                   rows={4}
@@ -535,10 +580,13 @@ const ListingForm = ({ isOpenForm, setIsOpenForm }: ListingFormProps) => {
 
                     <button
                       type="submit"
-                      disabled={!isListValid}
+                      disabled={!isListValid || createProductMutation.isPending}
+                      onClick={handleListingPost}
                       className="p-3 rounded-3xl disabled:cursor-not-allowed disabled:opacity-50 text-white hover:cursor-pointer hover:bg-[#85d65c] active:bg-[#5fb33a] bg-[#75cf4c]"
                     >
-                      List item
+                      {createProductMutation.isPending
+                        ? "Listing item..."
+                        : "List item"}
                     </button>
                   </div>
                 </div>

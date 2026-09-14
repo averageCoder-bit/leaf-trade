@@ -3,21 +3,31 @@ import { Link } from "react-router-dom";
 import { FaBars } from "react-icons/fa";
 
 const PublicNavbar = () => {
-  const navItems = [
+  const authNavItems = [
     { id: 1, name: "Register", path: "/register" },
     { id: 2, name: "Login", path: "/login" },
+  ];
+
+  const publicNavItems = [
+    { id: 1, name: "Home", path: "#hero-section" },
+    { id: 2, name: "Contact", path: "#contact" },
+    { id: 3, name: "About", path: "#about-us" },
+    { id: 4, name: "Marketplace", path: "" },
   ];
 
   return (
     <nav className="flex flex-row fixed w-full justify-between items-center p-4 shadow-xl bg-white z-50">
       <Logo />
-      <div className="hidden md:flex md:flex-row gap-3">
-        <button className="font-medium p-3 w-30 text-center hover:cursor-pointer hover:border-black hover:border hover:rounded-3xl">
-          Home
-        </button>
-        <button className="font-medium p-3 w-30 text-center hover:cursor-pointer hover:border-black hover:border hover:rounded-3xl">
-          Contact
-        </button>
+      <div className="hidden md:flex md:flex-row w-xl items-center justify-evenly">
+        {publicNavItems.map((link) => (
+          <a
+            href={link.path}
+            key={link.id}
+            className="text-center text-sm font-medium text-black/70 hover:cursor-pointer hover:text-black transition-colors"
+          >
+            {link.name}
+          </a>
+        ))}
       </div>
       <FaBars
         size={25}
@@ -25,11 +35,11 @@ const PublicNavbar = () => {
         onClick={() => {}}
       />
       <div className="hidden space-x-2 md:flex md:flex-row">
-        {navItems.map((link) => (
+        {authNavItems.map((link) => (
           <Link
             key={link.id}
             to={link.path}
-            className="inline-block w-30 h-12 p-3 bg-[#75cf4c] text-center text-white font-medium rounded-3xl 
+            className="inline-block w-30 p-3 bg-[#75cf4c] text-center text-white text-sm font-medium rounded-3xl 
             hover:bg-[#85d65c] active:bg-[#5fb33a] transition duration-300 ease-in-out cursor-pointer"
           >
             {link.name}

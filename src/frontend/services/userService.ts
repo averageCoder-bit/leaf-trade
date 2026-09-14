@@ -1,4 +1,4 @@
-import api, { authHeader } from "./api";
+import api, { authHeader } from "../hooks/api";
 import type { CreateUser, User } from "../schema/users";
 import { createUserSchema } from "../schema/users";
 
@@ -13,9 +13,6 @@ export default async function createUser(
     validatedData,
     authHeader(token),
   );
-
-  console.log(response);
-
   return response;
 }
 
