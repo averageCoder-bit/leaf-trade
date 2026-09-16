@@ -5,7 +5,6 @@ import { useState } from "react";
 import {
   sanitizeProductName,
   sanitizeProductPrice,
-  sanitizeYearBought,
   MAX_PRICE,
   MAX_FILES_LENGTH,
   MAX_IMAGE_SIZE,
@@ -77,10 +76,6 @@ const ListingForm = ({ isOpenForm, setIsOpenForm }: ListingFormProps) => {
 
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setListName(sanitizeProductName(e.target.value));
-  };
-
-  const handleAttrYearChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setAttrYear(sanitizeYearBought(e.target.value));
   };
 
   const handleModelChange = (e: React.ChangeEvent<HTMLInputElement>) => {
