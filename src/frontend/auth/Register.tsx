@@ -4,7 +4,7 @@ import {
   FaLock,
   FaPen,
   FaPhone,
-  FaLeaf,
+  // FaLeaf,
   FaArrowLeft,
   FaEye,
   FaEyeSlash,
@@ -215,20 +215,24 @@ const Register = () => {
 
   return (
     <main className="flex flex-row min-h-screen justify-center items-center">
-      <div className="grid grid-cols-1 md:grid-cols-2 shadow-2xl rounded-3xl w-280 h-auto ">
+      <div className="grid grid-cols-1 md:grid-cols-2 shadow-2xl rounded-xl w-280 h-auto ">
         <div className="flex-col justify-center items-center hidden md:flex gap-5">
           <h1>Welcome to LeafTrade</h1>
         </div>
-        <div className="w-full flex flex-col p-9 justify-evenly">
-          <div className="flex flex-col items-center justify-center gap-2 mb-10">
-            <div className="rounded-xl shadow-2xl shadow-black p-2 mb-5">
-              <FaLeaf size={35} className="text-[#75cf4c]" />
-            </div>
-            <h1 className="tracking-wider text-2xl font-bold">Leaf Trade</h1>
-            <p className="text-sm font-semibold">Register your account</p>
+        <div className="w-full flex flex-col p-12 justify-evenly">
+          <div className="flex flex-col gap-2 mb-10">
+            {/* <div className="flex flex-row items-center gap-4 mb-5">
+              <div className="rounded-xl shadow-2xl shadow-black p-2">
+                <FaLeaf size={25} className="text-[#75cf4c]" />
+              </div>
+              <h1 className="tracking-wider text-lg font-bold">LeafTrade</h1>
+            </div> */}
+
+            <h1 className="text-2xl font-bold">Register your account</h1>
+            <p>Please fill in your details to get started</p>
           </div>
           <form
-            className="gap-3 flex flex-col md:gap-7 [&_input]:text-sm [&_input]:py-3 [&_label]:text-xs md:[&_label]:text-sm md:[&_label]:font-medium"
+            className="gap-3 flex flex-col md:gap-4 [&_input]:text-sm [&_input]:py-3 [&_label]:text-xs md:[&_label]:text-sm md:[&_label]:font-medium md:[&_label]:text-black/70"
             onSubmit={handleRegisterSubmit}
           >
             <div className="grid grid-cols-2 gap-3">
@@ -240,7 +244,7 @@ const Register = () => {
                     className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
                   />
                   <input
-                    className="w-full p-2 pl-10 rounded-3xl border border-slate-400 focus:outline-none focus:border-[#75cf4c]"
+                    className="w-full p-2 pl-10 rounded-xl border border-slate-400 focus:outline-none focus:border-[#75cf4c]"
                     type="text"
                     placeholder="Juan Dela"
                     required
@@ -254,7 +258,7 @@ const Register = () => {
               <div className="flex flex-col gap-2">
                 <label>Last name</label>
                 <input
-                  className="w-full p-2 pl-5 rounded-3xl border border-slate-400 focus:outline-none focus:border-[#75cf4c]"
+                  className="w-full p-2 pl-5 rounded-xl border border-slate-400 focus:outline-none focus:border-[#75cf4c]"
                   type="text"
                   placeholder="Cruz"
                   required
@@ -273,7 +277,7 @@ const Register = () => {
                   className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
                 />
                 <input
-                  className="w-full p-2 pl-10 rounded-3xl border border-slate-400 focus:outline-none focus:border-[#75cf4c]"
+                  className="w-full p-2 pl-10 rounded-xl border border-slate-400 focus:outline-none focus:border-[#75cf4c]"
                   type="email"
                   name="email"
                   autoComplete="email"
@@ -297,7 +301,7 @@ const Register = () => {
                   size={15}
                 />
                 <input
-                  className="w-full p-2 pl-10 rounded-3xl border border-slate-400 focus:outline-none focus:border-[#75cf4c]"
+                  className="w-full p-2 pl-10 rounded-xl border border-slate-400 focus:outline-none focus:border-[#75cf4c]"
                   type="text"
                   autoComplete="off"
                   name="leaftrade-username"
@@ -325,7 +329,7 @@ const Register = () => {
                   className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
                 />
                 <input
-                  className="w-full p-2 pl-10 rounded-3xl border border-slate-400 focus:outline-none focus:border-[#75cf4c]"
+                  className="w-full p-2 pl-10 rounded-xl border border-slate-400 focus:outline-none focus:border-[#75cf4c]"
                   type="text"
                   required
                   placeholder="+639xxxxxxxxx"
@@ -348,7 +352,7 @@ const Register = () => {
                     className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
                   />
                   <input
-                    className="w-full rounded-3xl p-2 pl-10 border border-slate-400 focus:outline-none focus:border-[#75cf4c]"
+                    className="w-full rounded-xl p-2 pl-10 border border-slate-400 focus:outline-none focus:border-[#75cf4c]"
                     type={isShowPassword ? "text" : "password"}
                     minLength={15}
                     maxLength={64}
@@ -421,7 +425,7 @@ const Register = () => {
                     />
                   )}
                   <input
-                    className="w-full rounded-3xl p-2 pl-5 border border-slate-400 focus:outline-none focus:border-[#75cf4c]"
+                    className="w-full rounded-xl p-2 pl-5 border border-slate-400 focus:outline-none focus:border-[#75cf4c]"
                     type={isShowPassword ? "text" : "password"}
                     disabled={isValidPassword ? false : true}
                     value={confirmPassword}
@@ -488,7 +492,7 @@ const Register = () => {
               type="submit"
               disabled={!canRegister}
               className="p-2.5 w-full disabled:opacity-50
-              disabled:cursor-not-allowed  text-center text-white rounded-3xl my-10
+              disabled:cursor-not-allowed  text-center text-white rounded-xl my-10
             hover:bg-[#85d65c] active:bg-[#5fb33a] bg-[#75cf4c] transition duration-300 ease-in-out cursor-pointer text-sm font-semibold md:text-base"
             >
               Register
@@ -511,7 +515,7 @@ const Register = () => {
               <FaArrowLeft className="absolute -translate-x-6 transition-transform duration-200 group-hover:-translate-x-7" />
               <button
                 onClick={() => navigate("/")}
-                className="cursor-pointer text-xs font-semibold hover:underline"
+                className="cursor-pointer text-xs font-semibold hover:underline text-black/70"
               >
                 Back to Home
               </button>

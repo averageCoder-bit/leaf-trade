@@ -183,20 +183,19 @@ const Login = () => {
             </div>
           )}
         </div>
-        <div className="flex flex-col justify-evenly p-9">
+        <div className="flex flex-col justify-evenly p-12">
           <div className="flex flex-col items-center justify-center gap-2 mb-10">
-            <div className="rounded-xl shadow-2xl shadow-black p-2 mb-5">
+            <div className="rounded-xl shadow-sm shadow-black/30 p-2 mb-5">
               <FaLeaf size={35} className="text-[#75cf4c]" />
             </div>
-            <h1 className="tracking-wider text-2xl font-bold">Leaf Trade</h1>
-            <p className="text-sm font-semibold">Sign in to your account</p>
+            <p className="text-xl font-bold">Sign in to your account</p>
           </div>
           <form
             className="grid grid-rows-2 gap-7 p-3 mb-7 [&_input]:text-sm [&_input]:py-3 [&_label]:text-xs md:[&_label]:text-sm md:[&_label]:font-medium"
             onSubmit={handleLoginSubmit}
           >
             <div className="flex flex-col gap-2">
-              <label className="font-medium text-sm">Email</label>
+              <label className="font-bold text-sm">Email</label>
 
               <div className="relative">
                 <FaEnvelope
@@ -205,7 +204,7 @@ const Login = () => {
                 />
 
                 <input
-                  className="w-full rounded-3xl p-2.5 pl-10 border border-slate-400 focus:outline-none focus:border-[#75cf4c]"
+                  className="w-full rounded-xl p-2.5 pl-10 border border-slate-400 focus:outline-none focus:border-[#75cf4c]"
                   type="email"
                   value={email}
                   name="email"
@@ -229,7 +228,7 @@ const Login = () => {
                   value={password}
                   type={isShowPassword ? "text" : "password"}
                   onChange={handlePasswordChange}
-                  className="w-full rounded-3xl p-2.5 pl-10 pr-10 border border-slate-400 focus:outline-none focus:border-[#75cf4c]"
+                  className="w-full rounded-xl p-2.5 pl-10 pr-10 border border-slate-400 focus:outline-none focus:border-[#75cf4c]"
                   name="password"
                   required
                   autoComplete="current-password"
@@ -272,7 +271,7 @@ const Login = () => {
             <button
               type="submit"
               disabled={isLoggingIn || rateLimitSeconds > 0}
-              className="p-2.5 w-full bg-[#75cf4c] text-center text-white rounded-3xl 
+              className="p-2.5 w-full bg-[#75cf4c] text-center text-white rounded-xl 
             hover:bg-[#85d65c] active:bg-[#5fb33a] transition duration-300 ease-in-out 
               cursor-pointer text-sm font-semibold md:text-base disabled:opacity-50 disabled:cursor-not-allowed"
             >
@@ -288,7 +287,7 @@ const Login = () => {
           <div className="flex flex-col items-center">
             <div className="flex flex-row w-full items-center justify-center p-3 mb-7">
               <hr className="border-t border-gray-300 w-full" />
-              <span className="text-xs md:text-sm font-semibold tracking-wide text-center w-full">
+              <span className="text-xs md:text-sm font-semibold text-black/70 tracking-wide text-center w-full">
                 Or continue with
               </span>
               <hr className="border-t border-gray-300 w-full" />
@@ -296,7 +295,7 @@ const Login = () => {
 
             <div className="flex flex-row gap-4 w-full justify-between mb-10">
               <button
-                className="text-sm md:text-base p-2.5 w-full bg-white flex flex-row items-center justify-center text-black font-sm border border-slate-400 rounded-3xl
+                className="text-sm md:text-base p-2.5 w-full bg-white flex flex-row items-center justify-center text-black font-sm border border-slate-400 rounded-xl
               hover:bg-slate-50 active:bg-slate-100 transition duration-300 ease-in-out cursor-pointer"
                 onClick={handleGoogleLogin}
                 disabled={fetchStatus === "fetching"}
@@ -309,7 +308,7 @@ const Login = () => {
 
               <button
                 onClick={handleFacebookLogin}
-                className="text-sm md:text-base p-2.5 w-full bg-[#1877F2] flex flex-row items-center justify-center text-white font-sm rounded-3xl 
+                className="text-sm md:text-base p-2.5 w-full bg-[#1877F2] flex flex-row items-center justify-center text-white font-sm rounded-xl 
                 hover:bg-[#166fe5] active:bg-[#0e56c4] transition duration-300 ease-in-out cursor-pointer"
               >
                 <FaFacebook className="shrink-0 w-4 h-4 md:w-5 md:h-5" />
@@ -333,7 +332,7 @@ const Login = () => {
                 <FaArrowLeft className="absolute -translate-x-6 transition-transform duration-200 group-hover:-translate-x-7" />
                 <button
                   onClick={() => navigate("/")}
-                  className="cursor-pointer text-xs font-semibold hover:underline"
+                  className="cursor-pointer text-xs font-semibold hover:underline text-black/70"
                 >
                   Back to Home
                 </button>

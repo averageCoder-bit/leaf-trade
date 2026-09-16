@@ -22,7 +22,7 @@ import {
   sanitizeProductModel,
   sanitizeProductBrand,
 } from "../validator/listProductForm";
-
+import CustomCalendar from "../components/CustomCalendar";
 import SelectMenu from "../components/CustomDropMenu";
 import type { Product } from "../schema/products";
 import createProduct from "../services/productService";
@@ -72,6 +72,7 @@ const ListingForm = ({ isOpenForm, setIsOpenForm }: ListingFormProps) => {
     isValidPrice &&
     hasListCategory &&
     hasListCondition &&
+    hasFiles &&
     hasDelivery;
 
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -250,7 +251,7 @@ const ListingForm = ({ isOpenForm, setIsOpenForm }: ListingFormProps) => {
       {isOpenForm ? (
         <div className="flex flex-col w-full rounded-2xl shadow-md shadow-gray-50 p-6">
           <div className="flex flex-row justify-between pb-7">
-            <h1 className="text-lg md:text-2xl font-semibold">
+            <h1 className="text-lg md:text-2xl font-bold">
               Product Listing Form
             </h1>
             <button
@@ -278,7 +279,7 @@ const ListingForm = ({ isOpenForm, setIsOpenForm }: ListingFormProps) => {
                   onBlur={handleNameBlur}
                   onChange={handleNameChange}
                   type="text"
-                  className="outline-1 outline-black rounded-3xl p-2"
+                  className="outline outline-black/10 rounded-xl p-2 bg-gray-100/70 focus:bg-white focus:outline-[#85d65c]"
                 />
                 {!isValidName ? (
                   <p className="text-red-400">{nameError}</p>
@@ -297,7 +298,7 @@ const ListingForm = ({ isOpenForm, setIsOpenForm }: ListingFormProps) => {
                   max={1000000}
                   step={0.01}
                   placeholder="₱0.00"
-                  className="outline-1 outline-black rounded-3xl p-2"
+                  className="outline outline-black/10 rounded-xl p-2 bg-gray-100/70 focus:bg-white focus:outline-[#85d65c]"
                 />
                 {!isValidPrice ? (
                   priceError === "Price cannot exceed ₱10,000,000" ? (
@@ -347,7 +348,7 @@ const ListingForm = ({ isOpenForm, setIsOpenForm }: ListingFormProps) => {
                   minLength={10}
                   maxLength={2000}
                   rows={4}
-                  className="outline-1 outline-black rounded-xl p-2 resize-none"
+                  className="outline outline-black/10 rounded-xl p-2 bg-gray-100/70 resize-none focus:bg-white focus:outline-[#85d65c]"
                 ></textarea>
               </div>
             </div>
@@ -366,7 +367,7 @@ const ListingForm = ({ isOpenForm, setIsOpenForm }: ListingFormProps) => {
                       className={`${hasFiles ? "hidden" : "block"} flex flex-col space-y-3 justify-center items-center`}
                     >
                       <p className="font-semibold">Only valid formats</p>
-                      <p className="text-xs md:text-sm">
+                      <p className="text-xs">
                         JPG, PNG, WEBP · (5MB) MP4 · (25MB)
                       </p>
                     </div>
@@ -421,6 +422,7 @@ const ListingForm = ({ isOpenForm, setIsOpenForm }: ListingFormProps) => {
                   </button>
                   <input
                     id="file-upload"
+                    required
                     type="file"
                     onChange={handleFileChange}
                     multiple
@@ -511,13 +513,10 @@ const ListingForm = ({ isOpenForm, setIsOpenForm }: ListingFormProps) => {
                         ) : (
                           <>
                             {attribute.value === "year-bought" ? (
-                              <input
-                                type="text"
+                              <CustomCalendar
                                 value={attrYear}
-                                maxLength={4}
-                                onChange={handleAttrYearChange}
-                                className="text-right p-1.5 pr-2 rounded-3xl outline-1 outline-black w-full"
-                              ></input>
+                                onChange={setAttrYear}
+                              />
                             ) : (
                               <input
                                 type="text"
@@ -530,7 +529,7 @@ const ListingForm = ({ isOpenForm, setIsOpenForm }: ListingFormProps) => {
                                     : handleModelChange
                                 }
                                 maxLength={50}
-                                className="text-right p-1.5 pr-2 rounded-3xl outline-1 outline-black w-full"
+                                className="text-right outline outline-black/10 rounded-xl p-2 bg-gray-100/70 focus:bg-white focus:outline-[#85d65c] w-full"
                               ></input>
                             )}
                           </>
@@ -551,7 +550,7 @@ const ListingForm = ({ isOpenForm, setIsOpenForm }: ListingFormProps) => {
               </div>
             </div>
             <div className="flex flex-col gap-6 justify-start">
-              <h1 className="font-semibold text-md md:text-xl mb-5">Summary</h1>
+              <h1 className="font-bold text-md md:text-xl mb-5">Summary</h1>
               {isValidName ? (
                 <div className="flex flex-col justify-between gap-2 h-full pb-7">
                   <div className="grid grid-cols-2">

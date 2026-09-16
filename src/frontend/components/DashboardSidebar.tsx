@@ -79,7 +79,7 @@ const SideBar = ({ isMenuToggle }: DashboardSidebarProps) => {
           <nav className="flex flex-col gap-6">
             <div className="flex flex-col gap-4">
               {isMenuToggle ? (
-                <span className="text-sm tracking-wide font-semibold block h-5">
+                <span className="text-sm tracking-wide font-bold block h-5">
                   MENU
                 </span>
               ) : (
@@ -119,7 +119,7 @@ const SideBar = ({ isMenuToggle }: DashboardSidebarProps) => {
             </div>
             <div className="flex flex-col gap-4">
               {isMenuToggle ? (
-                <span className="text-sm tracking-wide font-semibold block h-5">
+                <span className="text-sm tracking-wide font-bold block h-5">
                   OTHERS
                 </span>
               ) : (

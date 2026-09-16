@@ -17,8 +17,8 @@ const Logout = ({ showLogoutConfirm, setShowLogoutConfirm }: LogoutProps) => {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-      <div className="w-96 rounded-2xl bg-white p-6 shadow-xl">
-        <h2 className="text-xl font-semibold">Log out?</h2>
+      <div className="rounded-2xl bg-white p-6 shadow-xl">
+        <h2 className="text-xl font-bold">Log out?</h2>
 
         <p className="mt-2 text-sm text-gray-600">
           Are you sure you want to log out of your account?
@@ -27,14 +27,14 @@ const Logout = ({ showLogoutConfirm, setShowLogoutConfirm }: LogoutProps) => {
         <div className="mt-6 flex justify-end gap-3">
           <button
             onClick={() => setShowLogoutConfirm(false)}
-            className="rounded-3xl cursor-pointer px-4 py-2 hover:bg-gray-100"
+            className="rounded-3xl cursor-pointer px-6 py-2 hover:bg-gray-100"
           >
             Cancel
           </button>
 
           <button
             onClick={handleLogout}
-            className="rounded-3xl cursor-pointer bg-red-500 px-4 py-2 text-white hover:bg-red-600"
+            className="rounded-3xl cursor-pointer bg-red-500 px-6 py-2 text-white hover:bg-red-600"
           >
             Log out
           </button>

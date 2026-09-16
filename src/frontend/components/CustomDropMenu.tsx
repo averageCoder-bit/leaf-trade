@@ -79,7 +79,7 @@ const SelectMenu = ({
         id="dropdown-button"
         type="button"
         onClick={onToggle}
-        className={`flex w-full items-center justify-between rounded-lg p-2 outline-1 hover:cursor-pointer ${
+        className={`flex w-full items-center outline outline-black/10 rounded-xl p-2 bg-gray-100/70 justify-between hover:cursor-pointer ${
           isOpen ? "outline-[#85d65c]" : ""
         }`}
       >

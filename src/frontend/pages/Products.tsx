@@ -14,7 +14,7 @@ const Products = () => {
         />
         <button
           onClick={() => setIsOpenForm(true)}
-          className="hidden md:flex text-sm md:text-base text-white hover:bg-[#85d65c] active:bg-[#5fb33a] bg-[#75cf4c] gap-2 p-3 items-center rounded-full md:rounded-4xl hover:cursor-pointer"
+          className="hidden md:flex text-sm font-medium text-white hover:bg-[#85d65c] active:bg-[#5fb33a] bg-[#75cf4c] gap-2 p-3 px-5 items-center rounded-full md:rounded-4xl hover:cursor-pointer"
         >
           Create listing
           <PlusCircle size={20} />

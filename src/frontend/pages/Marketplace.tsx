@@ -1,7 +1,7 @@
-import { Store } from "lucide-react";
 import SearchFilter from "../components/SearchFilterBar";
 import ProductGrid from "../components/products/ProductGrid";
 import type { Product } from "../types/product";
+import Pagination from "../components/Pagination";
 
 const MarketPlace = () => {
   const testProducts: Product[] = [
@@ -71,13 +71,14 @@ const MarketPlace = () => {
 
       <div className="flex w-full flex-1 flex-col items-center justify-center">
         <ProductGrid products={testProducts} />
-        <div className="flex-1 flex flex-col items-center justify-center text-center gap-4">
+        {/* <div className="flex-1 flex flex-col items-center justify-center text-center gap-4">
           <Store size={50} />
           <p className="text-sm md:text-base">
             The marketplace is empty. Why not be the first seller?
           </p>
-        </div>
+        </div> */}
       </div>
+      <Pagination />
     </div>
   );
 };

@@ -5,7 +5,7 @@ const ProductPreview = ({ product }: ProductPreviewProps) => {
     <div
       className="flex w-full max-w-60 flex-col overflow-hidden rounded-2xl bg-white shadow-sm
         transition-transform duration-300 ease-out will-change-transform
-        hover:scale-105"
+        hover:scale-105 hover:cursor-pointer"
     >
       <img
         src={product.image}
