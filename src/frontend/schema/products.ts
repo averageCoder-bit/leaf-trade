@@ -10,7 +10,7 @@ const productFileSchema = z
   )
   .refine((file) => {
     const maxSize =
-      file.type === "video/mp4" ? 50 * 1024 * 1024 : 5 * 1024 * 1024;
+      file.type === "video/mp4" ? 25 * 1024 * 1024 : 25 * 1024 * 1024;
 
     return file.size <= maxSize;
   }, "File exceeds the maximum allowed size");
