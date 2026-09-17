@@ -12,7 +12,7 @@ const PublicNavbar = () => {
     { id: 1, name: "Home", path: "#hero-section" },
     { id: 2, name: "Contact", path: "#contact" },
     { id: 3, name: "About", path: "#about-us" },
-    { id: 4, name: "Marketplace", path: "" },
+    { id: 4, name: "Marketplace", path: "#marketplace-section" },
   ];
 
   return (

@@ -36,6 +36,11 @@ interface FAQsComponents {
   answer: string;
 }
 
+interface PublicMarketplaceComponents {
+  header: string;
+  desc: string;
+}
+
 interface FooterLogoComponents {
   logos: string[];
 }
@@ -99,6 +104,11 @@ export const StorySection: StoryComponents = {
 export const CTASection: CTACOmponents = {
   tagline: "Ready to keep it simple?",
   header: "Make your next trade with LeafTrade.",
+};
+
+export const PublicMarketplaceSection: PublicMarketplaceComponents = {
+  header: "Explore LeafTrade",
+  desc: "Discover products before you sign up. Browse the marketplace freely and find something worth taking home.",
 };
 
 export const FAQsSection: FAQsComponents[] = [

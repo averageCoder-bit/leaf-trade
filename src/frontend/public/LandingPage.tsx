@@ -11,6 +11,7 @@ import {
   CTASection,
   FAQsSection,
   FooterLogos,
+  PublicMarketplaceSection,
 } from "../utils/siteContent";
 import { useState } from "react";
 import { SocialIcon } from "react-social-icons";
@@ -21,13 +22,33 @@ const LandingPage = () => {
     setOpenIndex(openIndex === index ? null : index);
   };
   const carousel = [
-    { id: 1, icon: "FaLaptop", name: "Electronics" },
-    { id: 2, icon: "FaTshirt", name: "Fashion" },
-    { id: 3, icon: "FaCouch", name: "Home & Living" },
-    { id: 4, icon: "FaGamepad", name: "Toy & Hobbies" },
-    { id: 5, icon: "FaBookOpen", name: "Books & Media" },
-    { id: 6, icon: "FaBasketballBall", name: "Sports & Outdoors" },
-    { id: 7, icon: "FaScrewdriver", name: "Tools & Miscellaneous" },
+    { id: 1, icon: "FaLaptop", name: "Electronics", color: "text-blue-500" },
+    { id: 2, icon: "FaTshirt", name: "Fashion", color: "text-pink-500" },
+    { id: 3, icon: "FaCouch", name: "Home & Living", color: "text-amber-500" },
+    {
+      id: 4,
+      icon: "FaGamepad",
+      name: "Toys & Hobbies",
+      color: "text-purple-500",
+    },
+    {
+      id: 5,
+      icon: "FaBookOpen",
+      name: "Books & Media",
+      color: "text-green-500",
+    },
+    {
+      id: 6,
+      icon: "FaBasketballBall",
+      name: "Sports & Outdoors",
+      color: "text-orange-500",
+    },
+    {
+      id: 7,
+      icon: "FaScrewdriver",
+      name: "Tools & Miscellaneous",
+      color: "text-gray-500",
+    },
   ];
 
   const Benefits = BenefitsSection;
@@ -44,35 +65,41 @@ const LandingPage = () => {
                 {HeroSection.subtitle}
               </p>
               <div className=" flex flex-col md:flex md:flex-row justify-center gap-3 mt-2">
-                <button
+                <a
+                  href={"#features-section"}
                   className="bg-[#75cf4c] text-center text-white font-medium rounded-3xl 
                   hover:bg-[#85d65c] active:bg-[#5fb33a] hover:cursor-pointer duration-300 w-full md:w-40 p-3 hover:-translate-y-1"
                 >
                   Get started
-                </button>
+                </a>
               </div>
             </div>
           </div>
         </section>
-        <section>
+        <section id="features-section">
           <div className="flex flex-col gap-5 py-10">
             <h2 className="mx-auto mb-6 max-w-3xl text-xl text-center font-bold leading-tight tracking-tight text-black sm:text-4xl">
               {FeaturesSection.header}
             </h2>
             <div className="w-full overflow-x-hidden">
-              <div className="animate-infinite-scroll flex flex-row gap-6 justify-start w-max overflow-y-hidden p-4">
+              <div className="animate-infinite-scroll flex flex-row gap-8 justify-evenly w-max overflow-y-hidden p-4">
                 {carousel.map((item) => {
                   const IconComponent =
                     FaIcons[item.icon as keyof typeof FaIcons];
                   return (
                     <div
                       key={`original-${item.id}`}
-                      className="flex flex-col shrink-0 hover:scale-105 duration-300 min-h-75 w-64 items-center p-3 gap-3 rounded-3xl border-black border"
+                      className="flex w-32 shrink-0 flex-col items-center justify-center gap-3"
                     >
-                      {IconComponent && (
-                        <IconComponent className="text-gray-500" />
-                      )}
-                      <span className="text-lg">{item.name}</span>
+                      <div className="flex min-h-25 w-25 shrink-0 items-center justify-center rounded-3xl border border-gray-300 p-3 transition duration-300 hover:scale-105">
+                        {IconComponent && (
+                          <IconComponent size={35} className={item.color} />
+                        )}
+                      </div>
+
+                      <span className="text-center text-sm font-medium text-black/80">
+                        {item.name}
+                      </span>
                     </div>
                   );
                 })}
@@ -82,13 +109,18 @@ const LandingPage = () => {
                     FaIcons[item.icon as keyof typeof FaIcons];
                   return (
                     <div
-                      key={`duplicate-${item.id}`}
-                      className="flex flex-col shrink-0 hover:scale-105 duration-300 min-h-75 w-64 items-center p-3 gap-3 rounded-3xl border-black border"
+                      key={`original-${item.id}`}
+                      className="flex w-32 shrink-0 flex-col items-center justify-center gap-3"
                     >
-                      {IconComponent && (
-                        <IconComponent className="text-gray-500" />
-                      )}
-                      <span className="text-lg">{item.name}</span>
+                      <div className="flex min-h-25 w-25 shrink-0 items-center justify-center rounded-3xl border border-gray-300 p-3 transition duration-300 hover:scale-105">
+                        {IconComponent && (
+                          <IconComponent size={35} className={item.color} />
+                        )}
+                      </div>
+
+                      <span className="text-center text-sm font-medium text-black/80">
+                        {item.name}
+                      </span>
                     </div>
                   );
                 })}
@@ -156,6 +188,25 @@ const LandingPage = () => {
                 </div>
               ))}
             </div>
+          </div>
+        </section>
+        <section id="marketplace-section" className="py-20">
+          <div className="flex flex-col justify-center items-center">
+            <h1 className="mx-auto mb-6 max-w-3xl text-2xl text-center font-bold leading-tight tracking-tight text-black sm:text-4xl">
+              {PublicMarketplaceSection.header}
+            </h1>
+            <p className="mx-auto max-w-4xl text-sm text-center leading-7 sm:text-lg sm:leading-8">
+              {PublicMarketplaceSection.desc}
+            </p>
+            <div className="w-full max-w-md bg-gray-100 h-64 mt-10 flex items-center justify-center rounded">
+              <span>image placeholder</span>
+            </div>
+            <button
+              className="p-2.5 bg-[#75cf4c] text-center hover:-translate-y-1 text-white font-medium mt-10 mb-10
+            hover:bg-[#85d65c] active:bg-[#5fb33a] transition duration-300 ease-in-out cursor-pointer"
+            >
+              View Marketplace
+            </button>
           </div>
         </section>
         <section className="py-20">
