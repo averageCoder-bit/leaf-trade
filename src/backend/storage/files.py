@@ -15,6 +15,7 @@ s3 = boto3.client(
     region_name="auto", # Required by SDK but not used by R2
 )
 
+# POST
 def generate_upload_url(
     product_id: uuid.UUID,
     filename: str,

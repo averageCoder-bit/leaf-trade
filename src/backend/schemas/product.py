@@ -1,10 +1,33 @@
-from pydantic import BaseModel, Field
-from typing import Annotated
 from decimal import Decimal
-class Product(BaseModel):
-    name: Annotated[str, Field(max_length=50)]
-    price: Annotated[Decimal, Field(min=0.01, max=10000000)]
-    description: Annotated[str, Field(max_length=2000)]
+from typing import Annotated
+
+from pydantic import BaseModel, Field
+class ProductFileSchema(BaseModel):
+    filename: str
+    content_type: str
+
+class CreateProductSchema(BaseModel):
+    name: Annotated[str, Field(min_length=1, max_length=50)]
+
+    price: Annotated[
+        Decimal,
+        Field(gt=0, le=10_000_000),
+    ]
+
+    description: Annotated[
+        str,
+        Field(min_length=1, max_length=2000),
+    ]
+
     condition: Annotated[str, Field(max_length=30)]
+
     category: Annotated[str, Field(max_length=30)]
-    delivery_option: Annotated[str, Field(max_length=30)]
+
+    attributes: dict
+
+    product_files: Annotated[
+        list[ProductFileSchema],
+        Field(min_length=1, max_length=6),
+    ]
+
+    delivery_options: Annotated[str, Field(max_length=30)]

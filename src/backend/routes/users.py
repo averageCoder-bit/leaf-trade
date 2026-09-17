@@ -1,12 +1,15 @@
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
+from pathlib import Path
+import sys
+
+current_dir = Path(__file__).resolve().parent.parent
+sys.path.append(str(current_dir))
 
 from auth.dependencies import get_current_user
 from auth.jwt import ClerkTokenPayload
 from models.user import User
-
 from schemas.user import CreateUserSchema
-
 from database.database import get_db
 
 router = APIRouter()

@@ -1,8 +1,13 @@
 from dotenv import load_dotenv
+from pathlib import Path
+import sys
 
 load_dotenv()
 
 from fastapi import FastAPI
+
+current_dir = Path(__file__).resolve().parent
+sys.path.append(str(current_dir))
 
 from middleware import setup_middleware
 from routes.users import router as users_router
