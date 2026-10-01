@@ -1,8 +1,8 @@
 import ProductPreview from "./ProductPreview";
-import type { Product } from "../../types/product";
+import type { ProductGridPreview } from "../../types/product";
 
 interface ProductGridProps {
-  products: Product[];
+  products: ProductGridPreview[];
 }
 
 const ProductGrid = ({ products }: ProductGridProps) => {

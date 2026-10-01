@@ -31,6 +31,7 @@ export type FilePreview = {
 
 export const MAX_PRICE = 10_000_000;
 export const MAX_FILES_LENGTH = 6;
+export const MAX_VIDEOS_LENGTH = 2;
 
 export const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
 export const MAX_VIDEO_SIZE = 25 * 1024 * 1024;

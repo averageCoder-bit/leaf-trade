@@ -7,6 +7,7 @@ import {
   sanitizeProductPrice,
   MAX_PRICE,
   MAX_FILES_LENGTH,
+  MAX_VIDEOS_LENGTH,
   MAX_IMAGE_SIZE,
   MAX_VIDEO_SIZE,
   ALLOWED_TYPES,
@@ -158,6 +159,24 @@ const ListingForm = ({ isOpenForm, setIsOpenForm }: ListingFormProps) => {
     const selectedFiles = Array.from(e.target.files ?? []);
     let current_size = 0;
 
+    const currentVideoCount = files.filter((item) =>
+      item.file.type.startsWith("video/"),
+    ).length;
+
+    const selectedVideoCount = selectedFiles.filter((file) =>
+      file.type.startsWith("video/"),
+    ).length;
+
+    if (currentVideoCount + selectedVideoCount > MAX_VIDEOS_LENGTH) {
+      setFileError("You can upload a maximum of 2 videos.");
+      return;
+    }
+
+    if (files.length + selectedFiles.length > MAX_FILES_LENGTH) {
+      setFileError("You can upload a maximum of 6 files.");
+      return;
+    }
+
     if (selectedFiles.length === 0) return;
 
     for (const file of selectedFiles) {
@@ -241,6 +260,7 @@ const ListingForm = ({ isOpenForm, setIsOpenForm }: ListingFormProps) => {
     };
     await createProductMutation.mutateAsync(product);
   };
+
   return (
     <>
       {isOpenForm ? (
@@ -362,6 +382,7 @@ const ListingForm = ({ isOpenForm, setIsOpenForm }: ListingFormProps) => {
                       className={`${hasFiles ? "hidden" : "block"} flex flex-col space-y-3 justify-center items-center`}
                     >
                       <p className="font-semibold">Only valid formats</p>
+                      <p className="text-xs">Max. of 2 videos only</p>
                       <p className="text-xs">
                         JPG, PNG, WEBP · (5MB) MP4 · (25MB)
                       </p>
@@ -424,8 +445,8 @@ const ListingForm = ({ isOpenForm, setIsOpenForm }: ListingFormProps) => {
                     accept="image/png, image/webp, image/jpg, image/webp, video/mp4"
                     className="outline-1 p-1 hidden"
                   />
-                  <p className="text-red-400">{fileError}</p>
                 </div>
+                <p className="text-red-400 text-sm">{fileError}</p>
               </div>
               <div className="flex flex-col gap-2">
                 <label className="font-semibold text-sm">
