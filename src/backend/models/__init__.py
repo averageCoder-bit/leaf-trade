@@ -1,3 +1,3 @@
 from .user import User
 from .product import Product
-from .product_image import ProductImage
+from .product_files import ProductFiles

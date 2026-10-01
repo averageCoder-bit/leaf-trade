@@ -2,13 +2,19 @@ from dotenv import load_dotenv
 import os
 from logging.config import fileConfig
 
+from pathlib import Path
+import sys
+
+current_dir = Path(__file__).resolve().parent.parent / "src" / "backend"
+sys.path.append(str(current_dir))
+
 from sqlalchemy import engine_from_config
 from sqlalchemy import pool
 
 from alembic import context
 
-from src.backend.database.base import Base
-import src.backend.models
+from database.base import Base
+import models
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -29,6 +35,7 @@ if config.config_file_name is not None:
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
 target_metadata = Base.metadata
+
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:

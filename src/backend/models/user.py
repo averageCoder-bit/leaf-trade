@@ -1,11 +1,19 @@
 import uuid
-from src.backend.database.base import Base
+from pathlib import Path
+import sys
+
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy import String, Uuid, DateTime
 from datetime import datetime
-from src.backend.common.get_utc import get_utc_now
+
 from sqlalchemy import Boolean
 from typing import TYPE_CHECKING
+
+current_dir = Path(__file__).resolve().parent.parent
+sys.path.append(str(current_dir))
+
+from database.base import Base
+from common.get_utc import get_utc_now
 
 if TYPE_CHECKING:
     from backend.models.product import Product
