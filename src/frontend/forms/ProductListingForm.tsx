@@ -294,7 +294,7 @@ const ListingForm = ({ isOpenForm, setIsOpenForm }: ListingFormProps) => {
                   onBlur={handleNameBlur}
                   onChange={handleNameChange}
                   type="text"
-                  className="outline outline-black/10 rounded-xl p-2 bg-gray-100/70 focus:bg-white focus:outline-[#85d65c]"
+                  className="text-sm outline outline-black/10 rounded-xl p-2 bg-gray-100/70 focus:bg-white focus:outline-[#85d65c]"
                 />
                 {!isValidName ? (
                   <p className="text-red-400">{nameError}</p>
@@ -313,7 +313,7 @@ const ListingForm = ({ isOpenForm, setIsOpenForm }: ListingFormProps) => {
                   max={1000000}
                   step={0.01}
                   placeholder="₱0.00"
-                  className="outline outline-black/10 rounded-xl p-2 bg-gray-100/70 focus:bg-white focus:outline-[#85d65c]"
+                  className="text-sm outline outline-black/10 rounded-xl p-2 bg-gray-100/70 focus:bg-white focus:outline-[#85d65c]"
                 />
                 {!isValidPrice ? (
                   priceError === "Price cannot exceed ₱10,000,000" ? (
@@ -363,7 +363,7 @@ const ListingForm = ({ isOpenForm, setIsOpenForm }: ListingFormProps) => {
                   minLength={10}
                   maxLength={2000}
                   rows={4}
-                  className="outline outline-black/10 rounded-xl p-2 bg-gray-100/70 resize-none focus:bg-white focus:outline-[#85d65c]"
+                  className="text-sm outline outline-black/10 rounded-xl p-2 bg-gray-100/70 resize-none focus:bg-white focus:outline-[#85d65c]"
                 ></textarea>
               </div>
             </div>

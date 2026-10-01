@@ -79,7 +79,7 @@ const SelectMenu = ({
         id="dropdown-button"
         type="button"
         onClick={onToggle}
-        className={`flex w-full items-center outline outline-black/10 rounded-xl p-2 bg-gray-100/70 justify-between hover:cursor-pointer ${
+        className={`text-sm flex w-full items-center outline outline-black/10 rounded-xl p-2 bg-gray-100/70 justify-between hover:cursor-pointer ${
           isOpen ? "outline-[#85d65c]" : ""
         }`}
       >
@@ -105,7 +105,7 @@ const SelectMenu = ({
                 label(option.label);
                 onClose();
               }}
-              className="cursor-pointer p-1 px-2 text-left hover:bg-gray-100"
+              className="cursor-pointer p-1 px-2 text-left hover:bg-gray-100 text-sm"
             >
               {option.label}
             </button>

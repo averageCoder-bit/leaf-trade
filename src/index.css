@@ -1,12 +1,9 @@
-@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
 @import "tailwindcss";
-<<<<<<< HEAD
 
 html {
   scroll-behavior: smooth;
 }
-=======
->>>>>>> feature/backend
 
 @theme {
   --animate-infinite-scroll: infinite-scroll 30s linear infinite;
@@ -23,7 +20,7 @@ html {
 }
 
 body {
-  font-family: "Poppins", sans-serif;
+  font-family: "Inter", sans-serif;
 }
 
 html {
