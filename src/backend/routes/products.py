@@ -26,6 +26,7 @@ async def create_listing(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
+    user = db.query(User).filter(User.clerk_user_id == current_user.clerk_user_id).first()
     product = Product(
         name=data.name,
         price=data.price,
@@ -34,7 +35,7 @@ async def create_listing(
         category=data.category,
         attributes=data.attributes,
         delivery_options=data.delivery_options,
-        user_id=current_user.user_id,
+        user_id = user.user_id
     )
 
     db.add(product)
