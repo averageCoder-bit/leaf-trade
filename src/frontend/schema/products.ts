@@ -1,5 +1,5 @@
 import * as z from "zod";
-const productFileSchema = z
+export const uploadFileSchema = z
   .instanceof(File)
   .refine(
     (file) =>
@@ -10,10 +10,16 @@ const productFileSchema = z
   )
   .refine((file) => {
     const maxSize =
-      file.type === "video/mp4" ? 25 * 1024 * 1024 : 25 * 1024 * 1024;
+      file.type === "video/mp4" ? 25 * 1024 * 1024 : 5 * 1024 * 1024;
 
     return file.size <= maxSize;
   }, "File exceeds the maximum allowed size");
+
+const productFileSchema = z.object({
+  filename: z.string(),
+  content_type: z.string(),
+});
+
 export const productSchema = z.object({
   name: z.string().min(1).max(50),
   description: z.string().min(1).max(2000),
@@ -25,7 +31,7 @@ export const productSchema = z.object({
   product_files: z
     .array(productFileSchema)
     .min(1, "At least one file is required")
-    .max(6, "Maximum of 5 files"),
+    .max(6, "Maximum of 6 files"),
   category: z.string().max(30),
   condition: z.string().max(30),
   delivery_options: z.string().max(30),
@@ -40,3 +46,4 @@ export const productSchema = z.object({
 });
 
 export type Product = z.infer<typeof productSchema>;
+export type ProductFiles = z.infer<typeof uploadFileSchema>;

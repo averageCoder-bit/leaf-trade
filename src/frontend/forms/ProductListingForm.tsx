@@ -23,6 +23,8 @@ import {
   sanitizeProductBrand,
 } from "../validator/listProductForm";
 import CustomCalendar from "../components/CustomCalendar";
+import { uploadFileSchema } from "../schema/products";
+import type { ProductFiles } from "../schema/products";
 import SelectMenu from "../components/CustomDropMenu";
 import type { Product } from "../schema/products";
 import createProduct from "../services/productService";
@@ -151,12 +153,18 @@ const ListingForm = ({ isOpenForm, setIsOpenForm }: ListingFormProps) => {
     setOpenMenu(null);
   };
 
-  const handleSubmitListing = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault;
-  };
-
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFiles = Array.from(e.target.files ?? []);
+
+    for (const file of selectedFiles) {
+      const result = uploadFileSchema.safeParse(file);
+
+      if (!result.success) {
+        setFileError(`${file.name}: ${result.error.issues[0].message}`);
+        return;
+      }
+    }
+
     let current_size = 0;
 
     const currentVideoCount = files.filter((item) =>
@@ -178,28 +186,6 @@ const ListingForm = ({ isOpenForm, setIsOpenForm }: ListingFormProps) => {
     }
 
     if (selectedFiles.length === 0) return;
-
-    for (const file of selectedFiles) {
-      if (file.type.startsWith("image")) {
-        current_size = MAX_IMAGE_SIZE;
-        setFileType("image");
-      } else {
-        current_size = MAX_VIDEO_SIZE;
-        setFileType("video");
-      }
-
-      if (file.size > current_size) {
-        setFileError(
-          `${file.name} must be ${fileType === "image" ? "5" : "25"} MB or smaller.`,
-        );
-        return;
-      }
-
-      if (!ALLOWED_TYPES.includes(file.type)) {
-        setFileError(`${file.name} is an unsupported file type.`);
-        return;
-      }
-    }
 
     const newFiles: FilePreview[] = selectedFiles.map((file) => ({
       file,
@@ -230,7 +216,7 @@ const ListingForm = ({ isOpenForm, setIsOpenForm }: ListingFormProps) => {
       if (!token) {
         throw new Error("Unable to authenticate with the backend.");
       }
-
+      console.log(product);
       return createProduct(product, token);
     },
     onSuccess: (data) => {
@@ -242,12 +228,16 @@ const ListingForm = ({ isOpenForm, setIsOpenForm }: ListingFormProps) => {
     },
   });
 
-  const handleListingPost = async () => {
+  const handleListingPost = async (e: React.SubmitEvent<HTMLFormElement>) => {
+    e.preventDefault();
     const product: Product = {
       name: listName,
       description: description,
-      price: Number(price),
-      product_files: files.map((file) => file.file),
+      price: Number(price.replace(/,/g, "")),
+      product_files: files.map((file) => ({
+        filename: file.file.name,
+        content_type: file.file.type,
+      })),
       category: category,
       condition: condition,
       attributes: {
@@ -266,7 +256,7 @@ const ListingForm = ({ isOpenForm, setIsOpenForm }: ListingFormProps) => {
       {isOpenForm ? (
         <div className="flex flex-col w-full rounded-2xl shadow-md shadow-gray-50 p-6">
           <div className="flex flex-row justify-between pb-7">
-            <h1 className="text-lg md:text-2xl font-bold">
+            <h1 className="text-lg md:text-xl font-bold">
               Product Listing Form
             </h1>
             <button
@@ -280,8 +270,7 @@ const ListingForm = ({ isOpenForm, setIsOpenForm }: ListingFormProps) => {
 
           <form
             className="flex flex-col md:grid md:grid-cols-3 justify-evenly space-y-8 md:gap-8"
-            onSubmit={handleSubmitListing}
-            action=""
+            onSubmit={handleListingPost}
           >
             <div className="flex flex-col gap-6 justify-start">
               <div className="flex flex-col gap-2">
@@ -360,7 +349,7 @@ const ListingForm = ({ isOpenForm, setIsOpenForm }: ListingFormProps) => {
                 <textarea
                   value={description}
                   onChange={handleDescChange}
-                  minLength={10}
+                  minLength={1}
                   maxLength={2000}
                   rows={4}
                   className="text-sm outline outline-black/10 rounded-xl p-2 bg-gray-100/70 resize-none focus:bg-white focus:outline-[#85d65c]"
@@ -509,7 +498,7 @@ const ListingForm = ({ isOpenForm, setIsOpenForm }: ListingFormProps) => {
                 )}
                 <div className="flex flex-col space-y-4">
                   {attributesList.map((attribute) => (
-                    <div className="flex flex-col md:grid md:grid-cols-2 md:items-center gap-2">
+                    <div className="flex flex-col md:grid md:grid-cols-2 md:items-center gap-2 text-sm">
                       <label>{attribute.label}</label>
                       <div className="flex flex-row gap-2">
                         {attribute.element === "dropdown" ? (
@@ -566,16 +555,22 @@ const ListingForm = ({ isOpenForm, setIsOpenForm }: ListingFormProps) => {
               </div>
             </div>
             <div className="flex flex-col gap-6 justify-start">
-              <h1 className="font-bold text-md md:text-xl mb-5">Summary</h1>
+              <h1 className="font-bold text-md md:text-lg mb-5">Summary</h1>
               {isValidName ? (
                 <div className="flex flex-col justify-between gap-2 h-full pb-7">
                   <div className="grid grid-cols-2">
                     <div className="grid grid-rows-3 text-left gap-2 text-sm md:text-base">
-                      <label className="font-semibold">Product name: </label>
-                      <label className="font-semibold">Category: </label>
-                      <label className="font-semibold">Condition: </label>
+                      <label className="font-semibold text-sm">
+                        Product name:{" "}
+                      </label>
+                      <label className="font-semibold text-sm">
+                        Category:{" "}
+                      </label>
+                      <label className="font-semibold text-sm">
+                        Condition:{" "}
+                      </label>
                     </div>
-                    <div className="grid grid-rows-3 text-right gap-2">
+                    <div className="grid grid-rows-3 text-right gap-2 text-sm">
                       <p className="truncate">{listName || "-"}</p>
                       <p>{categoryLabel || "-"}</p>
                       <p>{conditionLabel || "-"}</p>
@@ -585,10 +580,10 @@ const ListingForm = ({ isOpenForm, setIsOpenForm }: ListingFormProps) => {
 
                   <div className="flex flex-col space-y-5">
                     <div className="flex flex-row justify-between">
-                      <label className="font-semibold text-sm md:text-base">
+                      <label className="font-semibold text-sm">
                         Price assessment:
                       </label>
-                      <p className="truncate">
+                      <p className="truncate text-sm">
                         {price ? "₱" : null} {price}{" "}
                       </p>
                     </div>
@@ -596,7 +591,6 @@ const ListingForm = ({ isOpenForm, setIsOpenForm }: ListingFormProps) => {
                     <button
                       type="submit"
                       disabled={!isListValid || createProductMutation.isPending}
-                      onClick={handleListingPost}
                       className="p-3 rounded-3xl disabled:cursor-not-allowed disabled:opacity-50 text-white hover:cursor-pointer hover:bg-[#85d65c] active:bg-[#5fb33a] bg-[#75cf4c]"
                     >
                       {createProductMutation.isPending
@@ -608,7 +602,7 @@ const ListingForm = ({ isOpenForm, setIsOpenForm }: ListingFormProps) => {
               ) : (
                 <div className="flex-1 flex flex-col items-center justify-center text-center gap-4">
                   <FolderMinus size={50} />
-                  <p className="text-sm md:text-base">
+                  <p className="text-sm">
                     Listing breakdown unavailable, <br />
                     please fill up the form first
                   </p>

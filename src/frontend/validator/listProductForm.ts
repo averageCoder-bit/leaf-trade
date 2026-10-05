@@ -49,6 +49,7 @@ export const categories: CategoryProps[] = [
   { value: "books-and-education", label: "Books & Education" },
   { value: "sports-and-outdoors", label: "Sports & Outdoors" },
   { value: "toys-and-games", label: "Toys & Games" },
+  { value: "electronics", label: "Electronics" },
   { value: "beauty-and-personal-care", label: "Beauty & Personal Care" },
   { value: "hobbies-and-collections", label: "Hobbies & Collections" },
   { value: "pet-supplies", label: "Pet & Supplies" },
