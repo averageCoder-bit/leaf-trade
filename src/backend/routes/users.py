@@ -25,9 +25,9 @@ async def create_user(
     new_user = User(
         clerk_user_id=current_user.user_id,
         email=data.email,
-        first_name=data.first_name,
-        last_name=data.last_name,
-        phone_number=data.phone_number,
+        first_name=data.firstName,
+        last_name=data.lastName,
+        # phone_number=data.phone_number,
         username=data.username,
     )
     db.add(new_user)

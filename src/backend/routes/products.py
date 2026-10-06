@@ -28,7 +28,7 @@ async def create_listing(
 ):
     user = (
         db.query(User)
-        .filter(User.clerk_user_id == current_user["sub"])
+        .filter(User.clerk_user_id == current_user.user_id)
         .first()
     )
 
