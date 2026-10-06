@@ -1,4 +1,4 @@
-from fastapi import Depends, APIRouter, status
+from fastapi import Depends, APIRouter, status, HTTPException
 from sqlalchemy.orm import Session
 
 from pathlib import Path
@@ -26,7 +26,18 @@ async def create_listing(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    user = db.query(User).filter(User.clerk_user_id == current_user.clerk_user_id).first()
+    user = (
+        db.query(User)
+        .filter(User.clerk_user_id == current_user["sub"])
+        .first()
+    )
+
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found",
+        )
+
     product = Product(
         name=data.name,
         price=data.price,
