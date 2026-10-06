@@ -58,16 +58,16 @@ const LandingPage = () => {
         <section id="hero-section">
           <div className="flex flex-col md:flex md:flex-row justify-center items-center min-h-165 mt-10 md:mt-0">
             <div className="flex flex-col items-center gap-8 justify-center">
-              <h1 className="text-5xl font-bold text-center tracking-tight leading-20 text-black sm:text-5xl lg:text-7xl whitespace-pre-line">
+              <h1 className="text-5xl text-center font-bold md:text-center tracking-tight leading-20 text-black sm:text-5xl lg:text-7xl whitespace-pre-line">
                 {HeroSection.slogan}
               </h1>
               <p className="mt-6 max-w-2xl text-lg leading-8 text-center whitespace-pre-line">
                 {HeroSection.subtitle}
               </p>
-              <div className=" flex flex-col md:flex md:flex-row justify-center gap-3 mt-2">
+              <div className=" flex flex-row md:flex md:flex-row gap-3 mt-2 justify-center w-full">
                 <a
                   href={"#features-section"}
-                  className="bg-[#75cf4c] text-center text-white font-medium rounded-3xl 
+                  className="bg-[#75cf4c] text-center text-white font-medium rounded-3xl
                   hover:bg-[#85d65c] active:bg-[#5fb33a] hover:cursor-pointer duration-300 w-full md:w-40 p-3 hover:-translate-y-1"
                 >
                   Get started
@@ -137,7 +137,7 @@ const LandingPage = () => {
               >
                 <div className="flex flex-col items-center gap-3">
                   <card.icon
-                    size={50}
+                    size={40}
                     className="bg-[#75cf4c] text-white p-2 rounded-lg"
                   />
 

@@ -169,7 +169,7 @@ const Login = () => {
 
   return (
     <main className="flex min-h-screen justify-center items-center">
-      <div className="grid grid-cols-1 md:grid-cols-2 w-280 h-auto shadow-2xl rounded-3xl">
+      <div className="grid grid-cols-1 md:grid-cols-2 w-280 h-auto shadow-lg rounded-3xl">
         <div className="flex-col justify-center items-center hidden md:flex gap-5">
           {login ? (
             <p className="font-semibold">Welcome back user</p>

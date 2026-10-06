@@ -214,8 +214,8 @@ const Register = () => {
   };
 
   return (
-    <main className="flex flex-row min-h-screen justify-center items-center">
-      <div className="grid grid-cols-1 md:grid-cols-2 shadow-2xl rounded-xl w-280 h-auto ">
+    <main className="flex min-h-screen justify-center items-center py-10">
+      <div className="grid grid-cols-1 md:grid-cols-2 w-280 h-auto shadow-lg rounded-3xl">
         <div className="flex-col justify-center items-center hidden md:flex gap-5">
           <h1>Welcome to LeafTrade</h1>
         </div>
@@ -232,7 +232,7 @@ const Register = () => {
             <p>Please fill in your details to get started</p>
           </div>
           <form
-            className="gap-3 flex flex-col md:gap-4 [&_input]:text-sm [&_input]:py-3 [&_label]:text-xs md:[&_label]:text-sm md:[&_label]:font-medium md:[&_label]:text-black/70"
+            className="grid grid-rows-2 gap-7 p-3 mb-7 [&_input]:text-sm [&_input]:py-3 [&_label]:text-xs md:[&_label]:text-sm md:[&_label]:font-medium"
             onSubmit={handleRegisterSubmit}
           >
             <div className="grid grid-cols-2 gap-3">
@@ -436,7 +436,8 @@ const Register = () => {
                 <div className="flex flex-col text-xs md:text-sm mt-2 text-red-400">
                   {!password ? null : !isValidPassword ? (
                     <p>Please satisfy the password requirements</p>
-                  ) : password !== confirmPassword ? (
+                  ) : password !== confirmPassword &&
+                    confirmPassword.length !== 0 ? (
                     <p>Passwords do not match</p>
                   ) : null}
                 </div>

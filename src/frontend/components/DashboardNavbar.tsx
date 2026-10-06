@@ -11,7 +11,7 @@ const DashboardNavbar = ({ setIsMenuToggle }: DashboardNavbarProps) => {
         <button
           title="Menu"
           onClick={() => setIsMenuToggle((prev) => !prev)}
-          className="hover:cursor-pointer active:rotate-180 transition-transform duration-100 ease-in-out hover:bg-gray-200 rounded-2xl p-1 origin-center"
+          className="hover:cursor-pointer hover:bg-gray-200 rounded-2xl p-1 origin-center"
         >
           <Menu />
         </button>
