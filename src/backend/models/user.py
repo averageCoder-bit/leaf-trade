@@ -34,7 +34,7 @@ class User(Base):
         String(30), nullable=False
     )
     phone_number:Mapped[str] = mapped_column(
-        String(15), nullable=False, unique=True
+        String(15), nullable=True, unique=True
     )
     username:Mapped[str] = mapped_column(String(30), nullable=False, unique=True)
     address:Mapped[str | None] = mapped_column(String(100), nullable=True)
