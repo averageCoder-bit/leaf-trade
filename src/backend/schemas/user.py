@@ -10,6 +10,4 @@ class CreateUserSchema(BaseModel):
         min_length=3, max_length=30
     )]
 
-class UserSchema(BaseModel):
-    pass
 
