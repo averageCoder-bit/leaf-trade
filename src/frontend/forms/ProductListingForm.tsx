@@ -8,9 +8,6 @@ import {
   MAX_PRICE,
   MAX_FILES_LENGTH,
   MAX_VIDEOS_LENGTH,
-  MAX_IMAGE_SIZE,
-  MAX_VIDEO_SIZE,
-  ALLOWED_TYPES,
   checkNameValidity,
   checkPriceValidity,
   categories,
@@ -24,7 +21,6 @@ import {
 } from "../validator/listProductForm";
 import CustomCalendar from "../components/CustomCalendar";
 import { uploadFileSchema } from "../schema/products";
-import type { ProductFiles } from "../schema/products";
 import SelectMenu from "../components/CustomDropMenu";
 import type { Product } from "../schema/products";
 import createProduct from "../services/productService";
@@ -55,7 +51,6 @@ const ListingForm = ({ isOpenForm, setIsOpenForm }: ListingFormProps) => {
   const [description, setDescription] = useState("");
   const [condition, setCondition] = useState("");
   const [deliveryOption, setDeliveryOption] = useState("");
-  const [fileType, setFileType] = useState("");
   const [files, setFiles] = useState<FilePreview[]>([]);
   const [attributesList, setAttributesList] = useState<typeof attributes>([]);
 
@@ -164,8 +159,6 @@ const ListingForm = ({ isOpenForm, setIsOpenForm }: ListingFormProps) => {
         return;
       }
     }
-
-    let current_size = 0;
 
     const currentVideoCount = files.filter((item) =>
       item.file.type.startsWith("video/"),
