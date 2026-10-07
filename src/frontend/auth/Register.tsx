@@ -48,6 +48,8 @@ const Register = () => {
     useState<boolean>(false);
   const [hasConsent, setHasConsent] = useState<boolean>(false);
 
+  const [isRegistering, setIsRegistering] = useState<boolean>(false);
+
   const [hasUppercase, setHasUppercase] = useState<boolean>(false);
   const [hasNumber, setHasNumber] = useState<boolean>(false);
   const [hasLowercase, setHasLowerCase] = useState<boolean>(false);
@@ -204,6 +206,9 @@ const Register = () => {
     e: React.FormEvent<HTMLFormElement>,
   ): Promise<void> => {
     e.preventDefault();
+    if (canRegister) {
+      setIsRegistering(true);
+    }
 
     try {
       await signUpMutation.mutateAsync();
@@ -228,8 +233,10 @@ const Register = () => {
               <h1 className="tracking-wider text-lg font-bold">LeafTrade</h1>
             </div> */}
 
-            <h1 className="text-2xl font-bold">Register your account</h1>
-            <p>Please fill in your details to get started</p>
+            <h1 className="text-xl font-bold">Register your account</h1>
+            <p className="text-sm">
+              Please fill in your details to get started
+            </p>
           </div>
           <form
             className="grid grid-rows-2 gap-7 p-3 mb-7 [&_input]:text-sm [&_input]:py-3 [&_label]:text-xs md:[&_label]:text-sm md:[&_label]:font-medium"
@@ -357,12 +364,15 @@ const Register = () => {
                     minLength={15}
                     maxLength={64}
                     required
+                    title={password}
                     value={password}
                     onChange={handlePasswordChange}
                   />
                 </div>
                 {!password ? null : (
-                  <div className="flex flex-col text-xs md:text-sm mt-2">
+                  <div
+                    className={`${password === confirmPassword ? "hidden" : "flex"} flex-col text-xs md:text-sm mt-2`}
+                  >
                     <span className="flex flex-row gap-2 items-center">
                       {hasUppercase ? (
                         <FaCheckCircle className="text-[#75cf4c]" />
@@ -420,14 +430,17 @@ const Register = () => {
                     <FaEyeSlash
                       size={15}
                       title="Show Password"
-                      className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:cursor-pointer"
+                      className="absolute right-4 pl-4 top-1/2 -translate-y-1/2 text-gray-400 hover:cursor-pointer"
                       onClick={handleShowPassword}
                     />
                   )}
                   <input
-                    className="w-full rounded-xl p-2 pl-5 border border-slate-400 focus:outline-none focus:border-[#75cf4c]"
+                    className="truncate w-full rounded-xl p-2 pl-5 pr-12 border border-slate-400 focus:outline-none focus:border-[#75cf4c]"
                     type={isShowPassword ? "text" : "password"}
                     disabled={isValidPassword ? false : true}
+                    minLength={15}
+                    maxLength={64}
+                    title={confirmPassword}
                     value={confirmPassword}
                     onChange={handleConfirmPasswordChange}
                     required
@@ -458,7 +471,7 @@ const Register = () => {
                   and reservation purposes in accordance with the
                   <span>
                     <a
-                      href=""
+                      href="/pdf"
                       target="_blank"
                       rel="noopener noreferrer"
                       onClick={() => setHasReadPrivacyPolicy(true)}
@@ -481,7 +494,7 @@ const Register = () => {
 
             <div
               id="clerk-captcha"
-              className="w-full flex items-center justify-start"
+              className="w-full flex items-center justify-start empty:hidden"
             ></div>
             {/* {hasError ? (
               <div className="flex flex-row min-h-12.5 gap-4 items-center p-4 shadow-lg bg-red-100 text-red-600 font-semibold shadow-gray-200 rounded-2xl text-sm">
@@ -491,16 +504,16 @@ const Register = () => {
             ) : null} */}
             <button
               type="submit"
-              disabled={!canRegister}
+              disabled={!canRegister || isRegistering}
               className="p-2.5 w-full disabled:opacity-50
               disabled:cursor-not-allowed  text-center text-white rounded-xl my-10
             hover:bg-[#85d65c] active:bg-[#5fb33a] bg-[#75cf4c] transition duration-300 ease-in-out cursor-pointer text-sm font-semibold md:text-base"
             >
-              Register
+              {isRegistering ? "Registering" : "Register"}
             </button>
           </form>
 
-          <div className="flex flex-col items-center gap-4 mt-5">
+          <div className="flex flex-col items-center gap-4">
             <div className="flex flex-row gap-1">
               <p className="text-sm font-medium md:font-semibold">
                 Already have an account?

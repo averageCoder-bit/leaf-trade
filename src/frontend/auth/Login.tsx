@@ -168,7 +168,7 @@ const Login = () => {
   };
 
   return (
-    <main className="flex min-h-screen justify-center items-center">
+    <main className="flex min-h-screen justify-center items-center py-10">
       <div className="grid grid-cols-1 md:grid-cols-2 w-280 h-auto shadow-lg rounded-3xl">
         <div className="flex-col justify-center items-center hidden md:flex gap-5">
           {login ? (
@@ -177,8 +177,8 @@ const Login = () => {
             <div className="flex flex-col items-center space-y-7">
               <FaUserLock size={140} className="text-[#75cf4c]" />
               <div className="grid grid-rows-2 justify-items-center">
-                <h1 className="text-2xl font-semibold">Welcome</h1>
-                <p className="font-medium">Secure access portal</p>
+                <h1 className="text-xl font-semibold">Welcome</h1>
+                <p className="font-medium text-sm">Secure access portal</p>
               </div>
             </div>
           )}

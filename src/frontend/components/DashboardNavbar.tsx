@@ -1,10 +1,12 @@
-import { Bell, Menu } from "lucide-react";
+import { Bell, Menu, User } from "lucide-react";
+import { useCurrentUser } from "../services/userService";
 
 interface DashboardNavbarProps {
   setIsMenuToggle: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 const DashboardNavbar = ({ setIsMenuToggle }: DashboardNavbarProps) => {
+  const { data: currentUser } = useCurrentUser();
   return (
     <nav className="flex flex-row fixed w-full justify-between items-center p-4 shadow-md bg-white z-50">
       <div className="flex flex-row items-center justify-center ml-2">
@@ -24,11 +26,16 @@ const DashboardNavbar = ({ setIsMenuToggle }: DashboardNavbarProps) => {
           <Bell size={18} />
         </button>
         <button
-          title="Profile"
-          className="flex flex-row items-center md:bg-gray-100 gap-2 p-2 rounded-3xl hover:cursor-pointer"
+          title={`Profile ${""}`}
+          className="flex flex-row items-center md:outline outline-gray-300 gap-2 px-2 py-1.5 rounded-3xl hover:cursor-pointer hover:bg-gray-100"
         >
-          <img className="rounded-full w-9 h-9 bg-red-500" />
-          <p className="hidden lg:block text-sm">Username</p>
+          <div className="flex items-center justify-center rounded-full w-8 h-8 bg-gray-100">
+            <User size={18} />
+          </div>
+
+          <p className="hidden lg:block text-sm">
+            {currentUser?.username ?? "Username"}
+          </p>
         </button>
       </div>
     </nav>
