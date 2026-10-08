@@ -42,12 +42,12 @@ async def create_user(
 
 @router.get("/users/me", status_code=status.HTTP_200_OK)
 async def get_current_user_info(
-    current_user = Depends(get_current_user),
+    current_user: ClerkTokenPayload = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
     user = (
         db.query(User)
-        .filter(User.clerk_user_id == current_user.clerk_user_id)
+        .filter(User.clerk_user_id == current_user.user_id)
         .first()
     )
 
