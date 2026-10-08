@@ -430,7 +430,7 @@ const Register = () => {
                     <FaEyeSlash
                       size={15}
                       title="Show Password"
-                      className="absolute right-4 pl-4 top-1/2 -translate-y-1/2 text-gray-400 hover:cursor-pointer"
+                      className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:cursor-pointer"
                       onClick={handleShowPassword}
                     />
                   )}

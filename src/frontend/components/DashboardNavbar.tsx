@@ -26,14 +26,14 @@ const DashboardNavbar = ({ setIsMenuToggle }: DashboardNavbarProps) => {
           <Bell size={18} />
         </button>
         <button
-          title={`Profile ${""}`}
-          className="flex flex-row items-center md:outline outline-gray-300 gap-2 px-2 py-1.5 rounded-3xl hover:cursor-pointer hover:bg-gray-100"
+          title={`Profile`}
+          className="flex flex-row items-center md:outline outline-gray-300 gap-2 px-2.5 py-1.5 rounded-3xl hover:cursor-pointer hover:bg-gray-100"
         >
           <div className="flex items-center justify-center rounded-full w-8 h-8 bg-gray-100">
             <User size={18} />
           </div>
 
-          <p className="hidden lg:block text-sm">
+          <p className="hidden lg:block text-sm truncate max-w-24">
             {currentUser?.username ?? "Username"}
           </p>
         </button>
