@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, status, HTTPException
 from sqlalchemy.orm import Session
 from pathlib import Path
 import sys
@@ -11,6 +11,7 @@ from auth.jwt import ClerkTokenPayload
 from models.user import User
 from schemas.user import CreateUserSchema
 from database.database import get_db
+from uuid import UUID
 
 router = APIRouter()
 
@@ -37,4 +38,25 @@ async def create_user(
     return {
         "message": "User created successfully",
         "user_id": new_user.user_id,
+    }
+
+@router.get("/users/me", status_code=status.HTTP_200_OK)
+async def get_current_user_info(
+    current_user: ClerkTokenPayload = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    user = (
+        db.query(User)
+        .filter(User.clerk_user_id == current_user.user_id)
+        .first()
+    )
+
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found",
+        )
+
+    return {
+        "user": user
     }
