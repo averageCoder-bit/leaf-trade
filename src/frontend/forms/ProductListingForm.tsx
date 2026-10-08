@@ -202,15 +202,7 @@ const ListingForm = ({ isOpenForm, setIsOpenForm }: ListingFormProps) => {
   const createProductMutation = useMutation({
     mutationKey: ["products", "create"],
     mutationFn: async (product: Product) => {
-      const token = await getToken({
-        template: "fastapi",
-      });
-
-      if (!token) {
-        throw new Error("Unable to authenticate with the backend.");
-      }
-      console.log(product);
-      return createProduct(product, token);
+      return createProduct(product);
     },
     onSuccess: (data) => {
       console.log("Successfully created product: ", data);

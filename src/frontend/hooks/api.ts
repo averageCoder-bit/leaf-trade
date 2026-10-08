@@ -8,9 +8,6 @@ const api = axios.create({
     Accept: "application/json",
   },
 });
-export const authHeader = (token: string) => ({
-  headers: { Authorization: `Bearer ${token}` },
-});
 
 export const setupAuthInterceptor = (
   getToken: (options?: { template?: string }) => Promise<string | null>,

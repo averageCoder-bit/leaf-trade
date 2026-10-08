@@ -1,19 +1,12 @@
-import api, { authHeader } from "../hooks/api";
+import api from "../hooks/api";
 import type { CreateUser, User } from "../schema/users";
 import { createUserSchema } from "../schema/users";
 import { useQuery } from "@tanstack/react-query";
 
-export default async function createUser(
-  data: CreateUser,
-  token: string,
-): Promise<User> {
+export default async function createUser(data: CreateUser): Promise<User> {
   const validatedData = createUserSchema.parse(data);
 
-  const { data: response } = await api.post<User>(
-    "/users",
-    validatedData,
-    authHeader(token),
-  );
+  const { data: response } = await api.post<User>("/users", validatedData);
   return response;
 }
 
@@ -29,8 +22,8 @@ export function useCurrentUser() {
   });
 }
 
-export const fetchUserProfile = async (token: string): Promise<User> => {
-  const { data } = await api.get<User>("/dashboard/profile", authHeader(token));
+export const fetchUserProfile = async (): Promise<User> => {
+  const { data } = await api.get<User>("/dashboard/profile");
 
   return data;
 };
