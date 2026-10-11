@@ -1,6 +1,5 @@
 import { X, PlusIcon, FolderMinus, Trash2 } from "lucide-react";
 import { useMutation } from "@tanstack/react-query";
-import { getToken } from "@clerk/react";
 import { useState } from "react";
 import {
   sanitizeProductName,

@@ -170,7 +170,7 @@ const EmailVerification = () => {
         throw new Error("Invalid registration data.");
       }
 
-      await createUser(result.data, token);
+      await createUser(result.data);
 
       sessionStorage.removeItem("pendingRegistration");
 

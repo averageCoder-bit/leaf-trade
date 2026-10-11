@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { LuLeaf, LuBookmark, LuArrowDown } from "react-icons/lu";
+import { LuLeaf, LuArrowDown } from "react-icons/lu";
 
 const ITEMS_PER_PAGE = 3;
 
