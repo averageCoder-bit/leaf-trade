@@ -22,6 +22,8 @@ import ForgotPassword from "../auth/ForgotPassword";
 import MarketPlace from "../pages/Marketplace";
 import Messages from "../pages/Messages";
 
+import ErrorPage from "../errors/ErrorPage";
+
 function AppRoutes() {
   return (
     <Routes>
@@ -52,6 +54,10 @@ function AppRoutes() {
           <Route path="/help-center" element={<HelpCenter />} />
         </Route>
       </Route>
+      <Route path="/401" element={<ErrorPage code={401} />} />
+      <Route path="/403" element={<ErrorPage code={403} />} />
+      <Route path="/500" element={<ErrorPage code={500} />} />
+      <Route path="*" element={<ErrorPage code={404} />} />
     </Routes>
   );
 }

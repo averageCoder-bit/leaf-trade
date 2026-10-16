@@ -10,6 +10,7 @@ import {
 } from "react-icons/fa";
 import { LuCircleAlert } from "react-icons/lu";
 
+import { showToast } from "../components/ToastUI";
 import { sanitizePassword, sanitizeEmail } from "../validator/authForms";
 
 import { useNavigate } from "react-router-dom";
@@ -43,6 +44,26 @@ const Login = () => {
 
     return () => clearInterval(timer);
   }, [rateLimitSeconds]);
+
+  useEffect(() => {
+    const logoutToast = sessionStorage.getItem("logoutToast");
+
+    if (logoutToast === "true") {
+      sessionStorage.removeItem("logoutToast");
+
+      showToast("Successfully logged out!", "logout");
+    }
+  }, []);
+
+  useEffect(() => {
+    const idleLogout = sessionStorage.getItem("idleLogout");
+
+    if (idleLogout === "true") {
+      sessionStorage.removeItem("idleLogout");
+
+      showToast("You've been logged out due to inactivity.", "timeout");
+    }
+  }, []);
 
   const handleShowPassword = () => {
     setShowPassword(true);
@@ -104,7 +125,7 @@ const Login = () => {
       }
 
       if (signIn.status === "complete") {
-        console.log("Login successful!");
+        showToast("Login successful, welcome", "success");
         await signIn.finalize();
         setLogin(true);
         return;
@@ -204,7 +225,7 @@ const Login = () => {
                 />
 
                 <input
-                  className="w-full rounded-xl p-2.5 pl-10 border border-slate-400 focus:outline-none focus:border-[#75cf4c]"
+                  className="w-full pl-12 text-sm outline outline-black/10 rounded-xl p-2 bg-gray-100/70 focus:bg-white focus:outline-[#85d65c] transition-colors duration-300"
                   type="email"
                   value={email}
                   name="email"
@@ -228,7 +249,7 @@ const Login = () => {
                   value={password}
                   type={isShowPassword ? "text" : "password"}
                   onChange={handlePasswordChange}
-                  className="w-full rounded-xl p-2.5 pl-10 pr-10 border border-slate-400 focus:outline-none focus:border-[#75cf4c]"
+                  className="w-full pl-12 text-sm outline outline-black/10 rounded-xl p-2 bg-gray-100/70 focus:bg-white focus:outline-[#85d65c] transition-colors duration-300"
                   name="password"
                   required
                   autoComplete="current-password"
@@ -301,7 +322,9 @@ const Login = () => {
                 disabled={fetchStatus === "fetching"}
               >
                 <FcGoogle className="shrink-0 w-4 h-4 md:w-5 md:h-5" />
-                <span className="text-center w-full mx-2 truncate">Google</span>
+                <span className="text-center w-full mx-2 truncate text-sm">
+                  Google
+                </span>
 
                 <div className="w-5" aria-hidden="true" />
               </button>
@@ -312,7 +335,7 @@ const Login = () => {
                 hover:bg-[#166fe5] active:bg-[#0e56c4] transition duration-300 ease-in-out cursor-pointer"
               >
                 <FaFacebook className="shrink-0 w-4 h-4 md:w-5 md:h-5" />
-                <span className="text-center w-full mx-2 truncate">
+                <span className="text-center w-full mx-2 truncate text-sm">
                   Facebook
                 </span>
                 <div className="w-5" aria-hidden="true" />

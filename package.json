@@ -23,6 +23,7 @@
     "react-router-dom": "^7.18.2",
     "react-social-icons": "^6.26.0",
     "redis": "^6.2.1",
+    "sonner": "^2.0.8",
     "tailwind": "^4.0.0",
     "tailwindcss": "^4.3.3",
     "zod": "^4.4.3"

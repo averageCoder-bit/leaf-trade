@@ -59,7 +59,7 @@ const SideBar = ({ isMenuToggle }: DashboardSidebarProps) => {
       h-[calc(100vh-4rem)] md:h-full
       shrink-0
       transition-all duration-300 ease-in-out
-      text-sm md:text-base
+      text-sm
       flex flex-col 
       border-r border-gray-200
       pt-10

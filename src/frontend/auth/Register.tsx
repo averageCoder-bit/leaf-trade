@@ -11,6 +11,7 @@ import {
   FaCheckCircle,
   FaTimesCircle,
 } from "react-icons/fa";
+import { LuCircleAlert } from "react-icons/lu";
 
 import {
   sanitizeName,
@@ -60,8 +61,8 @@ const Register = () => {
   const [phoneError, setPhoneError] = useState<string>("");
   const [usernameError, setUsernameError] = useState<string>("");
 
-  // const [hasError, setHasError] = useState<boolean>(false);
-  // const [error, setError] = useState<string>("");
+  const [hasError, setHasError] = useState<boolean>(false);
+  const [error, setError] = useState<string>("");
 
   const [confirmPassword, setConfirmPassword] = useState<string>("");
 
@@ -152,7 +153,7 @@ const Register = () => {
   };
 
   const handleUsernameBlur = () => {
-    if (!checkUsernameValidity(username)) {
+    if (!checkUsernameValidity(username) && username.length != 0) {
       setUsernameError(
         "Username must be 3-30 characters using only letters, numbers, or underscores",
       );
@@ -164,7 +165,7 @@ const Register = () => {
   };
 
   const handleEmailBlur = () => {
-    if (!checkEmailValidity(email)) {
+    if (!checkEmailValidity(email) && email.length != 0) {
       setEmailError("Please enter a valid email address");
     } else {
       setIsValidEmail(true);
@@ -173,7 +174,7 @@ const Register = () => {
   };
 
   const handlePhoneBlur = () => {
-    if (!checkPhoneValidity(phoneNumber)) {
+    if (!checkPhoneValidity(phoneNumber) && phoneNumber.length != 0) {
       setPhoneError("Please enter a valid PH phone number");
       setIsValidPhone(false);
     } else {
@@ -215,6 +216,8 @@ const Register = () => {
       navigate("/verification");
     } catch (error) {
       console.error("Registration failed:", error);
+      setHasError(true);
+      setError("Registration failed. Please try again.");
     }
   };
 
@@ -239,7 +242,7 @@ const Register = () => {
             </p>
           </div>
           <form
-            className="grid grid-rows-2 gap-7 p-3 mb-7 [&_input]:text-sm [&_input]:py-3 [&_label]:text-xs md:[&_label]:text-sm md:[&_label]:font-medium"
+            className="grid grid-rows-2 gap-5 p-3 mb-7 [&_input]:transition-colors [&_input]:duration-300 [&_input]:focus:outline-[#85d65c] [&_input]:text-sm [&_input]:py-3 [&_input]:bg-gray-100/70 [&_input]:focus:bg-white [&_label]:text-xs md:[&_label]:text-sm md:[&_label]:font-medium"
             onSubmit={handleRegisterSubmit}
           >
             <div className="grid grid-cols-2 gap-3">
@@ -251,7 +254,7 @@ const Register = () => {
                     className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
                   />
                   <input
-                    className="w-full p-2 pl-10 rounded-xl border border-slate-400 focus:outline-none focus:border-[#75cf4c]"
+                    className="w-full p-2 pl-10 outline outline-black/10 rounded-xl"
                     type="text"
                     placeholder="Juan Dela"
                     required
@@ -265,7 +268,7 @@ const Register = () => {
               <div className="flex flex-col gap-2">
                 <label>Last name</label>
                 <input
-                  className="w-full p-2 pl-5 rounded-xl border border-slate-400 focus:outline-none focus:border-[#75cf4c]"
+                  className="w-full p-2 pl-4 outline outline-black/10 rounded-xl"
                   type="text"
                   placeholder="Cruz"
                   required
@@ -284,7 +287,7 @@ const Register = () => {
                   className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
                 />
                 <input
-                  className="w-full p-2 pl-10 rounded-xl border border-slate-400 focus:outline-none focus:border-[#75cf4c]"
+                  className="w-full p-2 pl-10 outline outline-black/10 rounded-xl"
                   type="email"
                   name="email"
                   autoComplete="email"
@@ -308,7 +311,7 @@ const Register = () => {
                   size={15}
                 />
                 <input
-                  className="w-full p-2 pl-10 rounded-xl border border-slate-400 focus:outline-none focus:border-[#75cf4c]"
+                  className="w-full p-2 pl-10 outline outline-black/10 rounded-xl"
                   type="text"
                   autoComplete="off"
                   name="leaftrade-username"
@@ -336,10 +339,12 @@ const Register = () => {
                   className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
                 />
                 <input
-                  className="w-full p-2 pl-10 rounded-xl border border-slate-400 focus:outline-none focus:border-[#75cf4c]"
+                  className="w-full p-2 pl-10 outline outline-black/10 rounded-xl"
                   type="text"
                   required
                   placeholder="+639xxxxxxxxx"
+                  minLength={15}
+                  maxLength={15}
                   value={phoneNumber}
                   onChange={handlePhoneChange}
                   onBlur={handlePhoneBlur}
@@ -359,7 +364,7 @@ const Register = () => {
                     className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
                   />
                   <input
-                    className="w-full rounded-xl p-2 pl-10 border border-slate-400 focus:outline-none focus:border-[#75cf4c]"
+                    className="w-full p-2 pl-10 outline outline-black/10 rounded-xl"
                     type={isShowPassword ? "text" : "password"}
                     minLength={15}
                     maxLength={64}
@@ -435,7 +440,7 @@ const Register = () => {
                     />
                   )}
                   <input
-                    className="truncate w-full rounded-xl p-2 pl-5 pr-12 border border-slate-400 focus:outline-none focus:border-[#75cf4c]"
+                    className="w-full pl-4 pr-10 outline outline-black/10 rounded-xl"
                     type={isShowPassword ? "text" : "password"}
                     disabled={isValidPassword ? false : true}
                     minLength={15}
@@ -496,12 +501,12 @@ const Register = () => {
               id="clerk-captcha"
               className="w-full flex items-center justify-start empty:hidden"
             ></div>
-            {/* {hasError ? (
+            {hasError ? (
               <div className="flex flex-row min-h-12.5 gap-4 items-center p-4 shadow-lg bg-red-100 text-red-600 font-semibold shadow-gray-200 rounded-2xl text-sm">
                 <LuCircleAlert />
                 <p>{error}</p>
               </div>
-            ) : null} */}
+            ) : null}
             <button
               type="submit"
               disabled={!canRegister || isRegistering}

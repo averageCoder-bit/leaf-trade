@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { LuLeaf, LuArrowDown } from "react-icons/lu";
+import { LuLeaf } from "react-icons/lu";
 
 const ITEMS_PER_PAGE = 3;
 
@@ -128,14 +128,6 @@ const MarketplaceShowcase = ({ header, desc }: MarketplaceShowcaseProps) => {
                 </div>
               </div>
             ))}
-          </div>
-
-          {/* Bottom arrow */}
-          <div
-            aria-hidden="true"
-            className="absolute -bottom-5 left-1/2 flex h-11 w-11 -translate-x-1/2 items-center justify-center rounded-full border border-gray-600 bg-black text-white"
-          >
-            <LuArrowDown size={24} />
           </div>
         </div>
 

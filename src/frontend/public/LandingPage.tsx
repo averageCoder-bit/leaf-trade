@@ -1,6 +1,6 @@
 import * as FaIcons from "react-icons/fa";
 import { FaChevronDown, FaChevronUp, FaChevronRight } from "react-icons/fa";
-import Logo from "../Logo";
+
 import {
   HeroSection,
   FeaturesSection,
@@ -12,7 +12,7 @@ import {
   FooterLogos,
   PublicMarketplaceSection,
 } from "../utils/siteContent";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { SocialIcon } from "react-social-icons";
 import MarketplaceShowcase from "./MarketplaceShowcase";
 
@@ -54,11 +54,41 @@ const LandingPage = () => {
 
   const Benefits = BenefitsSection;
 
+  useEffect(() => {
+    const elements = document.querySelectorAll<HTMLElement>(
+      "[data-scroll-reveal]",
+    );
+
+    if (!("IntersectionObserver" in window)) {
+      elements.forEach((element) => element.classList.add("is-visible"));
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("is-visible");
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.05, rootMargin: "0px 0px -32px 0px" },
+    );
+
+    elements.forEach((element) => observer.observe(element));
+    return () => observer.disconnect();
+  }, []);
+
   return (
     <>
       <main className="mx-auto max-w-7xl px-10 pt-10 sm:px-6 lg:px-8 md:pt-20 pb-20 md:pb-28">
         {/* Hero */}
-        <section id="hero-section" className="scroll-mt-20 pb-10 md:pb-16">
+        <section
+          id="hero-section"
+          data-scroll-reveal="true"
+          className="scroll-mt-20 pb-10 md:pb-16"
+        >
           <div className="flex flex-col md:flex md:flex-row justify-center items-center min-h-165 mt-10 md:mt-0">
             <div className="flex flex-col items-center gap-8 justify-center">
               <h1 className="text-5xl text-center font-bold md:text-center tracking-tight leading-20 text-black sm:text-5xl lg:text-7xl whitespace-pre-line">
@@ -80,7 +110,11 @@ const LandingPage = () => {
           </div>
         </section>
         {/* Features */}
-        <section id="features-section" className="scroll-mt-20 py-10 md:py-16">
+        <section
+          id="features-section"
+          data-scroll-reveal="true"
+          className="scroll-mt-20 py-10 md:py-16"
+        >
           <div className="flex flex-col items-center gap-5">
             <span className="mb-5 inline-flex items-center rounded-full bg-[#75cf4c]/10 px-4 py-2 text-xs font-semibold uppercase tracking-widest text-[#4b922e]">
               About Us
@@ -133,7 +167,11 @@ const LandingPage = () => {
           </div>
         </section>
         {/* Benefits */}
-        <section id="about-us" className="scroll-mt-20 py-10 md:py-16">
+        <section
+          id="about-us"
+          data-scroll-reveal="true"
+          className="scroll-mt-20 py-10 md:py-16"
+        >
           <div className="flex flex-col justify-center gap-4 md:grid md:grid-cols-3 md:justify-items-center">
             {Benefits.map((card) => (
               <div
@@ -166,9 +204,13 @@ const LandingPage = () => {
           </div>
         </section>
         {/* Our Story */}
-        <section id="story-section" className="scroll-mt-20 py-10 md:py-16">
+        <section
+          id="story-section"
+          data-scroll-reveal="true"
+          className="scroll-mt-20 py-10 md:py-16"
+        >
           <div className="flex flex-col gap-5">
-            <div className="flex flex-col items-center justify-center gap-5">
+            <div className="flex flex-col items-center justify-center gap-5 mb-16 md:mb-24">
               <span className="mb-5 inline-flex items-center rounded-full bg-[#75cf4c]/10 px-4 py-2 text-xs font-semibold uppercase tracking-widest text-[#4b922e]">
                 Our Story
               </span>
@@ -183,6 +225,7 @@ const LandingPage = () => {
               {AboutUsSection.map((section, index) => (
                 <div
                   key={index}
+                  data-scroll-reveal="true"
                   className="grid grid-cols-1 items-center gap-8 md:grid-cols-2 md:gap-12 lg:gap-20"
                 >
                   <div
@@ -238,12 +281,18 @@ const LandingPage = () => {
           </div>
         </section>
         {/* Marketplace showcase: its own section lives in MarketplaceShowcase.tsx */}
-        <MarketplaceShowcase
-          header={PublicMarketplaceSection.header}
-          desc={PublicMarketplaceSection.desc}
-        />
+        <div data-scroll-reveal="true">
+          <MarketplaceShowcase
+            header={PublicMarketplaceSection.header}
+            desc={PublicMarketplaceSection.desc}
+          />
+        </div>
         {/* FAQs */}
-        <section id="faqs-section" className="scroll-mt-20 py-10 md:py-16">
+        <section
+          id="faqs-section"
+          data-scroll-reveal="true"
+          className="scroll-mt-20 py-10 md:py-16"
+        >
           <div className="flex flex-col">
             <h2 className="mx-auto mb-6 max-w-3xl text-2xl text-center font-bold leading-tight tracking-tight text-black sm:text-4xl">
               Frequently Asked Questions
@@ -284,7 +333,11 @@ const LandingPage = () => {
           </div>
         </section>
         {/* Call to action */}
-        <section id="cta-section" className="scroll-mt-20 py-10 md:py-16">
+        <section
+          id="cta-section"
+          data-scroll-reveal="true"
+          className="scroll-mt-20 py-10 md:py-16"
+        >
           <div className="flex flex-col items-center justify-center">
             <p className="text-sm md:text-lg font-semibold mb-3">
               {CTASection.tagline}
@@ -306,7 +359,9 @@ const LandingPage = () => {
         <div className="mx-auto grid max-w-7xl grid-cols-1 gap-10 px-6 py-12 sm:px-8 lg:grid-cols-[1.2fr_2fr_1.2fr] lg:gap-12 lg:px-12 lg:py-16">
           {/* Branding */}
           <div className="flex flex-col items-start gap-4">
-            <Logo hasLogo={false} />
+            <p className="text-xl md:text-2xl font-bold tracking-wide text-[#71AA34]">
+              Leaf<span className="text-white">Trade</span>
+            </p>
 
             <p className="max-w-xs text-sm leading-6 text-gray-200">
               Connecting buyers and sellers, simply.

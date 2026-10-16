@@ -26,3 +26,44 @@
     @apply font-sans text-slate-800 antialiased;
   }
 }
+
+/* Autofilled inputs - default state */
+input:-webkit-autofill,
+input:-webkit-autofill:hover {
+  -webkit-box-shadow: 0 0 0 1000px #f3f4f6 inset;
+  -webkit-text-fill-color: #0f172a;
+  caret-color: #0f172a;
+}
+
+/* Autofilled inputs - focused state */
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 1000px #ffffff inset;
+  -webkit-text-fill-color: #0f172a;
+  caret-color: #0f172a;
+}
+
+/* =========================
+   Scroll Reveal Animation
+   ========================= */
+
+[data-scroll-reveal="true"] {
+  opacity: 0;
+  transform: translateY(28px);
+  transition:
+    opacity 700ms ease-out,
+    transform 700ms ease-out;
+}
+
+[data-scroll-reveal="true"].is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-scroll-reveal="true"] {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
