@@ -232,6 +232,7 @@ const Login = () => {
                   autoComplete="email"
                   required
                   onChange={handleEmailChange}
+                  maxLength={254}
                   placeholder="you@example.com"
                 />
               </div>
@@ -249,8 +250,11 @@ const Login = () => {
                   value={password}
                   type={isShowPassword ? "text" : "password"}
                   onChange={handlePasswordChange}
+                  minLength={15}
+                  maxLength={64}
                   className="w-full pl-12 text-sm outline outline-black/10 rounded-xl p-2 bg-gray-100/70 focus:bg-white focus:outline-[#85d65c] transition-colors duration-300"
                   name="password"
+                  placeholder="Enter your password"
                   required
                   autoComplete="current-password"
                 />
