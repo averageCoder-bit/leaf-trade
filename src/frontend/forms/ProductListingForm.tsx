@@ -1,6 +1,6 @@
 import { X, PlusIcon, FolderMinus, Trash2 } from "lucide-react";
 import { useMutation } from "@tanstack/react-query";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import {
   sanitizeProductName,
   sanitizeProductPrice,
@@ -23,6 +23,7 @@ import { uploadFileSchema } from "../schema/products";
 import SelectMenu from "../components/CustomDropMenu";
 import type { Product } from "../schema/products";
 import createProduct from "../services/productService";
+import { showToast } from "../components/ToastUI";
 interface ListingFormProps {
   isOpenForm: boolean;
   setIsOpenForm: React.Dispatch<React.SetStateAction<boolean>>;
@@ -62,6 +63,8 @@ const ListingForm = ({ isOpenForm, setIsOpenForm }: ListingFormProps) => {
   const [warranty, setWarranty] = useState<string>("");
   const [, setWarrantyLabel] = useState<string>("");
   const [, setHasListWarranty] = useState<boolean>(false);
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const isListValid =
     isValidName &&
@@ -198,17 +201,78 @@ const ListingForm = ({ isOpenForm, setIsOpenForm }: ListingFormProps) => {
     );
   };
 
+  const resetForm = () => {
+    // Product information
+    setListName("");
+    setPrice("");
+    setCategory("");
+    setCondition("");
+    setDescription("");
+    setDeliveryOption("");
+
+    // Product attributes
+    setAttributesList([]);
+    setAttrYear("");
+    setModel("");
+    setBrand("");
+    setWarranty("");
+
+    // Dropdown labels
+    setCategoryLabel("");
+    setConditionLabel("");
+    setWarrantyLabel("");
+
+    // Validation states
+    setIsValidName(false);
+    setIsValidPrice(false);
+    setHasListCategory(false);
+    setHasListCondition(false);
+    setHasDelivery(false);
+    setHasListWarranty(false);
+
+    // Error messages
+    setNameError("");
+    setPriceError("");
+    setFileError("");
+
+    // UI states
+    setOpenMenu(null);
+    setAttrFormToggle(false);
+
+    // Release temporary file preview URLs
+    files.forEach((item) => {
+      URL.revokeObjectURL(item.preview);
+    });
+
+    setFiles([]);
+
+    // Reset the native file input
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
+
   const createProductMutation = useMutation({
     mutationKey: ["products", "create"],
+
     mutationFn: async (product: Product) => {
       return createProduct(product);
     },
+
     onSuccess: (data) => {
-      console.log("Successfully created product: ", data);
+      console.log("Successfully created product:", data);
+
+      // Clear all form fields
+      resetForm();
+
+      // Display success notification
+      showToast("Your product has been listed successfully!", "success");
     },
 
     onError: (error: Error) => {
-      console.error("Failed to create product", error);
+      console.error("Failed to create product:", error);
+
+      showToast("Failed to list product. Please try again.", "error");
     },
   });
 
@@ -410,12 +474,13 @@ const ListingForm = ({ isOpenForm, setIsOpenForm }: ListingFormProps) => {
                     {hasFiles ? "Add Files" : "Choose files"}
                   </button>
                   <input
+                    ref={fileInputRef}
                     id="file-upload"
                     required
                     type="file"
                     onChange={handleFileChange}
                     multiple
-                    accept="image/png, image/webp, image/jpg, image/webp, video/mp4"
+                    accept="image/png,image/jpeg,image/webp,video/mp4"
                     className="outline-1 p-1 hidden"
                   />
                 </div>
@@ -481,8 +546,11 @@ const ListingForm = ({ isOpenForm, setIsOpenForm }: ListingFormProps) => {
                   </div>
                 )}
                 <div className="flex flex-col space-y-4">
-                  {attributesList.map((attribute) => (
-                    <div className="flex flex-col md:grid md:grid-cols-2 md:items-center gap-2 text-sm">
+                  {attributesList.map((attribute, id) => (
+                    <div
+                      key={id}
+                      className="flex flex-col md:grid md:grid-cols-2 md:items-center gap-2 text-sm"
+                    >
                       <label>{attribute.label}</label>
                       <div className="flex flex-row gap-2">
                         {attribute.element === "dropdown" ? (
