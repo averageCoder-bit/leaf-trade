@@ -6,7 +6,7 @@ from decimal import Decimal
 from datetime import datetime
 from typing import TYPE_CHECKING
 
-from sqlalchemy import Uuid, String, Numeric, DateTime, ForeignKey
+from sqlalchemy import Uuid, String, Numeric, DateTime, ForeignKey, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.dialects.postgresql import JSONB
 
@@ -23,6 +23,14 @@ if TYPE_CHECKING:
 
 class Product(Base):
     __tablename__ = "product"
+
+    __table_args__ = (
+        UniqueConstraint(
+            "user_id",
+            "client_request_id",
+            name="uq_product_user_client_request",
+        ),
+    )
 
     product_id: Mapped[uuid.UUID] = mapped_column(
         Uuid,
@@ -99,4 +107,8 @@ class Product(Base):
         cascade="all, delete-orphan",
     )
 
-    
+    client_request_id: Mapped[uuid.UUID | None] = mapped_column(
+        Uuid,
+        nullable=True,
+    )
+        
