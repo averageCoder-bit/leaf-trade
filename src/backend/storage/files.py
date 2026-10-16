@@ -4,6 +4,7 @@ from dotenv import load_dotenv
 import uuid
 import requests
 load_dotenv()
+from botocore.exceptions import ClientError
 
 s3 = boto3.client(
     service_name="s3",
@@ -46,6 +47,31 @@ def generate_upload_url(
         "object_key": key,
         "upload_url": url,
     }
+
+def verify_uploaded_file(
+    object_key: str,
+    content_type: str,
+) -> bool:
+    try:
+        response = s3.head_object(
+            Bucket="leaftrade-media",
+            Key=object_key,
+        )
+
+        return (
+            response.get("ContentLength", 0) > 0
+            and response.get("ContentType") == content_type
+        )
+
+    except ClientError as error:
+        error_code = str(
+            error.response.get("Error", {}).get("Code", "")
+        )
+
+        if error_code in ("404", "NoSuchKey", "NotFound"):
+            return False
+
+        raise
 
 
 

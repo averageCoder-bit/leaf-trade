@@ -65,6 +65,15 @@ class Product(Base):
         nullable=False,
     )
 
+    
+    listing_status: Mapped[str] = mapped_column(
+        String(20),
+        nullable=False,
+        default="pending_upload",
+        server_default="pending_upload",
+    )
+
+
     listed_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         default=get_utc_now,
