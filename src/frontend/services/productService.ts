@@ -13,6 +13,11 @@ export interface CreateProductResponse {
   upload_urls: PresignedUpload[];
 }
 
+export interface CompleteProductResponse {
+  product_id: string;
+  listing_status: "active";
+}
+
 export default async function createProduct(
   data: Product,
 ): Promise<CreateProductResponse> {
@@ -21,6 +26,16 @@ export default async function createProduct(
   const { data: response } = await api.post<CreateProductResponse>(
     "/products",
     validatedData,
+  );
+
+  return response;
+}
+
+export async function completeProduct(
+  productId: string,
+): Promise<CompleteProductResponse> {
+  const { data: response } = await api.post<CompleteProductResponse>(
+    `/products/${productId}/complete`,
   );
 
   return response;

@@ -22,7 +22,7 @@ import CustomCalendar from "../components/CustomCalendar";
 import { uploadFileSchema } from "../schema/products";
 import SelectMenu from "../components/CustomDropMenu";
 import type { Product } from "../schema/products";
-import createProduct from "../services/productService";
+import createProduct, { completeProduct } from "../services/productService";
 import { showToast } from "../components/ToastUI";
 
 interface ListingFormProps {
@@ -40,6 +40,8 @@ interface PendingUpload {
   response: CreateProductResponse;
   selectedFiles: File[];
   receivedAt: number;
+  uploadsComplete: boolean;
+  uploadedKeys: Set<string>;
 }
 
 // R2 URLs are valid for 10 minutes. Leave a margin for clock skew / network delay.
@@ -296,75 +298,162 @@ const ListingForm = ({ isOpenForm, setIsOpenForm }: ListingFormProps) => {
   const createProductMutation = useMutation({
     mutationKey: ["products", "create"],
     retry: false,
+
     mutationFn: async ({ product, selectedFiles }: CreateListingInput) => {
       let pending = pendingUploadRef.current;
 
+      // Step 1: Create a product only once
       if (!pending) {
-        // Only create a database product once for this submission.
         const response = await createProduct(product);
-        console.info(
-          "Product record created (pending media):",
-          response.product_id,
-        );
-        pending = { response, selectedFiles, receivedAt: Date.now() };
+
+        console.info("Product created (pending media):", response.product_id);
+
+        pending = {
+          response,
+          selectedFiles,
+          receivedAt: Date.now(),
+          uploadsComplete: false,
+          uploadedKeys: new Set<string>(),
+        };
+
         pendingUploadRef.current = pending;
         setHasPendingUpload(true);
       }
 
-      if (
-        pending.response.upload_urls.length !== pending.selectedFiles.length
-      ) {
-        throw new Error(
-          "The backend returned an incorrect number of upload URLs.",
-        );
+      // Keep a stable reference for asynchronous callbacks
+      const uploadState = pending;
+
+      const uploadUrls = uploadState.response.upload_urls;
+
+      if (uploadUrls.length !== uploadState.selectedFiles.length) {
+        throw new Error("Upload URL count mismatch.");
       }
 
-      if (Date.now() - pending.receivedAt > PRESIGNED_URL_RETRY_WINDOW_MS) {
-        setUploadLinksExpired(true);
-        throw new Error("Presigned upload URLs have expired.");
+      // Ensure two files aren't targeting the same R2 object
+      const objectKeys = uploadUrls.map((item) => item.object_key);
+
+      if (new Set(objectKeys).size !== objectKeys.length) {
+        throw new Error("Duplicate R2 object keys returned.");
       }
 
-      // Re-uploading the same File to the same key is safe if a previous PUT
-      // succeeded but a different PUT failed.
-      await Promise.all(
-        pending.response.upload_urls.map(async (upload, index) => {
-          const file = pending.selectedFiles[index];
-          const result = await fetch(upload.upload_url, {
-            method: "PUT",
-            headers: { "Content-Type": file.type },
-            body: file,
-          });
-          if (!result.ok) {
-            throw new Error(`Failed to upload ${file.name}: ${result.status}`);
+      // Step 2: Upload files not yet successfully uploaded
+      if (!uploadState.uploadsComplete) {
+        const remainingUploads = uploadUrls
+          .map((upload, index) => ({
+            upload,
+            file: uploadState.selectedFiles[index],
+          }))
+          .filter(
+            ({ upload }) => !uploadState.uploadedKeys.has(upload.object_key),
+          );
+
+        if (remainingUploads.length > 0) {
+          // Only need valid URLs when PUT requests are still required
+          if (
+            Date.now() - uploadState.receivedAt >
+            PRESIGNED_URL_RETRY_WINDOW_MS
+          ) {
+            setUploadLinksExpired(true);
+
+            throw new Error("Presigned upload URLs have expired.");
           }
-        }),
-      );
 
-      // TODO: when the backend has POST /products/{id}/complete,
-      // await its verified publication response here before onSuccess.
-      return pending.response;
+          const results = await Promise.allSettled(
+            remainingUploads.map(async ({ upload, file }) => {
+              const result = await fetch(upload.upload_url, {
+                method: "PUT",
+                headers: {
+                  "Content-Type": file.type,
+                },
+                body: file,
+              });
+
+              if (!result.ok) {
+                throw new Error(
+                  `Failed to upload ${file.name}: ${result.status}`,
+                );
+              }
+
+              // Remember this successful upload
+              uploadState.uploadedKeys.add(upload.object_key);
+            }),
+          );
+
+          const failures = results.filter(
+            (result) => result.status === "rejected",
+          );
+
+          if (failures.length > 0) {
+            throw new Error(
+              `${failures.length} media file(s) failed to upload.`,
+            );
+          }
+        }
+
+        uploadState.uploadsComplete = true;
+      }
+
+      // Step 3: Ask FastAPI to verify all files and publish
+      const completed = await completeProduct(uploadState.response.product_id);
+
+      // Step 4: Confirm actual publication
+      if (completed.listing_status !== "active") {
+        throw new Error("Product publication was not confirmed.");
+      }
+
+      console.info("Product published:", completed);
+
+      return uploadState.response;
     },
+
     onSuccess: (response) => {
-      console.log("Product created and media uploaded:", response.product_id);
+      console.info("Product published successfully:", response.product_id);
+
       resetForm();
-      void queryClient.invalidateQueries({ queryKey: ["products"] });
-      showToast("Product created and media uploaded!", "success");
+
+      void queryClient.invalidateQueries({
+        queryKey: ["products"],
+      });
+
+      showToast("Your product has been published successfully!", "success");
     },
+
     onError: (error: Error) => {
       console.error("Failed to create listing:", error);
-      if (uploadLinksExpired || error.message.includes("expired")) {
+
+      const pending = pendingUploadRef.current;
+
+      if (error.message.includes("Presigned upload URLs have expired")) {
         showToast(
-          "Upload links expired. This listing needs new URLs from the backend.",
+          "Upload links expired. Please refresh the upload URLs.",
           "error",
         );
-      } else if (pendingUploadRef.current) {
-        showToast(
-          "Media upload failed. Retry without creating another product.",
-          "error",
-        );
-      } else {
-        showToast("Couldn't create the product. Please try again.", "error");
+
+        return;
       }
+
+      if (pending?.uploadsComplete) {
+        showToast(
+          "Media uploaded, but publication wasn't confirmed. Retry publishing.",
+          "error",
+        );
+
+        return;
+      }
+
+      if (pending) {
+        showToast(
+          "Some media uploads failed. Retry the remaining files.",
+          "error",
+        );
+
+        return;
+      }
+
+      showToast(
+        "Product creation failed or its result is unknown. Please check your listings before retrying.",
+        "error",
+      );
     },
   });
 
@@ -736,8 +825,7 @@ const ListingForm = ({ isOpenForm, setIsOpenForm }: ListingFormProps) => {
                   className="rounded-xl bg-amber-50 p-3 text-sm text-amber-800"
                 >
                   Product record {pendingUploadRef.current?.response.product_id}{" "}
-                  already exists. Details are locked while retrying media
-                  uploads; no new product record will be created.
+                  already exists. Details are locked until publication succeeds.
                 </p>
               )}
               {uploadLinksExpired && (
@@ -791,9 +879,11 @@ const ListingForm = ({ isOpenForm, setIsOpenForm }: ListingFormProps) => {
                       className="p-3 rounded-3xl disabled:cursor-not-allowed disabled:opacity-50 text-white hover:cursor-pointer hover:bg-[#85d65c] active:bg-[#5fb33a] bg-[#75cf4c]"
                     >
                       {createProductMutation.isPending
-                        ? "Saving / uploading..."
+                        ? "Processing listing..."
                         : hasPendingUpload
-                          ? "Retry media upload"
+                          ? pendingUploadRef.current?.uploadsComplete
+                            ? "Retry publication"
+                            : "Retry media upload"
                           : "List item"}
                     </button>
                   </div>
