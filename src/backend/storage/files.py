@@ -51,16 +51,15 @@ def generate_upload_url(
 def verify_uploaded_file(
     object_key: str,
     content_type: str,
+    expected_size_bytes: int | None,
 ) -> bool:
+    if expected_size_bytes is None or expected_size_bytes <= 0:
+        return False
+
     try:
         response = s3.head_object(
-            Bucket="leaftrade-media",
+            Bucket=R2_BUCKET_NAME,
             Key=object_key,
-        )
-
-        return (
-            response.get("ContentLength", 0) > 0
-            and response.get("ContentType") == content_type
         )
 
     except ClientError as error:
@@ -68,11 +67,36 @@ def verify_uploaded_file(
             error.response.get("Error", {}).get("Code", "")
         )
 
-        if error_code in ("404", "NoSuchKey", "NotFound"):
+        if error_code in ("404", "NotFound", "NoSuchKey"):
             return False
 
         raise
 
+    return (
+        response.get("ContentLength") == expected_size_bytes
+        and response.get("ContentType") == content_type
+    )
+
+
+R2_BUCKET_NAME = os.getenv(
+    "R2_BUCKET_NAME",
+    "leaftrade-media",
+)
+
+
+def generate_upload_url_for_key(
+    object_key: str,
+    content_type: str,
+) -> str:
+    return s3.generate_presigned_url(
+        "put_object",
+        Params={
+            "Bucket": R2_BUCKET_NAME,
+            "Key": object_key,
+            "ContentType": content_type,
+        },
+        ExpiresIn=600,
+    )
 
 
 

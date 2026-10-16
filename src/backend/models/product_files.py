@@ -1,5 +1,6 @@
 from pathlib import Path
 import sys
+from sqlalchemy import BigInteger
 
 current_dir = Path(__file__).resolve().parent.parent
 sys.path.append(str(current_dir))
@@ -40,4 +41,9 @@ class ProductFiles(Base):
     content_type: Mapped[str] = mapped_column(
         String(100),
         nullable=False,
+    )
+
+    expected_size_bytes: Mapped[int | None] = mapped_column(
+        BigInteger,
+        nullable=True,
     )

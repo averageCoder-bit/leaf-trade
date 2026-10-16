@@ -14,7 +14,11 @@ from models.product_files import ProductFiles
 from models.user import User
 from auth.dependencies import get_current_user
 
-from storage.files import generate_upload_url
+from storage.files import (
+    generate_upload_url,
+    generate_upload_url_for_key,
+    verify_uploaded_file,
+)
 
 import uuid
 
@@ -28,6 +32,13 @@ from urllib.parse import quote
 
 from fastapi import Query
 from sqlalchemy.orm import selectinload
+
+from collections import Counter
+from decimal import Decimal
+from sqlalchemy.exc import IntegrityError
+from fastapi import Response
+
+from storage.files import generate_upload_url_for_key
 
 router = APIRouter()
 
@@ -83,11 +94,124 @@ def serialize_product(product: Product) -> dict:
     }
 
 
+def get_existing_product(
+    db: Session,
+    user_id: uuid.UUID,
+    request_id: uuid.UUID,
+):
+    return (
+        db.query(Product)
+        .options(selectinload(Product.files))
+        .filter(
+            Product.user_id == user_id,
+            Product.client_request_id == request_id,
+        )
+        .first()
+    )
 
-@router.post("/products", status_code=status.HTTP_201_CREATED)
-async def create_listing(
+
+def product_matches_request(
+    product: Product,
     data: CreateProductSchema,
-    current_user: User = Depends(get_current_user),
+) -> bool:
+    requested_attributes = data.attributes or {}
+
+    if hasattr(requested_attributes, "model_dump"):
+        requested_attributes = requested_attributes.model_dump(
+            exclude_none=True
+        )
+
+    requested_files = Counter(
+        (
+            file.filename,
+            file.content_type,
+            file.size_bytes,
+        )
+        for file in data.product_files
+    )
+
+    existing_files = Counter(
+        (
+            file.object_key.rsplit("/", 1)[-1],
+            file.content_type,
+            file.expected_size_bytes,
+        )
+        for file in product.files
+    )
+
+    return (
+        product.name == data.name
+        and product.price == Decimal(str(data.price))
+        and product.description == data.description
+        and product.condition == data.condition
+        and product.category == data.category
+        and product.delivery_options == data.delivery_options
+        and (product.attributes or {}) == requested_attributes
+        and existing_files == requested_files
+    )
+
+
+def replay_product_creation(
+    product: Product,
+    data: CreateProductSchema,
+):
+    if not product_matches_request(product, data):
+        raise HTTPException(
+            status_code=409,
+            detail="Request ID was already used for different product data",
+        )
+
+    if product.listing_status == "active":
+        return {
+            "product_id": product.product_id,
+            "listing_status": "active",
+            "upload_urls": [],
+        }
+
+    if product.listing_status != "pending_upload":
+        raise HTTPException(
+            status_code=409,
+            detail="Product cannot resume uploading",
+        )
+
+    # Preserve the original request's file order.
+    stored_files = {
+        (file.object_key.rsplit("/", 1)[-1], file.content_type): file
+        for file in product.files
+    }
+
+    upload_urls = []
+
+    for requested in data.product_files:
+        stored = stored_files[
+            (requested.filename, requested.content_type)
+        ]
+
+        upload_urls.append({
+            "filename": requested.filename,
+            "object_key": stored.object_key,
+            "upload_url": generate_upload_url_for_key(
+                stored.object_key,
+                stored.content_type,
+            ),
+        })
+
+    return {
+        "product_id": product.product_id,
+        "listing_status": "pending_upload",
+        "upload_urls": upload_urls,
+    }
+
+
+
+@router.post(
+    "/products",
+    status_code=status.HTTP_201_CREATED,
+)
+def create_listing(
+    data: CreateProductSchema,
+    response: Response,
+    current_user=Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
     user = (
@@ -98,49 +222,110 @@ async def create_listing(
 
     if not user:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
+            status_code=404,
             detail="User not found",
         )
 
-    product = Product(
-        name=data.name,
-        price=data.price,
-        description=data.description,
-        condition=data.condition,
-        category=data.category,
-        attributes=data.attributes,
-        delivery_options=data.delivery_options,
-        user_id = user.user_id
+    # Check whether this request was already committed.
+    existing = get_existing_product(
+        db,
+        user.user_id,
+        data.client_request_id,
     )
 
-    db.add(product)
-    db.flush()
+    if existing:
+        response.status_code = 200
+        return replay_product_creation(existing, data)
 
-    upload_urls = []
+    filenames = [file.filename for file in data.product_files]
 
-    for file in data.product_files:
-        upload_data = generate_upload_url(
-            product_id=product.product_id,
-            filename=file.filename,
-            content_type=file.content_type,
+    if (
+        len(filenames) != len(set(name.casefold() for name in filenames))
+        or any(
+            not name
+            or name in (".", "..")
+            or "/" in name
+            or "\\" in name
+            for name in filenames
+        )
+    ):
+        raise HTTPException(
+            status_code=422,
+            detail="Invalid or duplicate media filenames",
         )
 
-        product_file = ProductFiles(
-            product_id=product.product_id,
-            object_key=upload_data["object_key"],
-            content_type=file.content_type,
+    try:
+        product = Product(
+            name=data.name,
+            price=data.price,
+            description=data.description,
+            condition=data.condition,
+            category=data.category,
+            attributes=data.attributes,
+            delivery_options=data.delivery_options,
+            user_id=user.user_id,
+            client_request_id=data.client_request_id,
+            listing_status="pending_upload",
         )
 
-        db.add(product_file)
+        
+        db.add(product)
+        db.flush()
 
-        upload_urls.append(upload_data)
+        upload_urls = []
 
-    db.commit()
+        for file in data.product_files:
+            # Generate presigned R2 upload URL
+            upload_data = generate_upload_url(
+                product_id=product.product_id,
+                filename=file.filename,
+                content_type=file.content_type,
+            )
 
-    return {
-        "product_id": product.product_id,
-        "upload_urls": upload_urls,
-    }
+            # Store expected file metadata in PostgreSQL
+            product_file = ProductFiles(
+                product_id=product.product_id,
+                object_key=upload_data["object_key"],
+                content_type=file.content_type,
+                expected_size_bytes=file.size_bytes,
+            )
+
+            db.add(product_file)
+            upload_urls.append(upload_data)
+
+        db.commit()
+
+        return {
+            "product_id": product.product_id,
+            "listing_status": "pending_upload",
+            "upload_urls": upload_urls,
+        }
+
+
+    except IntegrityError as exc:
+        db.rollback()
+
+        # Another concurrent request may have created
+        # this product using the same request ID.
+        existing = get_existing_product(
+            db,
+            user.user_id,
+            data.client_request_id,
+        )
+
+        if existing:
+            response.status_code = 200
+            return replay_product_creation(existing, data)
+
+        raise HTTPException(
+            status_code=409,
+            detail="Product creation conflicted with an existing record",
+        ) from exc
+
+    except Exception:
+        db.rollback()
+        raise
+
 
 
 @router.post(
@@ -205,6 +390,7 @@ def complete_listing(
             is_uploaded = verify_uploaded_file(
                 object_key=file.object_key,
                 content_type=file.content_type,
+                expected_size_bytes=file.expected_size_bytes,
             )
 
         except (ClientError, BotoCoreError) as exc:
@@ -225,6 +411,90 @@ def complete_listing(
     return {
         "product_id": product.product_id,
         "listing_status": product.listing_status,
+    }
+
+
+
+@router.post(
+    "/products/{product_id}/upload-urls",
+    status_code=status.HTTP_200_OK,
+)
+def refresh_product_upload_urls(
+    product_id: uuid.UUID,
+    current_user=Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    # 1. Resolve authenticated seller
+    user = (
+        db.query(User)
+        .filter(
+            User.clerk_user_id == current_user.user_id
+        )
+        .first()
+    )
+
+    if not user:
+        raise HTTPException(
+            status_code=404,
+            detail="User not found",
+        )
+
+    # 2. Find this seller's existing product
+    product = (
+        db.query(Product)
+        .options(selectinload(Product.files))
+        .filter(
+            Product.product_id == product_id,
+            Product.user_id == user.user_id,
+        )
+        .first()
+    )
+
+    if not product:
+        raise HTTPException(
+            status_code=404,
+            detail="Product not found",
+        )
+
+    # 3. Only pending listings need fresh upload URLs
+    if product.listing_status != "pending_upload":
+        raise HTTPException(
+            status_code=409,
+            detail="Product is not pending upload",
+        )
+
+    if not product.files:
+        raise HTTPException(
+            status_code=409,
+            detail="Product has no associated media",
+        )
+
+    # 4. Sign the existing object keys
+    upload_urls = []
+
+    try:
+        for file in product.files:
+            upload_url = generate_upload_url_for_key(
+                object_key=file.object_key,
+                content_type=file.content_type,
+            )
+
+            upload_urls.append({
+                "filename": file.object_key.rsplit("/", 1)[-1],
+                "object_key": file.object_key,
+                "upload_url": upload_url,
+            })
+
+    except BotoCoreError as exc:
+        raise HTTPException(
+            status_code=502,
+            detail="Failed to generate upload URLs",
+        ) from exc
+
+    # 5. Return refreshed URLs
+    return {
+        "product_id": product.product_id,
+        "upload_urls": upload_urls,
     }
 
 
@@ -262,11 +532,11 @@ def get_products(
 
 
 @router.get(
-    "/users/me",
+    "/users/me/products",
     status_code=status.HTTP_200_OK,
 )
 def get_user_products(
-    current_user = Depends(get_current_user),
+    current_user=Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
     user = (
