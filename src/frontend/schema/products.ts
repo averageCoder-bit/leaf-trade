@@ -22,7 +22,7 @@ const productFileSchema = z.object({
 
 export const productSchema = z.object({
   name: z.string().min(1).max(50),
-  description: z.string().min(1).max(2000),
+  description: z.string().max(2000),
   price: z
     .number()
     .positive("Price must be greater than 0")
@@ -46,4 +46,4 @@ export const productSchema = z.object({
 });
 
 export type Product = z.infer<typeof productSchema>;
-export type ProductFiles = z.infer<typeof uploadFileSchema>;
+export type ValidatedUploadFile = z.infer<typeof uploadFileSchema>;
