@@ -14,93 +14,101 @@ const Pagination = ({ page, totalPages, onPageChange }: PaginationProps) => {
     setPageInput(String(page));
   }, [page]);
 
-  const handlePageSubmit = () => {
-    const parsed = Number(pageInput);
+  const handlePageChange = () => {
+    const value = Number(pageInput);
 
-    if (!pageInput.trim() || !Number.isInteger(parsed)) {
+    if (
+      !pageInput.trim() ||
+      !Number.isInteger(value) ||
+      value < 1 ||
+      value > totalPages
+    ) {
       setPageInput(String(page));
       return;
     }
 
-    const validPage = Math.max(1, Math.min(parsed, totalPages));
+    setPageInput(String(value));
 
-    setPageInput(String(validPage));
-    onPageChange(validPage);
+    if (value !== page) {
+      onPageChange(value);
+    }
   };
 
+  if (totalPages <= 1) {
+    return null;
+  }
+
   return (
-    <div className="flex w-full items-center justify-between gap-3 p-3.5">
-      <div className="flex items-center gap-3">
-        <button
-          type="button"
-          title="Go to the previous page"
-          aria-label="Previous page"
-          disabled={page <= 1}
-          onClick={() => onPageChange(page - 1)}
-          className="rounded-full p-2 transition-colors
-            hover:cursor-pointer hover:bg-[#85d65c]
-            hover:text-white active:bg-[#5fb33a]
-            disabled:cursor-not-allowed
-            disabled:opacity-40
-            disabled:hover:bg-transparent
-            disabled:hover:text-current"
-        >
-          <ChevronLeft />
-        </button>
+    <nav
+      aria-label="Marketplace pagination"
+      className="flex w-full items-center justify-center gap-4 p-4"
+    >
+      <button
+        type="button"
+        aria-label="Previous page"
+        title="Previous page"
+        disabled={page === 1}
+        onClick={() => onPageChange(page - 1)}
+        className="rounded-full p-2 transition-colors
+          hover:bg-[#85d65c] hover:text-white
+          disabled:cursor-not-allowed
+          disabled:opacity-40
+          disabled:hover:bg-transparent
+          disabled:hover:text-current
+          hover:cursor-pointer"
+      >
+        <ChevronLeft size={20} />
+      </button>
 
-        <button
-          type="button"
-          title="Go to the next page"
-          aria-label="Next page"
-          disabled={page >= totalPages}
-          onClick={() => onPageChange(page + 1)}
-          className="rounded-full p-2 transition-colors
-            hover:cursor-pointer hover:bg-[#85d65c]
-            hover:text-white active:bg-[#5fb33a]
-            disabled:cursor-not-allowed
-            disabled:opacity-40
-            disabled:hover:bg-transparent
-            disabled:hover:text-current"
-        >
-          <ChevronRight />
-        </button>
-      </div>
-
-      <div className="flex items-center gap-2">
-        <label htmlFor="page-input" className="text-sm font-medium">
-          Page
-        </label>
+      <div className="flex items-center gap-2 text-sm">
+        <span>Page</span>
 
         <input
-          id="page-input"
+          aria-label="Page number"
           type="text"
           inputMode="numeric"
           maxLength={4}
           value={pageInput}
           onChange={(e) => {
-            const value = e.target.value;
-            if (/^\d*$/.test(value)) {
-              setPageInput(value);
+            if (/^\d*$/.test(e.target.value)) {
+              setPageInput(e.target.value);
             }
           }}
-          onBlur={handlePageSubmit}
+          onBlur={handlePageChange}
           onKeyDown={(e) => {
             if (e.key === "Enter") {
               e.currentTarget.blur();
             }
+
             if (e.key === "Escape") {
               setPageInput(String(page));
-              e.currentTarget.blur();
             }
           }}
-          className="w-12 rounded-sm p-1 text-center text-sm
-            outline outline-gray-200
-            focus:outline-[#85d65c]"
+          className="w-12 rounded-md border border-gray-200
+            p-1 text-center text-sm outline-none
+            focus:border-[#75cf4c]"
         />
 
-        <p className="text-sm font-medium">of {totalPages}</p>
+        <span>of {totalPages}</span>
       </div>
-    </div>
+
+      <button
+        type="button"
+        aria-label="Next page"
+        title="Next page"
+        disabled={page === totalPages}
+        onClick={() => onPageChange(page + 1)}
+        className="rounded-full p-2 transition-colors
+          hover:bg-[#85d65c] hover:text-white
+          disabled:cursor-not-allowed
+          disabled:opacity-40
+          disabled:hover:bg-transparent
+          disabled:hover:text-current
+          hover:cursor-pointer"
+      >
+        <ChevronRight size={20} />
+      </button>
+    </nav>
   );
 };
 
