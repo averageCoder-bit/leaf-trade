@@ -51,3 +51,12 @@ export interface MarketplaceProduct {
     content_type: string;
   }[];
 }
+
+export interface FetchProductsResponse {
+  product_id: string;
+  name: string;
+  price: number;
+  category: string;
+  preview_image: string | null;
+  seller_name: string | null;
+}

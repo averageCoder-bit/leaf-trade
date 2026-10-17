@@ -3,7 +3,7 @@ import { ImageOff } from "lucide-react";
 import type { ProductPreviewProps } from "../../types/product";
 import { getProductFallback } from "../../utils/productFallback";
 import { formatCategory } from "../../utils/formatCategory";
-import { productSchema } from "../../schema/products";
+import { getCategoryColor } from "../../utils/categoryColors";
 
 const ProductPreview = ({ product }: ProductPreviewProps) => {
   const [imageFailed, setImageFailed] = useState(false);
@@ -19,6 +19,10 @@ const ProductPreview = ({ product }: ProductPreviewProps) => {
     setFallbackFailed(false);
   }, [product.image, fallbackImage]);
 
+  const sellerName = product.sellerName?.trim() ?? "";
+
+  const sellerInitials = sellerName.slice(0, 2).toUpperCase();
+
   return (
     <div
       title={product.name}
@@ -28,7 +32,14 @@ const ProductPreview = ({ product }: ProductPreviewProps) => {
       md:max-w-60 md:hover:scale-105
       hover:cursor-pointer outline outline-gray-300 "
     >
-      <div className="flex h-56 w-full items-center justify-center bg-gray-100 md:h-48">
+      <div className="relative flex h-56 w-full items-center justify-center bg-gray-100 md:h-48">
+        <span
+          className={`absolute left-2 top-2 z-10 max-w-[calc(100%-1rem)]
+          truncate rounded-full px-3 py-1 text-[11px]
+          font-medium shadow-sm ${getCategoryColor(product.category)}`}
+        >
+          {formatCategory(product.category)}
+        </span>
         {fallbackFailed ? (
           <div className="flex flex-col items-center gap-2 text-gray-400">
             <ImageOff size={32} />
@@ -64,17 +75,29 @@ const ProductPreview = ({ product }: ProductPreviewProps) => {
           <p className="text-xs font-medium md:text-base">
             ₱{product.price.toLocaleString("en-PH")}
           </p>
-
-          <span className="w-fit rounded-full bg-gray-100 py-1 text-xs text-gray-600">
-            {formatCategory(product.category)}
-          </span>
         </div>
 
-        {product.sellerName && (
-          <div className="border-t border-gray-100 p-3 text-right">
-            <p className="text-xs text-gray-500">{product.sellerName}</p>
-          </div>
-        )}
+        <div className="flex w-full items-center justify-between gap-3 border-t border-gray-100 p-3">
+          {sellerName && (
+            <div className="flex min-w-0 items-center gap-2">
+              <div
+                className="flex h-5 w-5 shrink-0 items-center
+              justify-center rounded-full bg-teal-600
+              text-[8px] font-semibold text-white"
+                aria-hidden="true"
+              >
+                {sellerInitials}
+              </div>
+
+              <p
+                title={sellerName}
+                className="min-w-0 flex-1 truncate text-xs text-gray-500"
+              >
+                {sellerName}
+              </p>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

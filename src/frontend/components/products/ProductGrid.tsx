@@ -12,7 +12,7 @@ const ProductGrid = ({ products }: ProductGridProps) => {
         gap-5
         justify-items-stretch
         md:grid-cols-[repeat(auto-fit,minmax(250px,1fr))]
-        md:justify-items-center
+        md:justify-items-start
         md:gap-8 md:p-7"
     >
       {products.map((product) => (

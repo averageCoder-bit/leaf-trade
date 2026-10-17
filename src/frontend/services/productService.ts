@@ -5,6 +5,7 @@ import type {
   CreateProductResponse,
   MarketplaceProduct,
   CompleteProductResponse,
+  FetchProductsResponse,
 } from "../types/product";
 
 export default async function createProduct(
@@ -34,4 +35,26 @@ export async function completeProduct(
   );
 
   return response;
+}
+
+interface MarketplacePageParams {
+  limit: number;
+  offset: number;
+}
+
+export async function fetchMarketplacePage({
+  limit,
+  offset,
+}: MarketplacePageParams): Promise<FetchProductsResponse[]> {
+  const { data } = await api.get<FetchProductsResponse[]>("/marketplace", {
+    params: { limit, offset },
+  });
+
+  return data;
+}
+
+export async function fetchMarketplaceCount(): Promise<number> {
+  const { data } = await api.get<{ total: number }>("/marketplace/count");
+
+  return data.total;
 }
