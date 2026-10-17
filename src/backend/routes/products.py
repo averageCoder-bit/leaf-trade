@@ -34,6 +34,7 @@ from collections import Counter
 from decimal import Decimal
 from sqlalchemy.exc import IntegrityError
 from fastapi import Response
+from sqlalchemy import func
 
 
 router = APIRouter()
@@ -573,3 +574,22 @@ def get_user_products(
         serialize_product(product)
         for product in products
     ]
+
+@router.get(
+    "/marketplace/count",
+    status_code=status.HTTP_200_OK,
+)
+def get_marketplace_count(
+    db: Session = Depends(get_db),
+):
+    total = (
+        db.query(func.count(Product.product_id))
+        .filter(
+            Product.listing_status == "active",
+            Product.sold_at.is_(None),
+        )
+        .scalar()
+    )
+
+    return {"total": total or 0}
+
