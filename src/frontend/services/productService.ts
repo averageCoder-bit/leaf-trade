@@ -1,22 +1,11 @@
 import api from "../hooks/api";
 import type { Product } from "../schema/products";
 import { productSchema } from "../schema/products";
-
-export interface PresignedUpload {
-  filename: string;
-  object_key: string;
-  upload_url: string;
-}
-
-export interface CreateProductResponse {
-  product_id: string;
-  upload_urls: PresignedUpload[];
-}
-
-export interface CompleteProductResponse {
-  product_id: string;
-  listing_status: "active";
-}
+import type {
+  CreateProductResponse,
+  MarketplaceProduct,
+  CompleteProductResponse,
+} from "../types/product";
 
 export default async function createProduct(
   data: Product,
@@ -29,6 +18,12 @@ export default async function createProduct(
   );
 
   return response;
+}
+
+export async function fetchProducts(): Promise<MarketplaceProduct[]> {
+  const { data } = await api.get<MarketplaceProduct[]>("/marketplace");
+
+  return data;
 }
 
 export async function completeProduct(
