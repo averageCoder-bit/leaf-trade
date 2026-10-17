@@ -25,20 +25,16 @@ import uuid
 from sqlalchemy.orm import selectinload
 from botocore.exceptions import ClientError, BotoCoreError
 
-from storage.files import verify_uploaded_file
-
 import os
 from urllib.parse import quote
 
 from fastapi import Query
-from sqlalchemy.orm import selectinload
 
 from collections import Counter
 from decimal import Decimal
 from sqlalchemy.exc import IntegrityError
 from fastapi import Response
 
-from storage.files import generate_upload_url_for_key
 
 router = APIRouter()
 
@@ -75,6 +71,7 @@ def serialize_product(product: Product) -> dict:
         "user_id": str(product.user_id),
         "name": product.name,
         "price": float(product.price),
+        "seller_name": product.seller.username if product.seller else None,
         "description": product.description,
         "condition": product.condition,
         "category": product.category,
@@ -510,7 +507,10 @@ def get_products(
 ):
     products = (
         db.query(Product)
-        .options(selectinload(Product.files))
+        .options(
+            selectinload(Product.files),
+            selectinload(Product.seller),
+        )
         .filter(
             Product.listing_status == "active",
             Product.sold_at.is_(None),
@@ -555,7 +555,10 @@ def get_user_products(
 
     products = (
         db.query(Product)
-        .options(selectinload(Product.files))
+        .options(
+            selectinload(Product.files),
+            selectinload(Product.seller),
+        )
         .filter(
             Product.user_id == user.user_id
         )
