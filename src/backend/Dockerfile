@@ -18,5 +18,4 @@ COPY src/backend ./src/backend
 COPY alembic.ini .
 COPY alembic ./alembic
 
-# Railway provides PORT at runtime
 CMD ["sh", "-c", "exec uvicorn src.backend.main:app --host 0.0.0.0 --port ${PORT:-8000}"]
