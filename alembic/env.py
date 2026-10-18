@@ -20,10 +20,21 @@ import models
 # access to the values within the .ini file in use.
 config = context.config
 
+
 load_dotenv()
 
 database_url = os.getenv("DATABASE_URL")
-config.set_main_option("sqlalchemy.url", database_url)
+
+if not database_url:
+    raise RuntimeError(
+        "DATABASE_URL environment variable is not configured."
+    )
+
+config.set_main_option(
+    "sqlalchemy.url",
+    database_url.replace("%", "%%"),
+)
+
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
