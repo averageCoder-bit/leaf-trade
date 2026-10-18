@@ -11,14 +11,7 @@ export default async function createUser(data: CreateUser): Promise<User> {
 }
 
 export async function getCurrentUser() {
-  console.log("Vite API URL:", import.meta.env.VITE_API_BASE_URL);
-
-  console.log("Axios Base URL:", api.defaults.baseURL);
-
-  const { data } = await api.get("/users/me");
-
-  console.log("User response:", data);
-
+  const { data } = await api.get("users/me");
   return data.user;
 }
 
