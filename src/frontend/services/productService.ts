@@ -21,8 +21,8 @@ export default async function createProduct(
   return response;
 }
 
-export async function fetchProducts(): Promise<MarketplaceProduct[]> {
-  const { data } = await api.get<MarketplaceProduct[]>("/marketplace");
+export async function fetchProducts(): Promise<MarketplaceProduct> {
+  const { data } = await api.get<MarketplaceProduct>("/product/:id");
 
   return data;
 }

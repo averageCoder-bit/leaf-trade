@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { ImageOff } from "lucide-react";
 import type { ProductPreviewProps } from "../../types/product";
 import { getProductFallback } from "../../utils/productFallback";
@@ -6,6 +7,7 @@ import { formatCategory } from "../../utils/formatCategory";
 import { getCategoryColor } from "../../utils/categoryColors";
 
 const ProductPreview = ({ product }: ProductPreviewProps) => {
+  const navigate = useNavigate();
   const [imageFailed, setImageFailed] = useState(false);
   const [fallbackFailed, setFallbackFailed] = useState(false);
 
@@ -26,6 +28,7 @@ const ProductPreview = ({ product }: ProductPreviewProps) => {
   return (
     <div
       title={product.name}
+      onClick={() => navigate(`/product/${product.id}`)}
       className="flex w-full max-w-none flex-col overflow-hidden
       rounded-2xl bg-white shadow-sm
       transition-transform duration-300 ease-out

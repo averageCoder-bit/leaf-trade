@@ -21,6 +21,7 @@ import ProtectedLayout from "../layout/ProtectedLayout";
 import ForgotPassword from "../auth/ForgotPassword";
 import MarketPlace from "../pages/Marketplace";
 import Messages from "../pages/Messages";
+import ProductView from "../pages/ProductView";
 
 import ErrorPage from "../errors/ErrorPage";
 
@@ -45,6 +46,7 @@ function AppRoutes() {
         <Route element={<ProtectedLayout />}>
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/products" element={<Products />} />
+          <Route path="/product/:id" element={<ProductView />} />
           <Route path="/marketplace" element={<MarketPlace />} />
           <Route path="/messages" element={<Messages />} />
           <Route path="/orders-invoices" element={<Orders />} />

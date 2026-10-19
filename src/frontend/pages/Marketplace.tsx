@@ -90,9 +90,7 @@ const MarketPlace = () => {
                   void refetchCount();
                 }}
                 className="rounded-lg bg-[#75cf4c] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[#5fb33a] hover:cursor-pointer"
-              >
-                Try Again
-              </button>
+              ></button>
             }
           />
         ) : previewProducts.length > 0 ? (

@@ -31,25 +31,27 @@ export interface CompleteProductResponse {
 }
 
 export interface MarketplaceProduct {
-  product_id: string;
-  user_id: string;
-  name: string;
-  seller_name: string | null;
-  price: number;
-  description: string;
-  condition: string;
-  category: string;
-  attributes: Record<string, unknown>;
-  delivery_options: string;
-  listing_status: "pending_upload" | "active";
-  listed_at: string;
-  sold_at: string | null;
-  preview_image: string | null;
-  media: {
-    file_id: string;
-    url: string;
-    content_type: string;
-  }[];
+  product?: {
+    product_id: string;
+    user_id: string;
+    name: string;
+    seller_name: string | null;
+    price: number;
+    description: string;
+    condition: string;
+    category: string;
+    attributes: Record<string, unknown>;
+    delivery_options: string;
+    listing_status: "pending_upload" | "active";
+    listed_at: string;
+    sold_at: string | null;
+    preview_image: string | null;
+    media: {
+      file_id: string;
+      url: string;
+      content_type: string;
+    }[];
+  };
 }
 
 export interface FetchProductsResponse {
