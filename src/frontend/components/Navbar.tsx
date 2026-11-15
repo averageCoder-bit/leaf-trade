@@ -1,7 +1,6 @@
 import Logo from "../Logo";
 import { Link } from "react-router-dom";
 import { FaBars } from "react-icons/fa";
-import { useState } from "react";
 
 const Navbar = () => {
   const navItems = [
