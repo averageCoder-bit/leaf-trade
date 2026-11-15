@@ -1,0 +1,59 @@
+import uuid
+from pathlib import Path
+import sys
+
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy import String, Uuid, DateTime
+from datetime import datetime
+
+from sqlalchemy import Boolean
+from typing import TYPE_CHECKING
+
+current_dir = Path(__file__).resolve().parent.parent
+sys.path.append(str(current_dir))
+
+from database.base import Base
+from common.get_utc import get_utc_now
+
+if TYPE_CHECKING:
+    from backend.models.product import Product
+
+class User(Base):
+    __tablename__ = "user"
+    user_id:Mapped[uuid.UUID] = mapped_column(Uuid, primary_key=True, default=uuid.uuid4)
+    clerk_user_id: Mapped[str] = mapped_column(
+        String, nullable=False, unique=True
+    )
+    email:Mapped[str] = mapped_column(
+        String, nullable=False, unique=True
+    )
+    first_name:Mapped[str] = mapped_column(
+        String(30), nullable=False
+    )
+    last_name:Mapped[str] = mapped_column(
+        String(30), nullable=False
+    )
+    phone_number:Mapped[str] = mapped_column(
+        String(15), nullable=True, unique=True
+    )
+    username:Mapped[str] = mapped_column(String(30), nullable=False, unique=True)
+    address:Mapped[str | None] = mapped_column(String(100), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        default=get_utc_now
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        default=get_utc_now,
+        onupdate=get_utc_now
+    )
+    is_active: Mapped[bool] = mapped_column(
+        Boolean,
+        default=True,
+        nullable=False
+    )
+
+    products: Mapped[list["Product"]] = relationship(
+        back_populates="seller",
+        cascade="all, delete-orphan"
+    )

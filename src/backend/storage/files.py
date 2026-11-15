@@ -1,0 +1,104 @@
+import boto3
+import os
+from dotenv import load_dotenv
+import uuid
+import requests
+load_dotenv()
+from botocore.exceptions import ClientError
+
+s3 = boto3.client(
+    service_name="s3",
+    # Provide your Cloudflare account ID
+    endpoint_url=os.getenv("S3_ENDPOINT_URL"),
+    # Retrieve your S3 API credentials for your R2 bucket via API tokens (see: https://developers.cloudflare.com/r2/api/tokens)
+    aws_access_key_id=os.getenv("ACCESS_KEY_R2"),
+    aws_secret_access_key=os.getenv("SECRET_KEY_R2"),
+    region_name="auto", # Required by SDK but not used by R2
+)
+
+# POST
+def generate_upload_url(
+    product_id: uuid.UUID,
+    filename: str,
+    content_type: str,
+):
+    if content_type.startswith("image/"):
+        prefix = "images/products"
+    elif content_type.startswith("video/"):
+        prefix = "videos/products"
+    else:
+        raise ValueError("Unsupported file type")
+
+    key = f"{prefix}/{product_id}/{filename}"
+    print(key)
+
+    url = s3.generate_presigned_url(
+        "put_object",
+        Params={
+            "Bucket": "leaftrade-media",
+            "Key": key,
+            "ContentType": content_type,
+        },
+        ExpiresIn=600,
+    )
+
+    return {
+        "filename": filename,
+        "object_key": key,
+        "upload_url": url,
+    }
+
+def verify_uploaded_file(
+    object_key: str,
+    content_type: str,
+    expected_size_bytes: int | None,
+) -> bool:
+    if expected_size_bytes is None or expected_size_bytes <= 0:
+        return False
+
+    try:
+        response = s3.head_object(
+            Bucket=R2_BUCKET_NAME,
+            Key=object_key,
+        )
+
+    except ClientError as error:
+        error_code = str(
+            error.response.get("Error", {}).get("Code", "")
+        )
+
+        if error_code in ("404", "NotFound", "NoSuchKey"):
+            return False
+
+        raise
+
+    return (
+        response.get("ContentLength") == expected_size_bytes
+        and response.get("ContentType") == content_type
+    )
+
+
+R2_BUCKET_NAME = os.getenv(
+    "R2_BUCKET_NAME",
+    "leaftrade-media",
+)
+
+
+def generate_upload_url_for_key(
+    object_key: str,
+    content_type: str,
+) -> str:
+    return s3.generate_presigned_url(
+        "put_object",
+        Params={
+            "Bucket": R2_BUCKET_NAME,
+            "Key": object_key,
+            "ContentType": content_type,
+        },
+        ExpiresIn=600,
+    )
+
+
+
+
+
