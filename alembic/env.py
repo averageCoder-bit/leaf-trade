@@ -23,12 +23,13 @@ config = context.config
 
 load_dotenv()
 
-database_url = os.getenv("DATABASE_URL")
+database_url = os.getenv("MIGRATION_DATABASE_URL")
 
 if not database_url:
     raise RuntimeError(
-        "DATABASE_URL environment variable is not configured."
+        "MIGRATION_DATABASE_URL environment variable is not configured."
     )
+
 
 config.set_main_option(
     "sqlalchemy.url",
