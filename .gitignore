@@ -24,3 +24,20 @@ dist-ssr
 *.sw?
 
 .env
+
+# Python virtual environments
+.venv/
+venv/
+
+# Python compiled files
+__pycache__/
+*.py[cod]
+
+# Environment secrets
+.env
+.env.*
+!.env.example
+
+# Frontend dependencies and builds
+node_modules/
+dist/
