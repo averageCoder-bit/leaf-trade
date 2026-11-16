@@ -7,7 +7,7 @@ import sys
 current_dir = Path(__file__).resolve().parent.parent
 sys.path.append(str(current_dir))
 
-from schemas.product import CreateProductSchema
+from schemas.product import CreateProductSchema, UpdateProductSchema, ProductStatusSchema
 from database.database import get_db
 from models.product import Product
 from models.product_files import ProductFiles
@@ -561,7 +561,8 @@ def get_user_products(
             selectinload(Product.seller),
         )
         .filter(
-            Product.user_id == user.user_id
+            Product.user_id == user.user_id,
+            Product.listing_status != "deleted",
         )
         .order_by(
             Product.listed_at.desc(),
@@ -593,3 +594,108 @@ def get_marketplace_count(
 
     return {"total": total or 0}
 
+
+
+# ---------------- Seller-managed product lifecycle ----------------
+
+def _owned_product(db: Session, clerk_id: str, product_id: uuid.UUID) -> Product:
+    """Never disclose another seller's listing through owner-only routes."""
+    user = db.query(User).filter(User.clerk_user_id == clerk_id).first()
+    if user is None:
+        raise HTTPException(status_code=404, detail="User not found")
+    product = (
+        db.query(Product)
+        .options(selectinload(Product.files), selectinload(Product.seller))
+        .filter(Product.product_id == product_id, Product.user_id == user.user_id)
+        .with_for_update(of=Product)
+        .first()
+    )
+    if product is None or product.listing_status == "deleted":
+        raise HTTPException(status_code=404, detail="Product not found")
+    return product
+
+
+@router.get("/products/{product_id}", status_code=status.HTTP_200_OK)
+def get_public_product_detail(
+    product_id: uuid.UUID,
+    db: Session = Depends(get_db),
+):
+    """Public detail pages can only access published, unsold products."""
+    product = (
+        db.query(Product)
+        .options(selectinload(Product.files), selectinload(Product.seller))
+        .filter(
+            Product.product_id == product_id,
+            Product.listing_status == "active",
+            Product.sold_at.is_(None),
+        )
+        .first()
+    )
+    if product is None:
+        raise HTTPException(status_code=404, detail="Product not found")
+    return serialize_product(product)
+
+
+@router.patch("/products/{product_id}", status_code=status.HTTP_200_OK)
+def update_owned_product(
+    product_id: uuid.UUID,
+    changes: UpdateProductSchema,
+    current_user=Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    product = _owned_product(db, current_user.user_id, product_id)
+    if product.sold_at is not None or product.listing_status == "sold":
+        raise HTTPException(status_code=409, detail="Sold products cannot be edited")
+    if product.listing_status not in ("pending_upload", "active", "archived"):
+        raise HTTPException(status_code=409, detail="Product cannot be edited in its current state")
+
+    for field, value in changes.model_dump(exclude_unset=True).items():
+        setattr(product, field, value)
+
+    db.commit()
+    db.refresh(product)
+    return serialize_product(product)
+
+
+@router.patch("/products/{product_id}/status", status_code=status.HTTP_200_OK)
+def change_owned_product_status(
+    product_id: uuid.UUID,
+    changes: ProductStatusSchema,
+    current_user=Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    product = _owned_product(db, current_user.user_id, product_id)
+    if product.sold_at is not None or product.listing_status == "sold":
+        raise HTTPException(status_code=409, detail="Sold products cannot change status")
+
+    if changes.listing_status == "archived":
+        if product.listing_status not in ("active", "archived"):
+            raise HTTPException(status_code=409, detail="Only active listings can be archived")
+    else:
+        if product.listing_status not in ("archived", "active"):
+            raise HTTPException(status_code=409, detail="Only archived listings can be reactivated")
+        if not product.files:
+            raise HTTPException(status_code=409, detail="Listing has no media")
+
+    product.listing_status = changes.listing_status
+    db.commit()
+    db.refresh(product)
+    return serialize_product(product)
+
+
+@router.delete("/products/{product_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_owned_product(
+    product_id: uuid.UUID,
+    current_user=Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Soft delete: retain media and relational history for future orders.
+
+    A separate audited R2 cleanup process can be added once order rules exist.
+    """
+    product = _owned_product(db, current_user.user_id, product_id)
+    if product.sold_at is not None or product.listing_status == "sold":
+        raise HTTPException(status_code=409, detail="Sold products cannot be deleted")
+    product.listing_status = "deleted"
+    db.commit()
+    return Response(status_code=status.HTTP_204_NO_CONTENT)

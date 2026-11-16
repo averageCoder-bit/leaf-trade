@@ -140,3 +140,38 @@ class CreateProductSchema(BaseModel):
             )
 
         return self
+
+
+class UpdateProductSchema(BaseModel):
+    """Editable listing metadata. Omitted keys are left unchanged.
+
+    Media and ownership are managed by separate workflows.
+    """
+
+    name: Annotated[str, Field(min_length=1, max_length=50)] | None = None
+    price: Annotated[
+        Decimal,
+        Field(ge=Decimal("0.01"), le=Decimal("10000000"), max_digits=10, decimal_places=2),
+    ] | None = None
+    description: Annotated[str, Field(max_length=2000)] | None = None
+    condition: Annotated[str, Field(min_length=1, max_length=30)] | None = None
+    category: Annotated[str, Field(min_length=1, max_length=30)] | None = None
+    attributes: dict | None = None
+    delivery_options: Annotated[str, Field(min_length=1, max_length=30)] | None = None
+
+    @model_validator(mode="after")
+    def validate_update(self):
+        if not self.model_fields_set:
+            raise ValueError("Provide at least one field to update")
+
+        for field in self.model_fields_set:
+            value = getattr(self, field)
+            if value is None:
+                raise ValueError(f"{field} cannot be null")
+            if isinstance(value, str) and field != "description" and not value.strip():
+                raise ValueError(f"{field} cannot be blank")
+        return self
+
+
+class ProductStatusSchema(BaseModel):
+    listing_status: Literal["active", "archived"]
