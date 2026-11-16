@@ -62,3 +62,25 @@ export interface FetchProductsResponse {
   preview_image: string | null;
   seller_name: string | null;
 }
+
+export interface ProductDetails {
+  product_id: string;
+  user_id: string;
+  name: string;
+  price: number;
+  seller_name: string | null;
+  description: string;
+  condition: string;
+  category: string;
+  attributes: Record<string, unknown>;
+  delivery_options: string;
+  listing_status: string;
+  listed_at: string | null;
+  sold_at: string | null;
+  preview_image: string | null;
+  media: {
+    file_id: string;
+    url: string | null;
+    content_type: string;
+  }[];
+}

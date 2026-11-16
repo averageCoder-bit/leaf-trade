@@ -3,9 +3,9 @@ import type { Product } from "../schema/products";
 import { productSchema } from "../schema/products";
 import type {
   CreateProductResponse,
-  MarketplaceProduct,
   CompleteProductResponse,
   FetchProductsResponse,
+  ProductDetails,
 } from "../types/product";
 
 export default async function createProduct(
@@ -21,8 +21,12 @@ export default async function createProduct(
   return response;
 }
 
-export async function fetchProducts(): Promise<MarketplaceProduct> {
-  const { data } = await api.get<MarketplaceProduct>("/product/:id");
+export async function fetchProductById(
+  productId: string,
+): Promise<ProductDetails> {
+  const { data } = await api.get<ProductDetails>(
+    `/products/${encodeURIComponent(productId)}`,
+  );
 
   return data;
 }

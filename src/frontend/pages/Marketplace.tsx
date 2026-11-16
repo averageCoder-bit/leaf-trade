@@ -1,11 +1,16 @@
 import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { Store, CircleAlert, LoaderCircle } from "lucide-react";
+import { Search } from "lucide-react";
+
+import PageHeader from "../components/PageHeader";
 import SearchFilter from "../components/SearchFilterBar";
 import ProductGrid from "../components/products/ProductGrid";
 import Pagination from "../components/Pagination";
-import { Store, CircleAlert, LoaderCircle } from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
-import type { ProductGridPreview } from "../types/product";
 import StateDisplay from "../components/StateDisplay";
+import MobileSearchOverlay from "../components/MobileSearchOverlay";
+
+import type { ProductGridPreview } from "../types/product";
 
 import {
   fetchMarketplacePage,
@@ -14,10 +19,10 @@ import {
 
 const PAGE_SIZE = 12;
 
-const MarketPlace = () => {
+const Marketplace = () => {
   const [page, setPage] = useState(1);
-
-  // Fetch products for the current page
+  const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
+  // Fetch products for the selected page.
   const {
     data: products = [],
     isPending,
@@ -32,7 +37,7 @@ const MarketPlace = () => {
       }),
   });
 
-  // Get the total number of active products
+  // Fetch the total number of active marketplace listings.
   const {
     data: totalProducts = 0,
     isPending: countPending,
@@ -45,13 +50,14 @@ const MarketPlace = () => {
 
   const totalPages = Math.max(1, Math.ceil(totalProducts / PAGE_SIZE));
 
-  // Return to a valid page if the product count decreases
+  // Keep the current page valid when the listing count changes.
   useEffect(() => {
     if (!countPending && !countError && page > totalPages) {
       setPage(totalPages);
     }
   }, [page, totalPages, countPending, countError]);
 
+  // Transform API products into product grid previews.
   const previewProducts: ProductGridPreview[] = products.map((product) => ({
     id: product.product_id,
     image: product.preview_image ?? "",
@@ -61,15 +67,37 @@ const MarketPlace = () => {
     sellerName: product.seller_name ?? undefined,
   }));
 
-  return (
-    <div className="flex h-full w-full flex-col items-center overflow-y-auto scrollbar-none rounded-2xl bg-white p-4 pt-0 shadow-sm">
-      <div className="sticky top-0 z-10 mb-6 flex w-full shrink-0 justify-center bg-white py-4 md:justify-between">
-        <SearchFilter
-          placeholder="Search for products..."
-          filterTitle="Filter products"
-        />
-      </div>
+  const handleRefresh = () => {
+    void refetchProducts();
+    void refetchCount();
+  };
 
+  return (
+    <div className="flex h-full w-full min-h-0 flex-col overflow-y-auto scrollbar-none bg-white p-4 md:rounded-2xl md:p-6 md:shadow-sm">
+      {/* Reusable page header */}
+
+      <PageHeader
+        title="Marketplace"
+        description="Discover products from the community"
+        actions={
+          <SearchFilter
+            placeholder="Search for products..."
+            filterTitle="Filter products"
+          />
+        }
+        mobileAction={
+          <button
+            type="button"
+            onClick={() => setMobileSearchOpen(true)}
+            aria-label="Search products"
+            className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-full bg-gray-100 transition-colors hover:bg-gray-200"
+          >
+            <Search size={20} />
+          </button>
+        }
+      />
+
+      {/* Marketplace content */}
       <div className="flex w-full flex-1 flex-col">
         {isPending || countPending ? (
           <StateDisplay
@@ -85,12 +113,11 @@ const MarketPlace = () => {
             action={
               <button
                 type="button"
-                onClick={() => {
-                  void refetchProducts();
-                  void refetchCount();
-                }}
-                className="rounded-lg bg-[#75cf4c] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[#5fb33a] hover:cursor-pointer"
-              ></button>
+                onClick={handleRefresh}
+                className="cursor-pointer rounded-lg bg-[#75cf4c] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[#5fb33a]"
+              >
+                Refresh
+              </button>
             }
           />
         ) : previewProducts.length > 0 ? (
@@ -98,21 +125,45 @@ const MarketPlace = () => {
         ) : (
           <StateDisplay
             icon={<Store size={50} />}
-            title="No products available"
-            description="The marketplace is empty. Why not be the first seller?"
+            title={
+              totalProducts === 0
+                ? "No products available"
+                : "No products on this page"
+            }
+            description={
+              totalProducts === 0
+                ? "The marketplace is empty. Why not be the first seller?"
+                : "Some listings may have changed. Try refreshing the marketplace."
+            }
+            action={
+              totalProducts > 0 ? (
+                <button
+                  type="button"
+                  onClick={handleRefresh}
+                  className="cursor-pointer rounded-lg bg-[#75cf4c] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[#5fb33a]"
+                >
+                  Refresh
+                </button>
+              ) : undefined
+            }
           />
         )}
       </div>
-
-      {!countPending && !countError && totalProducts > 0 && (
-        <Pagination
-          page={page}
-          totalPages={totalPages}
-          onPageChange={setPage}
-        />
+      {/* Desktop and mobile pagination */}
+      {!countPending && !countError && !isError && totalProducts > 0 && (
+        <div className="mt-6 flex w-full justify-center">
+          <Pagination
+            page={page}
+            totalPages={totalPages}
+            onPageChange={setPage}
+          />
+        </div>
+      )}
+      {mobileSearchOpen && (
+        <MobileSearchOverlay onClose={() => setMobileSearchOpen(false)} />
       )}
     </div>
   );
 };
 
-export default MarketPlace;
+export default Marketplace;
